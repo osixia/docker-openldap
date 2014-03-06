@@ -1,4 +1,5 @@
 FROM phusion/baseimage:0.9.8
+MAINTAINER Nick Stenning <nick@whiteink.com>
 
 ENV HOME /root
 
