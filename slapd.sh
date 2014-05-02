@@ -31,23 +31,25 @@ slapd slapd/dump_database select when needed
 EOF
 
   dpkg-reconfigure -f noninteractive slapd
+  chown -R openldap:openldap /etc/ldap
+
+  # Lauch slapd deamon
+  slapd -h "ldap:///" -u openldap -g openldap
 
   if [ -e /etc/ldap/ssl/ldap.crt ] && [ -e /etc/ldap/ssl/ldap.key ] && [ -e /etc/ldap/ssl/ca.crt ]; then
     status "certificates found"
-  
-    chown openldap /etc/ldap/ssl/ldap.key
-    chmod 400 /etc/ldap/ssl/ldap.key
 
-    echo 'TLSCipherSuite   HIGH:MEDIUM:+SSLv3' >> /usr/share/slapd/slapd.conf
-    echo 'TLSCACertificateFile /etc/ldap/ssl/ca.crt' >> /usr/share/slapd/slapd.conf
-    echo 'TLSCertificateFile /etc/ldap/ssl/ldap.crt' >> /usr/share/slapd/slapd.conf
-    echo 'TLSCertificateKeyFile /etc/ldap/ssl/ldap.key' >> /usr/share/slapd/slapd.conf
-    echo 'TLSVerifyClient never' >> /usr/share/slapd/slapd.conf
+    chmod 600 /etc/ldap/ssl/ldap.key
 
-    sed -i "s/TLS_CACERT.*/TLS_CACERT       \/etc\/ldap\/ssl\/ca.crt/g" /etc/ldap/ldap.conf
-    sed -i '/TLS_CACERT/a\TLS_CIPHER_SUITE        HIGH:MEDIUM:+SSLv3' /etc/ldap/ldap.conf
+    # create DHParamFile if not found
+    [ -f /etc/ldap/ssl/dhparam.pem ] || openssl dhparam -out /etc/ldap/ssl/dhparam.pem 2048
+
+    ldapmodify -Y EXTERNAL -H ldapi:/// -f /etc/ldap/config/auto/tls.ldif 
 
   fi
+
+  # kill slapd deamon
+  pkill -f slapd
 
   touch /var/lib/ldap/docker_bootstrapped
 
@@ -57,4 +59,4 @@ fi
 
 status "starting slapd on default port 389"
 set -x
-exec /usr/sbin/slapd -h "ldap:///" -u openldap -g openldap -d 0
+exec /usr/sbin/slapd -h "ldap:///" -u openldap -g openldap -d -1

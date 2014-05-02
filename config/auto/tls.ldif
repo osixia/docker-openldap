@@ -1,0 +1,16 @@
+dn: cn=config
+add: olcTLSCACertificateFile
+olcTLSCACertificateFile: /etc/ldap/ssl/ca.crt
+-
+add: olcTLSCertificateFile
+olcTLSCertificateFile: /etc/ldap/ssl/ldap.crt
+-
+add: olcTLSCertificateKeyFile
+olcTLSCertificateKeyFile: /etc/ldap/ssl/ldap.key
+-
+add: olcTLSDHParamFile
+olcTLSDHParamFile: /etc/ldap/ssl/dhparam.pem
+-
+add: olcTLSVerifyClient
+olcTLSVerifyClient: never
+
