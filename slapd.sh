@@ -52,7 +52,7 @@ if [ -e /etc/ldap/ssl/ldap.crt ] && [ -e /etc/ldap/ssl/ldap.key ] && [ -e /etc/l
   # create DHParamFile if not found
   [ -f /etc/ldap/ssl/dhparam.pem ] || openssl dhparam -out /etc/ldap/ssl/dhparam.pem 2048
 
-  ldapmodify -Y EXTERNAL -H ldapi:/// -f /etc/ldap/config/auto/tls_add.ldif 
+  ldapmodify -Y EXTERNAL -H ldapi:/// -f /etc/ldap/config/auto/tls.ldif 
 
   # add fake dnsmasq route to certificate cn
   cn=$(openssl x509 -in /etc/ldap/ssl/ldap.crt -subject -noout | sed -n 's/.*CN=\(.*\).\^*/\1/p')
