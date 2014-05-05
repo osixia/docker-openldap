@@ -16,7 +16,7 @@ Add `-v some/host/dir:/etc/ldap/ssl` and `--dns=127.0.0.1` to the run command.
 
 and optionaly `dhparam.pem` this file is genereted automaticaly if not present.
 
-`--dns=127.0.0.1` allow to use certificate cn correctly.
+`--dns=127.0.0.1` allow to use the certificate cn correctly.
 
 
 ### Example
