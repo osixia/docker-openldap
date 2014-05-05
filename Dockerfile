@@ -22,14 +22,12 @@ CMD ["/sbin/my_init"]
 RUN apt-get -y update
 
 # Install openldap (slapd) and ldap-utils
-RUN LC_ALL=C DEBIAN_FRONTEND=noninteractive apt-get install -y slapd ldap-utils
+RUN LC_ALL=C DEBIAN_FRONTEND=noninteractive apt-get install -y slapd ldap-utils openssl
 
 # Expose ldap default port
 EXPOSE 389
 
 # Create TSL certificats directory
-# /!\ If used the deamon must be lauch with a hostname matching the certificat common mame
-# add -h my.hostname.com to the run command
 RUN mkdir /etc/ldap/ssl
 
 # Add config directory 

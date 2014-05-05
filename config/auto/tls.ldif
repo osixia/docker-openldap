@@ -1,16 +1,17 @@
 dn: cn=config
-add: olcTLSCACertificateFile
+changetype: modify
+replace: olcTLSCACertificateFile
 olcTLSCACertificateFile: /etc/ldap/ssl/ca.crt
 -
-add: olcTLSCertificateFile
+replace: olcTLSCertificateFile
 olcTLSCertificateFile: /etc/ldap/ssl/ldap.crt
 -
-add: olcTLSCertificateKeyFile
+replace: olcTLSCertificateKeyFile
 olcTLSCertificateKeyFile: /etc/ldap/ssl/ldap.key
 -
-add: olcTLSDHParamFile
+replace: olcTLSDHParamFile
 olcTLSDHParamFile: /etc/ldap/ssl/dhparam.pem
 -
-add: olcTLSVerifyClient
+replace: olcTLSVerifyClient
 olcTLSVerifyClient: never
 
