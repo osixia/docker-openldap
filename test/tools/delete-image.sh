@@ -6,5 +6,5 @@
 res=$(docker.io images | grep -c "$openldapTestImage")
 
 if [ $res -ne 0 ]; then
-  docker.io rmi openldap-test
+  docker.io rmi $openldapTestImage
 fi
