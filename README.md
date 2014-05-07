@@ -23,6 +23,7 @@ and optionaly `dhparam.pem` this file is genereted automaticaly if not present.
 
     docker run --dns=127.0.0.1 \
                -v /data/ldap/db:/var/lib/ldap \
+               -v /data/ldap/config:/etc/ldap/slapd.d \
                -v /data/ldap/ssl/:/etc/ldap/ssl \
                -v /data/ldap/log/:/var/log \
                -e LDAP_DOMAIN=example.com \
