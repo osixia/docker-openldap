@@ -46,8 +46,9 @@ run_test () {
 
 ./test/tools/prepare.sh > /dev/null 2>&1
 run_test build "Successfully built"
-run_test run-simple "dn: dc=example,dc=com"
-run_test run-tls "dn: dc=example,dc=com"
+run_test simple "dn: dc=example,dc=com"
+run_test tls "dn: dc=example,dc=com"
+run_test db "dn: dc=otherdomain,dc=com"
 ./test/tools/end.sh > /dev/null 2>&1
 
 echo "------- Test finished -------"
