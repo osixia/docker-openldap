@@ -1,8 +1,11 @@
 #!/bin/sh
 
-docker.io run  --name openldap-test-container --dns=127.0.0.1 -v `pwd`/test/ssl:/etc/ldap/ssl -p 65389:389 -d openldap-test
+dir=$(dirname $0)
+. $dir/tools/config.prop
 
-cert=$(echo `pwd`/test/ssl/ldap.crt)
+docker.io run  --name $openldapTestContainer --dns=127.0.0.1 -v `pwd`/test/ssl:/etc/ldap/ssl -p 65389:389 -d $openldapTestImage
+
+cert=$(echo $dir/ssl/ldap.crt)
 certCN=$(openssl x509 -in $cert -subject -noout | sed -n 's/.*CN=\(.*\)\/*\(.*\)/\1/p')
 addLine=$(echo "127.0.0.1" $certCN)
 
@@ -18,4 +21,4 @@ sed -i '/'"$addLine"'/d' /etc/hosts
 cp /etc/ldap/ldap.conf.old /etc/ldap/ldap.conf
 rm /etc/ldap/ldap.conf.old
 
-$(pwd)/test/tools/delete-container.sh
+$dir/tools/delete-container.sh
