@@ -6,19 +6,17 @@ status () {
   echo "---> ${@}" >&2
 }
 
+
+set -x
+: LDAP_ADMIN_PWD=${LDAP_ADMIN_PWD}
+: LDAP_DOMAIN=${LDAP_DOMAIN}
+: LDAP_ORGANISATION=${LDAP_ORGANISATION}
+
+
+############ Base config ############
 if [ ! -e /var/lib/ldap/docker_bootstrapped ]; then
-  status "configuring slapd for first run"
+  status "configuring slapd database"
 
-  set -x
-  : LDAP_ADMIN_PWD=${LDAP_ADMIN_PWD}
-  : LDAP_DOMAIN=${LDAP_DOMAIN}
-  : LDAP_ORGANISATION=${LDAP_ORGANISATION}
-
-
-  # permission error on /etc/ldap/slapd.conf if not set?! :'(
-  adduser openldap root
-
-  ############ Base config ############
   cat <<EOF | debconf-set-selections
 slapd slapd/internal/generated_adminpw password ${LDAP_ADMIN_PWD}
 slapd slapd/internal/adminpw password ${LDAP_ADMIN_PWD}
@@ -37,7 +35,20 @@ EOF
 
   dpkg-reconfigure -f noninteractive slapd
 
-  ############ Custom config ############
+  touch /var/lib/ldap/docker_bootstrapped
+
+else
+  status "slapd database found"
+fi
+
+
+############ Custom config ############
+if [ ! -e /etc/ldap/config/docker_bootstrapped ]; then
+  status "Custom config"
+
+  # permission error on /etc/ldap/slapd.conf if not set?! :'(
+  adduser openldap root
+
   slapd -h "ldap:/// ldapi:///" -u openldap -g openldap 
   chown -R openldap:openldap /etc/ldap
 
@@ -69,9 +80,7 @@ EOF
 
   kill -INT `cat /run/slapd/slapd.pid`
 
-  unset LDAP_ADMIN_PWD
-
-  touch /var/lib/ldap/docker_bootstrapped
+ touch /etc/ldap/config/docker_bootstrapped
 
 else
   status "found already-configured slapd"
