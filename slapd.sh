@@ -6,14 +6,14 @@ status () {
   echo "---> ${@}" >&2
 }
 
-set -x
-: LDAP_ADMIN_PWD=${LDAP_ADMIN_PWD}
-: LDAP_DOMAIN=${LDAP_DOMAIN}
-: LDAP_ORGANISATION=${LDAP_ORGANISATION}
-
-
 if [ ! -e /var/lib/ldap/docker_bootstrapped ]; then
   status "configuring slapd for first run"
+
+  set -x
+  : LDAP_ADMIN_PWD=${LDAP_ADMIN_PWD}
+  : LDAP_DOMAIN=${LDAP_DOMAIN}
+  : LDAP_ORGANISATION=${LDAP_ORGANISATION}
+
 
   # permission error on /etc/ldap/slapd.conf if not set?! :'(
   adduser openldap root
@@ -37,7 +37,6 @@ EOF
 
   dpkg-reconfigure -f noninteractive slapd
 
-
   ############ Custom config ############
   slapd -h "ldap:/// ldapi:///" -u openldap -g openldap 
   chown -R openldap:openldap /etc/ldap
@@ -60,7 +59,7 @@ EOF
   fi
 
   # Replication
-  # todo
+  # todo :)
 
   # Other config files
   for f in $(find /etc/ldap/config -maxdepth 1 -name \*.ldif -type f); do
@@ -69,6 +68,8 @@ EOF
   done
 
   kill -INT `cat /run/slapd/slapd.pid`
+
+  unset LDAP_ADMIN_PWD
 
   touch /var/lib/ldap/docker_bootstrapped
 
