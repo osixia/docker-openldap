@@ -1,6 +1,10 @@
 #!/bin/sh
 
-# Tests
+# Usage
+# sudo ./test.sh 
+# add -v for verbose mode
+
+verbose=$1
 error=0
 ok=0
 
@@ -24,8 +28,11 @@ run_test () {
 
   echo_start $fction
 
-  #./test/$1.sh | tee $out 2>&1
-  ./test/$1.sh > $out 2>&1
+  if [ -z ${verbose} ]; then
+    ./test/$1.sh > $out 2>&1
+  else
+    ./test/$1.sh | tee $out 2>&1
+  fi
   
   if [ "$(grep -c "$2" $out)" -eq 0 ]; then
     echo_error $fction
@@ -37,11 +44,11 @@ run_test () {
 }
 
 
-./test/tools/prepare.sh
+./test/tools/prepare.sh > /dev/null 2>&1
 run_test build "Successfully built"
 run_test run-simple "dn: dc=example,dc=com"
 run_test run-tls "dn: dc=example,dc=com"
-./test/tools/end.sh
+./test/tools/end.sh > /dev/null 2>&1
 
 echo "------- Test finished -------"
 echo $error " failed " $ok " passed"

@@ -1,4 +1,4 @@
 #!/bin/sh
 
-./test/tools/delete-container.sh
-./test/tools/delete-image.sh
+$(dirname $0)/delete-container.sh
+$(dirname $0)/delete-image.sh
