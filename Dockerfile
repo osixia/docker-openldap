@@ -15,6 +15,9 @@ ENV LDAP_DOMAIN example.com
 # Disable SSH
 RUN rm -rf /etc/service/sshd /etc/my_init.d/00_regen_ssh_host_keys.sh
 
+# DIsable nginx and php
+RUN rm -rf /etc/service/nginx /etc/service/php5-fpm
+
 # Use baseimage-docker's init system.
 CMD ["/sbin/my_init"]
 
