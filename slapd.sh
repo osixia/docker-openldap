@@ -46,9 +46,6 @@ fi
 if [ ! -e /etc/ldap/config/docker_bootstrapped ]; then
   status "Custom config"
 
-  # permission error on /etc/ldap/slapd.conf if not set?! :'(
-  adduser openldap root
-
   slapd -h "ldapi:///" -u openldap -g openldap 
   chown -R openldap:openldap /etc/ldap
 
