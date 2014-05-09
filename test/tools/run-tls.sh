@@ -6,7 +6,7 @@ runOptions="--dns=127.0.0.1 -v `pwd`/test/ssl:/etc/ldap/ssl"
 
 cert=$(echo $dir/ssl/ldap.crt)
 certCN=$(openssl x509 -in $cert -subject -noout | sed -n 's/.*CN=\(.*\)\/*\(.*\)/\1/p')
-addLine=$(echo "127.0.0.1" $certCN)
+addLine=$(echo $IP $certCN)
 
 echo $addLine >> /etc/hosts
 cp /etc/ldap/ldap.conf /etc/ldap/ldap.conf.old
