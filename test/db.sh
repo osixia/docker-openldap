@@ -17,7 +17,8 @@ $dir/tools/delete-container.sh
 
 runOptions="-v $openldapTestDir/db:/var/lib/ldap -v $openldapTestDir/config:/etc/ldap/slapd.d"
 . $dir/tools/run-simple.sh
-ldapsearch -x -h localhost -p 65389 -b dc=otherdomain,dc=com
+echo "ldapsearch -x -h $IP -b dc=otherdomain,dc=com"
+ldapsearch -x -h $IP -b dc=otherdomain,dc=com
 
 rm -r $openldapTestDir
 $dir/tools/delete-container.sh
