@@ -3,22 +3,22 @@
 dir=$(dirname $0)
 . $dir/tools/config.prop
 
-if [ -d "$openldapTestDir" ]; then
-  rm -r $openldapTestDir
+if [ -d "$testDir" ]; then
+  rm -r $testDir
 fi
 
-mkdir $openldapTestDir
-mkdir $openldapTestDir/db
-mkdir $openldapTestDir/config
+mkdir $testDir
+mkdir $testDir/db
+mkdir $testDir/config
 
-runOptions="-e LDAP_DOMAIN=otherdomain.com -v $openldapTestDir/db:/var/lib/ldap -v $openldapTestDir/config:/etc/ldap/slapd.d"
-. $dir/tools/run-simple.sh
+runOptions="-e LDAP_DOMAIN=otherdomain.com -v $testDir/db:/var/lib/ldap -v $testDir/config:/etc/ldap/slapd.d"
+. $dir/tools/run-container.sh
 $dir/tools/delete-container.sh
 
-runOptions="-v $openldapTestDir/db:/var/lib/ldap -v $openldapTestDir/config:/etc/ldap/slapd.d"
-. $dir/tools/run-simple.sh
+runOptions="-v $testDir/db:/var/lib/ldap -v $testDir/config:/etc/ldap/slapd.d"
+. $dir/tools/run-container.sh
 echo "ldapsearch -x -h $IP -b dc=otherdomain,dc=com"
 ldapsearch -x -h $IP -b dc=otherdomain,dc=com
 
-rm -r $openldapTestDir
+rm -r $testDir
 $dir/tools/delete-container.sh

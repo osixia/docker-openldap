@@ -3,8 +3,8 @@
 dir=$(dirname $0)
 . $dir/tools/config.prop
 
-. $dir/tools/run-tls.sh
+. $dir/tls/run.sh
 echo "ldapsearch -x -h $certCN -b dc=example,dc=com -ZZ"
 ldapsearch -x -h $certCN -b dc=example,dc=com -ZZ
 
-. $dir/tools/end-tls.sh
+. $dir/tls/end.sh
