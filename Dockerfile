@@ -9,11 +9,13 @@ ENV LDAP_ADMIN_PWD toor
 ENV LDAP_ORGANISATION Example Inc.
 ENV LDAP_DOMAIN example.com
 
-# /!\ To store the data outside the container, mount /var/lib/ldap as a data volume
-# add -v /some/host/directory:/var/lib/ldap to the run command
+# /!\ To store the data outside the container, 
+# mount /var/lib/ldap and /etc/ldap/slapd.d as a data volume add
+# -v /some/host/directory:/var/lib/ldap and -v /some/other/host/directory:/etc/ldap/slapd.d
+# to the run command
 
 # Disable SSH
-RUN rm -rf /etc/service/sshd /etc/my_init.d/00_regen_ssh_host_keys.sh
+# RUN rm -rf /etc/service/sshd /etc/my_init.d/00_regen_ssh_host_keys.sh
 
 # Enable dnsmasq
 RUN /etc/enable-service dnsmasq
@@ -35,11 +37,11 @@ RUN mkdir /etc/ldap/ssl
 
 # Add config directory 
 RUN mkdir /etc/ldap/config
-ADD config /etc/ldap/config
+ADD service/slapd/config /etc/ldap/config
 
 # Add slapd deamon
 RUN mkdir /etc/service/slapd
-ADD slapd.sh /etc/service/slapd/run
+ADD service/slapd/slapd.sh /etc/service/slapd/run
 
 # Clear out the local repository of retrieved package files
 RUN apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
