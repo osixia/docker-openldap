@@ -1,4 +1,4 @@
-## docker-openldap
+# docker-openldap
 
 Fork of Nick Stenning docker-slapd :
 https://github.com/nickstenning/docker-slapd
@@ -32,7 +32,7 @@ and optionaly `dhparam.pem` this file is genereted automaticaly if not present.
                -p 389:389 -d osixia/openldap
 
 
-### License
+## License
 
 The MIT License (MIT)
 
