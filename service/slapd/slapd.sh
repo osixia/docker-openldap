@@ -46,7 +46,8 @@ fi
 if [ ! -e /etc/ldap/config/docker_bootstrapped ]; then
   status "Custom config"
 
-  slapd -h "ldapi:///" 
+  slapd -h "ldapi:///" -u openldap -g openldap 
+  chown -R openldap:openldap /etc/ldap 
 
   # TLS
   if [ -e /etc/ldap/ssl/ldap.crt ] && [ -e /etc/ldap/ssl/ldap.key ] && [ -e /etc/ldap/ssl/ca.crt ]; then
@@ -85,5 +86,5 @@ fi
 status "starting slapd on default port 389"
 set -x
 #with debug:
-#exec /usr/sbin/slapd -h "ldap:///" -d -1
-exec /usr/sbin/slapd -h "ldap:///" 
+#exec /usr/sbin/slapd -h "ldap:///" -u openldap -g openldap -d -1
+exec /usr/sbin/slapd -h "ldap:///" -u openldap -g openldap 
