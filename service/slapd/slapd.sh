@@ -46,8 +46,7 @@ fi
 if [ ! -e /etc/ldap/config/docker_bootstrapped ]; then
   status "Custom config"
 
-  slapd -h "ldapi:///" -u openldap -g openldap 
-  chown -R openldap:openldap /etc/ldap
+  slapd -h "ldapi:///" 
 
   # TLS
   if [ -e /etc/ldap/ssl/ldap.crt ] && [ -e /etc/ldap/ssl/ldap.key ] && [ -e /etc/ldap/ssl/ca.crt ]; then
