@@ -23,21 +23,21 @@ echo_ok () {
 }
 
 run_test () {
-  fction=$1
+  test=$1
   out=test/test.out
 
-  echo_start $fction
+  echo_start $test
 
   if [ -z ${verbose} ]; then
-    ./test/$1.sh > $out 2>&1
+    ./test/$test > $out 2>&1
   else
-    ./test/$1.sh | tee $out 2>&1
+    ./test/$test | tee $out 2>&1
   fi
   
   if [ "$(grep -c "$2" $out)" -eq 0 ]; then
-    echo_error $fction
+    echo_error $test
   else
-    echo_ok  $fction
+    echo_ok  $test
   fi
 
   rm $out
