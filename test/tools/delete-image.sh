@@ -6,5 +6,5 @@
 res=$(docker.io images | grep -c "$testImage")
 
 if [ $res -ne 0 ]; then
-  #docker.io rmi $testImage
+  docker.io rmi $testImage
 fi
