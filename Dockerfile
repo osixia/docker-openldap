@@ -1,4 +1,4 @@
-FROM osixia/baseimage
+FROM osixia/baseimage:0.4.0
 MAINTAINER Bertrand Gouny <bertrand.gouny@osixia.fr>
 
 # From Nick Stenning's work
@@ -18,7 +18,7 @@ ENV LDAP_DOMAIN example.com
 # RUN rm -rf /etc/service/sshd /etc/my_init.d/00_regen_ssh_host_keys.sh
 
 # Enable dnsmasq
-RUN /etc/enable-service dnsmasq
+RUN /sbin/enable-service dnsmasq
 
 # Use baseimage-docker's init system.
 CMD ["/sbin/my_init"]
