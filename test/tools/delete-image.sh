@@ -1,7 +1,5 @@
 #!/bin/sh
 
-. $(dirname $0)/config.prop
-
 # remove test image
 res=$(docker.io images | grep -c "$testImage")
 
