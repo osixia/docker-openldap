@@ -1,7 +1,6 @@
 #!/bin/sh
 
 dir=$(dirname $0)
-. $dir/tools/config.prop
 
 if [ -d "$testDir" ]; then
   rm -r $testDir

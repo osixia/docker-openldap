@@ -1,7 +1,5 @@
 #!/bin/sh
 
-. $(dirname $0)/config.prop
-
 # remove test container
 res=$(docker.io ps -a | grep -c "$testContainer")
 
