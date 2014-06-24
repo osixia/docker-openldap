@@ -1,5 +1,7 @@
 #!/bin/sh
 
+
+rm -rf $testDir
 ./test/tools/delete-container.sh 
 ./test/tools/delete-image.sh > /dev/null 2>&1
 
