@@ -1,5 +1,5 @@
 NAME = osixia/openldap
-VERSION = 0.8.0
+VERSION = 0.9.0
 
 .PHONY: all build test tag_latest release
 
