@@ -1,7 +1,7 @@
 #!/bin/sh
 
-echo "docker.io run --name $testContainer $runOptions -d $testImage"
-ID=`docker.io run --name $testContainer $runOptions -d $testImage`
+echo "docker.io run --name $testContainer $runOptions -d $testImage $runCommand"
+ID=`docker.io run --name $testContainer $runOptions -d $testImage $runCommand`
 sleep 10
 
 echo " --> Obtaining IP"

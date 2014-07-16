@@ -9,7 +9,7 @@ build:
 	docker.io build -t $(NAME):$(VERSION) --rm .
 
 test:
-	env NAME=$(NAME) VERSION=$(VERSION) ./test.sh
+	env NAME=$(NAME) VERSION=$(VERSION) ./test-repository.sh
 
 tag_latest:
 	docker.io tag $(NAME):$(VERSION) $(NAME):latest
