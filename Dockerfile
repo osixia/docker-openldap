@@ -1,4 +1,4 @@
-FROM osixia/baseimage:0.5.0
+FROM osixia/baseimage:0.6.0
 MAINTAINER Bertrand Gouny <bertrand.gouny@osixia.fr>
 
 # From Nick Stenning's work
@@ -27,7 +27,7 @@ CMD ["/sbin/my_init"]
 RUN apt-get -y update
 
 # Install openldap (slapd) and ldap-utils
-RUN LC_ALL=C DEBIAN_FRONTEND=noninteractive apt-get install -y slapd ldap-utils openssl
+RUN LC_ALL=C DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends slapd ldap-utils openssl
 
 # Expose ldap default port
 EXPOSE 389
