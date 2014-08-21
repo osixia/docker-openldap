@@ -9,6 +9,8 @@ ENV LDAP_ADMIN_PWD toor
 ENV LDAP_ORGANISATION Example Inc.
 ENV LDAP_DOMAIN example.com
 
+ENV WITH_MMC_AGENT false
+
 # /!\ To store the data outside the container, 
 # mount /var/lib/ldap and /etc/ldap/slapd.d as a data volume add
 # -v /some/host/directory:/var/lib/ldap and -v /some/other/host/directory:/etc/ldap/slapd.d
@@ -27,7 +29,7 @@ CMD ["/sbin/my_init"]
 RUN apt-get -y update
 
 # Install openldap (slapd) and ldap-utils
-RUN LC_ALL=C DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends slapd ldap-utils openssl
+RUN LC_ALL=C DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends mmc-agent slapd ldap-utils
 
 # Expose ldap default port
 EXPOSE 389

@@ -49,6 +49,17 @@ if [ ! -e /etc/ldap/config/docker_bootstrapped ]; then
   slapd -h "ldapi:///" -u openldap -g openldap 
   chown -R openldap:openldap /etc/ldap 
 
+  # Add mds ldap schema
+  cp /usr/share/doc/mmc/contrib/base/mmc.schema /etc/ldap/schema/ 
+  cp /usr/share/doc/mmc/contrib/mail/mail.schema /etc/ldap/schema/
+
+  echo "include /etc/ldap/schema/mmc.schema" >> convert_schemas
+  echo "include /etc/ldap/schema/mail.schema" >> convert_schemas
+
+  slaptest -f convert_schemas 
+  ldapadd -Y EXTERNAL -H ldapi:/// -f cn\=config/cn\=schema/cn\=\{0\}mmc.ldif
+  ldapadd -Y EXTERNAL -H ldapi:/// -f cn\=config/cn\=schema/cn\=\{0\}mail.ldif
+
   # TLS
   if [ -e /etc/ldap/ssl/ldap.crt ] && [ -e /etc/ldap/ssl/ldap.key ] && [ -e /etc/ldap/ssl/ca.crt ]; then
     status "certificates found"
