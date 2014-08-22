@@ -25,14 +25,17 @@ RUN /sbin/enable-service dnsmasq
 # Use baseimage-docker's init system.
 CMD ["/sbin/my_init"]
 
+# Add Mandriva MDS repository
+RUN echo "deb http://mds.mandriva.org/pub/mds/debian wheezy main" >> /etc/apt/sources.list
+
 # Resynchronize the package index files from their sources
 RUN apt-get -y update
 
-# Install openldap (slapd) and ldap-utils
-RUN LC_ALL=C DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends mmc-agent slapd ldap-utils
+# Install openldap (slapd),ldap-utils and mmc tools
+RUN LC_ALL=C DEBIAN_FRONTEND=noninteractive apt-get install -y --force-yes --no-install-recommends mmc-agent python-mmc-mail slapd ldap-utils
 
-# Expose ldap default port
-EXPOSE 389
+# Expose ldap and mmc-agent default ports
+EXPOSE 389 7080
 
 # Create TLS certificats directory
 RUN mkdir /etc/ldap/ssl
@@ -40,6 +43,15 @@ RUN mkdir /etc/ldap/ssl
 # Add config directory 
 RUN mkdir /etc/ldap/config
 ADD service/slapd/config /etc/ldap/config
+ADD service/mmc-agent/assets /etc/ldap/config
+
+# mmc-agent config on container start
+RUN mkdir -p /etc/my_init.d
+ADD service/mmc-agent/install.sh /etc/my_init.d/mmc-agent.sh
+
+# Add mmc-agent deamon
+RUN mkdir /etc/service/mmc-agent
+ADD service/mmc-agent/mmc-agent.sh /etc/service/mmc-agent/run
 
 # Add slapd deamon
 RUN mkdir /etc/service/slapd
