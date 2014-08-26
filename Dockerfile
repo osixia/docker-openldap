@@ -1,5 +1,5 @@
 FROM osixia/baseimage:0.8.2
-MAINTAINER Bertrand Gouny <bertrand.gouny@osixia.fr>
+MAINTAINER Bertrand Gouny <bertrand.gouny@osixia.net>
 
 # From Nick Stenning's work
 # https://github.com/nickstenning/docker-slapd
