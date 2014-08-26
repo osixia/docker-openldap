@@ -43,19 +43,11 @@ fi
 
 
 ############ Custom config ############
-if [ ! -e /etc/ldap/config/docker_bootstrapped ]; then
+if [ ! -e /etc/ldap/slapd.d/docker_bootstrapped ]; then
   status "Custom config"
 
   slapd -h "ldapi:///" -u openldap -g openldap 
   chown -R openldap:openldap /etc/ldap 
-
-  if [ "$WITH_MMC_AGENT" = true ]; then
-
-    ldapadd -Y EXTERNAL -H ldapi:/// -f /etc/ldap/schema/converted/cn\=config/cn\=schema/cn=\{4\}mmc.ldif -Q 
-    ldapadd -Y EXTERNAL -H ldapi:/// -f /etc/ldap/schema/converted/cn\=config/cn\=schema/cn=\{5\}mail.ldif -Q 
-
-  fi
-
 
   # TLS
   if [ -e /etc/ldap/ssl/ldap.crt ] && [ -e /etc/ldap/ssl/ldap.key ] && [ -e /etc/ldap/ssl/ca.crt ]; then
@@ -66,7 +58,7 @@ if [ ! -e /etc/ldap/config/docker_bootstrapped ]; then
     # create DHParamFile if not found
     [ -f /etc/ldap/ssl/dhparam.pem ] || openssl dhparam -out /etc/ldap/ssl/dhparam.pem 2048
 
-    ldapmodify -Y EXTERNAL -H ldapi:/// -f /etc/ldap/config/auto/tls.ldif -Q 
+    ldapmodify -Y EXTERNAL -H ldapi:/// -f /etc/ldap/config/modify/auto/tls.ldif -Q 
 
     # add fake dnsmasq route to certificate cn
     cn=$(openssl x509 -in /etc/ldap/ssl/ldap.crt -subject -noout | sed -n 's/.*CN=\(.*\)\/*\(.*\)/\1/p')
@@ -77,15 +69,21 @@ if [ ! -e /etc/ldap/config/docker_bootstrapped ]; then
   # Replication
   # todo :)
 
-  # Other config files
-  for f in $(find /etc/ldap/config -maxdepth 1 -name \*.ldif -type f); do
+  # Add config
+  for f in $(find /etc/ldap/config/add -maxdepth 1 -name \*.ldif -type f); do
+    status "Processing file ${f}"
+    ldapadd -Y EXTERNAL -H ldapi:/// -f $f -Q 
+  done
+
+  # Modify config 
+  for f in $(find /etc/ldap/config/modify -maxdepth 1 -name \*.ldif -type f); do
     status "Processing file ${f}"
     ldapmodify -Y EXTERNAL -H ldapi:/// -f $f -Q 
   done
 
   kill -INT `cat /run/slapd/slapd.pid`
 
- touch /etc/ldap/config/docker_bootstrapped
+  touch /etc/ldap/slapd.d/docker_bootstrapped
 
 else
   status "found already-configured slapd"

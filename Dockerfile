@@ -1,4 +1,4 @@
-FROM osixia/baseimage:0.6.0
+FROM osixia/baseimage:0.8.2
 MAINTAINER Bertrand Gouny <bertrand.gouny@osixia.fr>
 
 # From Nick Stenning's work
@@ -8,8 +8,6 @@ MAINTAINER Bertrand Gouny <bertrand.gouny@osixia.fr>
 ENV LDAP_ADMIN_PWD toor
 ENV LDAP_ORGANISATION Example Inc.
 ENV LDAP_DOMAIN example.com
-
-ENV WITH_MMC_AGENT false
 
 # /!\ To store the data outside the container, 
 # mount /var/lib/ldap and /etc/ldap/slapd.d as a data volume add
@@ -25,33 +23,21 @@ RUN /sbin/enable-service dnsmasq
 # Use baseimage-docker's init system.
 CMD ["/sbin/my_init"]
 
-# Add Mandriva MDS repository
-RUN echo "deb http://mds.mandriva.org/pub/mds/debian wheezy main" >> /etc/apt/sources.list
-
 # Resynchronize the package index files from their sources
 RUN apt-get -y update
 
-# Install openldap (slapd),ldap-utils and mmc tools
-RUN LC_ALL=C DEBIAN_FRONTEND=noninteractive apt-get install -y --force-yes --no-install-recommends mmc-agent python-mmc-mail slapd ldap-utils
+# Install openldap (slapd) and ldap-utils
+RUN LC_ALL=C DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends slapd ldap-utils
 
-# Expose ldap and mmc-agent default ports
-EXPOSE 389 7080
+# Expose ldap default port
+EXPOSE 389
 
 # Create TLS certificats directory
 RUN mkdir /etc/ldap/ssl
 
 # Add config directory 
 RUN mkdir /etc/ldap/config
-ADD service/slapd/config /etc/ldap/config
-ADD service/mmc-agent/assets /etc/ldap/config
-
-# mmc-agent config on container start
-RUN mkdir -p /etc/my_init.d
-ADD service/mmc-agent/install.sh /etc/my_init.d/mmc-agent.sh
-
-# Add mmc-agent deamon
-RUN mkdir /etc/service/mmc-agent
-ADD service/mmc-agent/mmc-agent.sh /etc/service/mmc-agent/run
+ADD service/slapd/assets/config /etc/ldap/config
 
 # Add slapd deamon
 RUN mkdir /etc/service/slapd

@@ -1,6 +1,0 @@
-include /etc/ldap/schema/core.schema
-include /etc/ldap/schema/cosine.schema
-include /etc/ldap/schema/nis.schema
-include /etc/ldap/schema/inetorgperson.schema
-include /usr/share/doc/mmc/contrib/base/mmc.schema
-include /usr/share/doc/mmc/contrib/mail/mail.schema
