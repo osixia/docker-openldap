@@ -49,6 +49,21 @@ if [ ! -e /etc/ldap/slapd.d/docker_bootstrapped ]; then
   slapd -h "ldapi:///" -u openldap -g openldap 
   chown -R openldap:openldap /etc/ldap 
 
+  if [ "$WITH_MMC_AGENT" = true ]; then
+
+    # Convert needed mmc ldap schema to ldif
+    mkdir -p /etc/ldap/schema/converted
+    slaptest -f /etc/mmc/agent/assets/convert_to_ldif -F /etc/ldap/schema/converted
+
+    sed -i -e 's/^dn:.*$/dn: cn=mmc,cn=schema,cn=config/; s/^cn:.*$/cn: mmc/; /^structuralObjectClass:.*$/d; /^entryUUID:.*$/d; /^creatorsName:.*$/d; /^createTimestamp:.*$/d; /^entryCSN:.*$/d; /^modifiersName:.*$/d; /^modifyTimestamp:.*$/d' /etc/ldap/schema/converted/cn\=config/cn\=schema/cn=\{4\}mmc.ldif
+  
+    sed -i -e 's/^dn:.*$/dn: cn=mail,cn=schema,cn=config/; s/^cn:.*$/cn: mail/; /^structuralObjectClass:.*$/d; /^entryUUID:.*$/d; /^creatorsName:.*$/d; /^createTimestamp:.*$/d; /^entryCSN:.*$/d; /^modifiersName:.*$/d; /^modifyTimestamp:.*$/d' /etc/ldap/schema/converted/cn\=config/cn\=schema/cn=\{5\}mail.ldif
+
+    ldapadd -Y EXTERNAL -H ldapi:/// -f /etc/ldap/schema/converted/cn\=config/cn\=schema/cn=\{4\}mmc.ldif -Q 
+    ldapadd -Y EXTERNAL -H ldapi:/// -f /etc/ldap/schema/converted/cn\=config/cn\=schema/cn=\{5\}mail.ldif -Q 
+
+  fi
+
   # TLS
   if [ -e /etc/ldap/ssl/ldap.crt ] && [ -e /etc/ldap/ssl/ldap.key ] && [ -e /etc/ldap/ssl/ca.crt ]; then
     status "certificates found"
