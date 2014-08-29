@@ -1,5 +1,5 @@
 #!/bin/sh
 
-docker.io build -t $testImage .
-#docker.io build --no-cache=true -t $testImage .
+docker build -t $testImage .
+#docker build --no-cache=true -t $testImage .
 
