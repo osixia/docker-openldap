@@ -1,4 +1,4 @@
-FROM osixia/baseimage:0.8.2
+FROM osixia/baseimage:0.9.0
 MAINTAINER Bertrand Gouny <bertrand.gouny@osixia.net>
 
 # From Nick Stenning's work
