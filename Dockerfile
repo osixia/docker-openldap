@@ -18,6 +18,8 @@ ENV MMC_AGENT_PASSWORD passw0rd
 # -v /some/host/directory:/var/lib/ldap and -v /some/other/host/directory:/etc/ldap/slapd.d
 # to the run command
 
+VOLUME ["/var/lib/ldap", "/etc/ldap/slapd.d"]
+
 # Disable SSH
 # RUN rm -rf /etc/service/sshd /etc/my_init.d/00_regen_ssh_host_keys.sh
 
@@ -43,18 +45,13 @@ EXPOSE 389 7080
 RUN mkdir /etc/ldap/ssl
 
 # Add config directory 
-RUN mkdir /etc/ldap/config
 ADD service/slapd/assets/config /etc/ldap/config
-
-RUN mkdir -p /etc/mmc/agent/assets
 ADD service/mmc-agent/assets /etc/mmc/agent/assets
 
 # Add slapd deamon
-RUN mkdir /etc/service/slapd
 ADD service/slapd/slapd.sh /etc/service/slapd/run
 
 # Add mmc-agent deamon
-RUN mkdir /etc/service/mmc-agent
 ADD service/mmc-agent/mmc-agent.sh /etc/service/mmc-agent/run
 
 # Clear out the local repository of retrieved package files
