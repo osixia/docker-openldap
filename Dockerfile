@@ -5,6 +5,7 @@ MAINTAINER Bertrand Gouny <bertrand.gouny@osixia.net>
 # https://github.com/nickstenning/docker-slapd
 
 # Default configuration: can be overridden at the docker command line
+ENV DOMAIN_NAME ldap.example.com
 ENV LDAP_DOMAIN example.com
 ENV LDAP_ADMIN_PWD toor
 ENV LDAP_ORGANISATION Example Inc.

@@ -37,6 +37,7 @@ if [ "$WITH_MMC_AGENT" = true ]; then
         done
       }
 
+      DOMAIN_NAME=${DOMAIN_NAME}
       WITH_MMC_AGENT=${WITH_MMC_AGENT}
       LDAP_DOMAIN=${LDAP_DOMAIN}
       LDAP_ADMIN_PWD=${LDAP_ADMIN_PWD}
@@ -44,13 +45,13 @@ if [ "$WITH_MMC_AGENT" = true ]; then
       MMC_AGENT_PASSWORD=${MMC_AGENT_PASSWORD}
 
       # mmc-agent config
-      sed -i -e "s/127.0.0.1/0.0.0.0/" /etc/mmc/agent/config.ini
+      sed -i -e "s/127.0.0.1/172.17.0.0/" /etc/mmc/agent/config.ini #listen on docker default network
       sed -i -e "s/login = mmc/login = $MMC_AGENT_LOGIN/" /etc/mmc/agent/config.ini
       sed -i -e "s/password = s3cr3t/password = $MMC_AGENT_PASSWORD/" /etc/mmc/agent/config.ini
 
       # generate ssl certificate
       rm /etc/mmc/agent/keys/cacert.pem /etc/mmc/agent/keys/localcert.pem
-      /sbin/create-ssl-cert $LDAP_DOMAIN /etc/mmc/agent/keys/cacert.pem /etc/mmc/agent/keys/localcert.pem
+      /sbin/create-ssl-cert $DOMAIN_NAME /etc/mmc/agent/keys/cacert.pem /etc/mmc/agent/keys/localcert.pem
 
       # Get base dn from ldap domain
       getBaseDn ${LDAP_DOMAIN}

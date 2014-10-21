@@ -11,6 +11,7 @@ set -x
 : LDAP_ADMIN_PWD=${LDAP_ADMIN_PWD}
 : LDAP_DOMAIN=${LDAP_DOMAIN}
 : LDAP_ORGANISATION=${LDAP_ORGANISATION}
+: DOMAIN_NAME=${DOMAIN_NAME}
 
 
 ############ Base config ############
@@ -34,6 +35,10 @@ slapd slapd/dump_database select when needed
 EOF
 
   dpkg-reconfigure -f noninteractive slapd
+
+  # Enable access only from docker default network and localhost
+  echo "slapd: 172.17.0.0/255.255.0.0 127.0.0.1 : ALLOW" >> /etc/hosts.allow
+  echo "slapd: ALL : DENY" >> /etc/hosts.allow
 
   touch /var/lib/ldap/docker_bootstrapped
 
@@ -69,17 +74,30 @@ if [ ! -e /etc/ldap/slapd.d/docker_bootstrapped ]; then
     status "certificates found"
 
     chmod 600 /etc/ldap/ssl/ldap.key
+  else
 
-    # create DHParamFile if not found
-    [ -f /etc/ldap/ssl/dhparam.pem ] || openssl dhparam -out /etc/ldap/ssl/dhparam.pem 2048
+    #generate default tls certificates / set domain name
+    DOMAIN_ESC=`echo $DOMAIN_NAME | sed 's/\./_/g'`
+    DOMAIN_ESC_UPPER=`echo $DOMAIN_ESC | tr '[a-z]' '[A-Z]'`
+    export SSL_${DOMAIN_ESC_UPPER}_COMMON_NAME=${DOMAIN_NAME}
+    export SSL_${DOMAIN_ESC_UPPER}_ORGANIZATION="${LDAP_ORGANISATION}"
 
-    ldapmodify -Y EXTERNAL -H ldapi:/// -f /etc/ldap/config/modify/auto/tls.ldif -Q 
-
-    # add fake dnsmasq route to certificate cn
-    cn=$(openssl x509 -in /etc/ldap/ssl/ldap.crt -subject -noout | sed -n 's/.*CN=\(.*\)\/*\(.*\)/\1/p')
-    echo "127.0.0.1	" $cn >> /etc/dhosts
+    /sbin/create-ssl-cert $DOMAIN_NAME /etc/ldap/ssl/ldap.crt /etc/ldap/ssl/ldap.key
+    cp /etc/ldap/ssl/ldap.crt /etc/ldap/ssl/ca.crt
 
   fi
+
+  # Fix permission on certificates
+  chown openldap:openldap -R /etc/ldap/ssl
+
+  # create DHParamFile if not found
+  [ -f /etc/ldap/ssl/dhparam.pem ] || openssl dhparam -out /etc/ldap/ssl/dhparam.pem 2048
+
+  ldapmodify -Y EXTERNAL -H ldapi:/// -f /etc/ldap/config/modify/auto/tls.ldif -Q 
+
+  # add fake dnsmasq route to certificate cn
+  cn=$(openssl x509 -in /etc/ldap/ssl/ldap.crt -subject -noout | sed -n 's/.*CN=\(.*\)\/*\(.*\)/\1/p')
+  echo "127.0.0.1	" $cn >> /etc/dhosts
 
   # Replication
   # todo :)
