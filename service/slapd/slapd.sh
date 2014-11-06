@@ -77,15 +77,15 @@ if [ ! -e /etc/ldap/slapd.d/docker_bootstrapped ]; then
   else
 
     #generate default tls certificates / set domain name
-    DOMAIN_ESC=`echo $DOMAIN_NAME | sed 's/\./_/g'`
-    DOMAIN_ESC_UPPER=`echo $DOMAIN_ESC | tr '[a-z]' '[A-Z]'`
-    export SSL_${DOMAIN_ESC_UPPER}_COMMON_NAME=${DOMAIN_NAME}
-    export SSL_${DOMAIN_ESC_UPPER}_ORGANIZATION="${LDAP_ORGANISATION}"
+    export SSL_SLAPD_COMMON_NAME="$DOMAIN_NAME"
+    export SSL_SLAPD_ORGANIZATION="${LDAP_ORGANISATION}"
 
-    /sbin/create-ssl-cert $DOMAIN_NAME /etc/ldap/ssl/ldap.crt /etc/ldap/ssl/ldap.key
-    cp /etc/ldap/ssl/ldap.crt /etc/ldap/ssl/ca.crt
+    /sbin/ssl-create-cert slapd /etc/ldap/ssl/ldap.crt /etc/ldap/ssl/ldap.key
+    ln -s /etc/ssl/certs/docker_baseimage_cacert.pem /etc/ldap/ssl/ca.crt
 
   fi
+
+  sed -i 's,TLS_CACERT.*,TLS_CACERT ./etc/ldap/ssl/ca.crt,g' /etc/ldap/ldap.conf
 
   # Fix permission on certificates
   chown openldap:openldap -R /etc/ldap/ssl
