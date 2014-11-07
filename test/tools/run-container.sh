@@ -1,7 +1,7 @@
 #!/bin/sh
 
-echo "docker run --name $testContainer $runOptions -d $testImage $runCommand"
-ID=`docker run --name $testContainer $runOptions -d $testImage $runCommand`
+echo "docker run --name $testContainer $runOptions -d $testImage $runCommand /sbin/my_init --enable-insecure-key"
+ID=`docker run --name $testContainer $runOptions -d $testImage $runCommand /sbin/my_init --enable-insecure-key`
 sleep 10
 
 echo " --> Obtaining IP"

@@ -73,23 +73,24 @@ if [ ! -e /etc/ldap/slapd.d/docker_bootstrapped ]; then
   if [ -e /etc/ldap/ssl/ldap.crt ] && [ -e /etc/ldap/ssl/ldap.key ] && [ -e /etc/ldap/ssl/ca.crt ]; then
     status "certificates found"
 
-    chmod 600 /etc/ldap/ssl/ldap.key
   else
 
-    #generate default tls certificates / set domain name
+    # generate default tls certificate
     export SSL_SLAPD_COMMON_NAME="$DOMAIN_NAME"
     export SSL_SLAPD_ORGANIZATION="${LDAP_ORGANISATION}"
 
-    /sbin/ssl-create-cert slapd /etc/ldap/ssl/ldap.crt /etc/ldap/ssl/ldap.key
-    ln -s /etc/ssl/certs/docker_baseimage_cacert.pem /etc/ldap/ssl/ca.crt
+    /sbin/ssl-gnutls-create-signed-cert slapd /etc/ldap/ssl/ldap.crt /etc/ldap/ssl/ldap.key
+    ln -s /etc/ssl/certs/docker_baseimage_gnutls_cacert.pem /etc/ldap/ssl/ca.crt
 
   fi
 
-  sed -i 's,TLS_CACERT.*,TLS_CACERT ./etc/ldap/ssl/ca.crt,g' /etc/ldap/ldap.conf
-
   # Fix permission on certificates
   chown openldap:openldap -R /etc/ldap/ssl
+  chmod 600 /etc/ldap/ssl/ldap.key
 
+  # ldap client config
+  sed -i 's,TLS_CACERT.*,TLS_CACERT /etc/ldap/ssl/ca.crt,g' /etc/ldap/ldap.conf
+ 
   # create DHParamFile if not found
   [ -f /etc/ldap/ssl/dhparam.pem ] || openssl dhparam -out /etc/ldap/ssl/dhparam.pem 2048
 
@@ -97,7 +98,7 @@ if [ ! -e /etc/ldap/slapd.d/docker_bootstrapped ]; then
 
   # add fake dnsmasq route to certificate cn
   cn=$(openssl x509 -in /etc/ldap/ssl/ldap.crt -subject -noout | sed -n 's/.*CN=\(.*\)\/*\(.*\)/\1/p')
-  echo "127.0.0.1	" $cn >> /etc/dhosts
+  /sbin/dns-add-host 127.0.0.1 $cn
 
   # Replication
   # todo :)

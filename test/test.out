@@ -1,0 +1,33 @@
+docker run --name openldap-repository-test-container --dns=127.0.0.1 -v /home/bgouny/Bureau/pop/docker-openldap/test/tls/ssl:/etc/ldap/ssl -d osixia/openldap:latest  /sbin/my_init --enable-insecure-key
+ --> Obtaining IP
+ --> 172.17.0.37
+ldapsearch -x -h ldap-test.example.com -b dc=example,dc=com -ZZ
+# extended LDIF
+#
+# LDAPv3
+# base <dc=example,dc=com> with scope subtree
+# filter: (objectclass=*)
+# requesting: ALL
+#
+
+# example.com
+dn: dc=example,dc=com
+objectClass: top
+objectClass: dcObject
+objectClass: organization
+o: Example Inc.
+dc: example
+
+# admin, example.com
+dn: cn=admin,dc=example,dc=com
+objectClass: simpleSecurityObject
+objectClass: organizationalRole
+cn: admin
+description: LDAP administrator
+
+# search result
+search: 3
+result: 0 Success
+
+# numResponses: 3
+# numEntries: 2
