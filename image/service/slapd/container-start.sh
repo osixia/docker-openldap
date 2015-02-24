@@ -1,3 +1,60 @@
+#!/bin/bash -e
+
+FIRST_START_DONE="/etc/docker-openldap-first-start-done"
+
+# container first start
+if [ ! -e "$FIRST_START_DONE" ]; then
+
+  # database is uninitialized
+  if [ -z "$(ls -A /var/lib/ldap)" ]; then
+
+    cat <<EOF | debconf-set-selections
+slapd slapd/internal/generated_adminpw password ${LDAP_ADMIN_PASSWORD}
+slapd slapd/internal/adminpw password ${LDAP_ADMIN_PASSWORD}
+slapd slapd/password2 password ${LDAP_ADMIN_PASSWORD}
+slapd slapd/password1 password ${LDAP_ADMIN_PASSWORD}
+slapd slapd/dump_database_destdir string /var/backups/slapd-VERSION
+slapd slapd/domain string ${LDAP_DOMAIN}
+slapd shared/organization string ${LDAP_ORGANISATION}
+slapd slapd/backend string HDB
+slapd slapd/purge_database boolean true
+slapd slapd/move_old_database boolean true
+slapd slapd/allow_ldap_v2 boolean false
+slapd slapd/no_configuration boolean false
+slapd slapd/dump_database select when needed
+EOF
+
+    dpkg-reconfigure -f noninteractive slapd
+  fi
+
+  #fix file permissions
+  chown -R openldap:openldap /var/lib/ldap 
+  chown -R openldap:openldap /etc/ldap
+
+  # start OpenLDAP
+  slapd -h "ldapi:///" -u openldap -g openldap 
+
+  # TLS config
+  if [ "${USE_TLS,,}" == "true" ]; then
+
+    # check certificat and key or create it
+    /sbin/ssl-kit "/osixia/slapd/$SSL_CRT_FILENAME" "/osixia/slapd/$SSL_KEY_FILENAME" --ca-crt=/osixia/slapd/$SSL_CA_CRT_FILENAME --gnutls
+    chown openldap:openldap -R /osixia/slapd
+
+
+  fi
+
+  # stop OpenLDAP
+  kill -INT `cat /run/slapd/slapd.pid`
+
+  touch $FIRST_START_DONE
+fi
+
+exit 0
+
+
+
+
 #!/bin/sh
 
 set -eu
@@ -18,27 +75,9 @@ set -x
 if [ ! -e /var/lib/ldap/docker_bootstrapped ]; then
   status "configuring slapd database"
 
-  cat <<EOF | debconf-set-selections
-slapd slapd/internal/generated_adminpw password ${LDAP_ADMIN_PWD}
-slapd slapd/internal/adminpw password ${LDAP_ADMIN_PWD}
-slapd slapd/password2 password ${LDAP_ADMIN_PWD}
-slapd slapd/password1 password ${LDAP_ADMIN_PWD}
-slapd slapd/dump_database_destdir string /var/backups/slapd-VERSION
-slapd slapd/domain string ${LDAP_DOMAIN}
-slapd shared/organization string ${LDAP_ORGANISATION}
-slapd slapd/backend string HDB
-slapd slapd/purge_database boolean true
-slapd slapd/move_old_database boolean true
-slapd slapd/allow_ldap_v2 boolean false
-slapd slapd/no_configuration boolean false
-slapd slapd/dump_database select when needed
-EOF
 
-  dpkg-reconfigure -f noninteractive slapd
 
-  # Enable access only from docker default network and localhost
-  echo "slapd: 172.17.0.0/255.255.0.0 127.0.0.1 : ALLOW" >> /etc/hosts.allow
-  echo "slapd: ALL : DENY" >> /etc/hosts.allow
+
 
   touch /var/lib/ldap/docker_bootstrapped
 
@@ -126,4 +165,3 @@ fi
 status "starting slapd on default port 389"
 set -x
 
-exec /usr/sbin/slapd -h "ldap:///" -u openldap -g openldap -d -1

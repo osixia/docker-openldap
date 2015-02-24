@@ -84,11 +84,3 @@ if [ "$WITH_MMC_AGENT" = true ]; then
 else 
   sleep 1d
 fi
-
-
-
-
-
-
-
-
