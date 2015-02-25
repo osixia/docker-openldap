@@ -1,0 +1,8 @@
+testImage=openldap-test
+testContainer=openldap-test-container
+testDir=/osixia-test-docker-openldap
+
+export testImage
+export testContainer
+export testDir
+

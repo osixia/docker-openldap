@@ -1,0 +1,19 @@
+dn: cn=config
+changetype: modify
+add: olcTLSCipherSuite
+olcTLSCipherSuite: SECURE256:-VERS-SSL3.0
+-
+replace: olcTLSCACertificateFile
+olcTLSCACertificateFile: /osixia/slapd/ssl/ca.crt
+-
+replace: olcTLSCertificateFile
+olcTLSCertificateFile: /osixia/slapd/ssl/ldap.crt
+-
+replace: olcTLSCertificateKeyFile
+olcTLSCertificateKeyFile: /osixia/slapd/ssl/ldap.key
+-
+replace: olcTLSDHParamFile
+olcTLSDHParamFile: /osixia/slapd/ssl/dhparam.pem
+-
+replace: olcTLSVerifyClient
+olcTLSVerifyClient: never
