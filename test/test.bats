@@ -37,21 +37,20 @@ load test_helper
   run docker exec $CONTAINER_ID ldapsearch -x -h ldap-test.example.com -b dc=example,dc=org -ZZ
   clear_container
 
-  chown -R $UNAME:$UNAME $BATS_TEST_DIRNAME/ssl || true
+  chown -R $UNAME:$UNAME $BATS_TEST_DIRNAME || true
 
   [ "$status" -eq 0 ]
 
 }
 
 @test "ldapsearch existing database and config" {
-  skip
-  run_image -e USE_TLS=false -v $BATS_TEST_DIRNAME/database:/var/lib/ldap 
+
+  run_image -e USE_TLS=false -v $BATS_TEST_DIRNAME/database:/var/lib/ldap -v $BATS_TEST_DIRNAME/config:/etc/ldap/slapd.d
   wait_service slapd
-  sleep 60
-  run docker exec $CONTAINER_ID ldapsearch -x -h 127.0.0.1 -b dc=test-ldap,dc=osixia,dc=net
+  run docker exec $CONTAINER_ID ldapsearch -x -h 127.0.0.1 -b dc=test,dc=osixia,dc=net
   clear_container
 
-  chown -R $UNAME:$UNAME $BATS_TEST_DIRNAME/database || true
+  chown -R $UNAME:$UNAME $BATS_TEST_DIRNAME || true
 
   [ "$status" -eq 0 ]
 
