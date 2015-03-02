@@ -1,9 +1,6 @@
 FROM osixia/baseimage:0.10.3
 MAINTAINER Bertrand Gouny <bertrand.gouny@osixia.net>
 
-# Set correct environment variables.
-ENV HOME /root
-
 # Use baseimage-docker's init system.
 CMD ["/sbin/my_init"]
 
