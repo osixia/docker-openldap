@@ -33,7 +33,7 @@ EOF
 
 
   # start OpenLDAP
-  slapd -h "ldapi:///" -u openldap -g openldap 
+  slapd -h "ldapi:///" -u openldap -g openldap
 
   # TLS config
   if [ "${USE_TLS,,}" == "true" ]; then
@@ -50,7 +50,7 @@ EOF
     sed -i "s,/osixia/slapd/ssl/ldap.key,/osixia/slapd/ssl/${SSL_KEY_FILENAME},g" /osixia/slapd/tls.ldif
 
     # set tls config
-    ldapmodify -Y EXTERNAL -H ldapi:/// -f /osixia/slapd/tls.ldif -Q 
+    ldapmodify -Y EXTERNAL -H ldapi:/// -f /osixia/slapd/tls.ldif -Q
 
     # add localhost route to certificate cn (need docker 1.5.0)
     cn=$(openssl x509 -in /osixia/slapd/ssl/$SSL_CRT_FILENAME -subject -noout | sed -n 's/.*CN=\(.*\)\/*\(.*\)/\1/p')
@@ -63,7 +63,7 @@ EOF
   # OpenLDAP config 
   for f in $(find /osixia/slapd/config -name \*.ldif -type f); do
     status "Processing file ${f}"
-    ldapmodify -r -Y EXTERNAL -H ldapi:/// -f $f -Q 
+    ldapmodify -r -Y EXTERNAL -H ldapi:/// -f $f -Q
   done
 
   # stop OpenLDAP

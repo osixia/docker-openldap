@@ -20,7 +20,7 @@ ADD service/install.sh /tmp/install.sh
 ADD service/slapd/assets /osixia/slapd
 
 # Run install script and clean all
-RUN ./tmp/install.sh && rm /tmp/install.sh \
+RUN ./tmp/install.sh \
     && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 # Add default env variables
