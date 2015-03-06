@@ -103,7 +103,12 @@ Or you can set your custom certificate at run time, by mouting your a directory 
 	-e SSL_CRT_FILENAME=my-ldap.crt \
 	-e SSL_KEY_FILENAME=my-ldap.key \
 	-e SSL_CA_CRT_FILENAME=the-ca.crt \
-	-d osixia/mariadb
+	-d osixia/openldap
+	
+#### Disable TLS
+Add -e USE_TLS=false to the run command :
+
+	docker run -e USE_TLS=false -d osixia/openldap
 
 ## Administrate your ldap server
 If you are looking for a simple solution to administrate your ldap server you can take a look at our phpLDAPadmin docker image :
@@ -137,7 +142,7 @@ Environment variable can be set directly by adding the -e argument in the comman
 Clone this project :
 
 	git clone https://github.com/osixia/docker-openldap
-	cd docker-mariadb
+	cd docker-openldap
 
 Adapt Makefile, set your image NAME and VERSION, for example :
 
