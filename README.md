@@ -105,6 +105,10 @@ Or you can set your custom certificate at run time, by mouting your a directory 
 	-e SSL_CA_CRT_FILENAME=the-ca.crt \
 	-d osixia/mariadb
 
+## Administrate your ldap server
+If you are looking for a simple solution to administrate your ldap server you can take a look at our phpLDAPadmin docker image :
+> [osixia/phpldapadmin](https://github.com/osixia/docker-phpLDAPadmin)
+
 ## Environment Variables
 
 Environement variables defaults are set in **image/env.yml**. You can modify environment variable values directly in this file and rebuild the image ([see manual build](#manual-build)) or you can override those values at run time with -e argument. See example below.
