@@ -1,0 +1,1 @@
+Mandriva Management Console (MMC) ldap schemas, delete the forlder if not needed ;)

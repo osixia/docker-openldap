@@ -35,6 +35,9 @@ EOF
   # start OpenLDAP
   slapd -h "ldapi:///" -u openldap -g openldap
 
+  # add ppolicy schema
+  ldapadd -Y EXTERNAL -Q -H ldapi:/// -f /etc/ldap/schema/ppolicy.ldif
+
   # TLS config
   if [ "${USE_TLS,,}" == "true" ]; then
 
@@ -50,7 +53,7 @@ EOF
     sed -i "s,/osixia/slapd/ssl/ldap.key,/osixia/slapd/ssl/${SSL_KEY_FILENAME},g" /osixia/slapd/tls.ldif
 
     # set tls config
-    ldapmodify -Y EXTERNAL -H ldapi:/// -f /osixia/slapd/tls.ldif -Q
+    ldapmodify -Y EXTERNAL -Q -H ldapi:/// -f /osixia/slapd/tls.ldif
 
     # add localhost route to certificate cn (need docker 1.5.0)
     cn=$(openssl x509 -in /osixia/slapd/ssl/$SSL_CRT_FILENAME -subject -noout | sed -n 's/.*CN=\(.*\)\/*\(.*\)/\1/p')
@@ -60,10 +63,22 @@ EOF
     sed -i "s,TLS_CACERT.*,TLS_CACERT /osixia/slapd/ssl/${SSL_CA_CRT_FILENAME},g" /etc/ldap/ldap.conf
   fi
 
+  # convert  schemas to ldif
+  SCHEMAS=""
+  for f in $(find /osixia/slapd/schema -name \*.schema -type f); do
+    SCHEMAS="$SCHEMAS ${f}"
+  done
+  /osixia/slapd/schema-to-ldif.sh "$SCHEMAS"
+
+  for f in $(find /osixia/slapd/schema -name \*.ldif -type f); do
+    echo "Processing file ${f}"
+    ldapadd -Y EXTERNAL -Q -H ldapi:/// -f $f
+  done
+
   # OpenLDAP config 
   for f in $(find /osixia/slapd/config -name \*.ldif -type f); do
-    status "Processing file ${f}"
-    ldapmodify -r -Y EXTERNAL -H ldapi:/// -f $f -Q
+    echo "Processing file ${f}"
+    ldapmodify -Y EXTERNAL -Q -H ldapi:/// -f $f
   done
 
   # stop OpenLDAP
