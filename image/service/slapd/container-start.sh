@@ -32,11 +32,23 @@ EOF
   fi
 
 
+function is_new_schema(){
+    local COUNT=$(ldapsearch -Q -Y EXTERNAL -H ldapi:/// -b cn=schema,cn=config cn | grep -c $1)
+    if [ "$COUNT" -eq 0 ]; then
+      echo 1
+    else
+      echo 0
+    fi
+  }
+
   # start OpenLDAP
   slapd -h "ldapi:///" -u openldap -g openldap
 
-  # add ppolicy schema
-  ldapadd -Y EXTERNAL -Q -H ldapi:/// -f /etc/ldap/schema/ppolicy.ldif
+  # add ppolicy schema if not already exists
+  ADD_PPOLICY=$(is_new_schema ppolicy)
+  if [ "$ADD_PPOLICY" -eq 1 ]; then
+    ldapadd -c -Y EXTERNAL -Q -H ldapi:/// -f /etc/ldap/schema/ppolicy.ldif
+  fi
 
   # TLS config
   if [ "${USE_TLS,,}" == "true" ]; then
@@ -72,7 +84,16 @@ EOF
 
   for f in $(find /osixia/slapd/schema -name \*.ldif -type f); do
     echo "Processing file ${f}"
-    ldapadd -Y EXTERNAL -Q -H ldapi:/// -f $f
+    # add schema if not already exists
+    SCHEMA=$(basename "${f}" .ldif)
+    ADD_SCHEMA=$(is_new_schema $SCHEMA)
+    if [ "$ADD_SCHEMA" -eq 1 ]; then
+      echo "add schema ${SCHEMA}"
+      ldapadd -c -Y EXTERNAL -Q -H ldapi:/// -f $f
+    else
+      echo "schema ${f} already exists"
+    fi
+
   done
 
   # OpenLDAP config 

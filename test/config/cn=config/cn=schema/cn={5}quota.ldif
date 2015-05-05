@@ -1,0 +1,23 @@
+# AUTO-GENERATED FILE - DO NOT EDIT!! Use ldapmodify.
+# CRC32 f8ac78b6
+dn: cn={5}quota
+objectClass: olcSchemaConfig
+cn: {5}quota
+olcAttributeTypes: {0}( 1.3.6.1.4.1.19937.1.1.1 NAME 'quota' DESC 'Quotas (Fil
+ eSystem:BlocksSoft,BlocksHard,InodesSoft,InodesHard)' EQUALITY caseIgnoreIA5M
+ atch SYNTAX 1.3.6.1.4.1.1466.115.121.1.26{255} )
+olcAttributeTypes: {1}( 1.3.6.1.4.1.19937.1.1.2 NAME 'networkquota' DESC 'Netw
+ ork Quotas (network,protocol,bytes)' EQUALITY caseIgnoreIA5Match SYNTAX 1.3.6
+ .1.4.1.1466.115.121.1.26{255} )
+olcObjectClasses: {0}( 1.3.6.1.4.1.19937.1.2.1 NAME 'systemQuotas' DESC 'Syste
+ m Quotas' SUP posixAccount AUXILIARY MUST uid MAY ( quota $ networkquota ) )
+olcObjectClasses: {1}( 1.3.6.1.4.1.19937.1.2.2 NAME 'defaultQuotas' DESC 'Quot
+ a defaults to apply to members of a group' SUP top AUXILIARY MUST cn MAY ( qu
+ ota $ networkquota ) )
+structuralObjectClass: olcSchemaConfig
+entryUUID: e319e9c6-8764-1034-83b0-933592c3cd29
+creatorsName: gidNumber=0+uidNumber=0,cn=peercred,cn=external,cn=auth
+createTimestamp: 20150505112324Z
+entryCSN: 20150505112324.055970Z#000000#000#000000
+modifiersName: gidNumber=0+uidNumber=0,cn=peercred,cn=external,cn=auth
+modifyTimestamp: 20150505112324Z
