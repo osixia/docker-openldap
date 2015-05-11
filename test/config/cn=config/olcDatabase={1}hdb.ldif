@@ -1,14 +1,14 @@
 # AUTO-GENERATED FILE - DO NOT EDIT!! Use ldapmodify.
-# CRC32 4f6c59f2
+# CRC32 2b412e6d
 dn: olcDatabase={1}hdb
 objectClass: olcDatabaseConfig
 objectClass: olcHdbConfig
 olcDatabase: {1}hdb
 olcDbDirectory: /var/lib/ldap
-olcSuffix: dc=test,dc=osixia,dc=net
+olcSuffix: dc=osixia,dc=net
 olcLastMod: TRUE
-olcRootDN: cn=admin,dc=test,dc=osixia,dc=net
-olcRootPW:: e1NTSEF9bU9FWlh4OUpPNmlhK1dkeFV4S0FKam43R3dmNVJrby8=
+olcRootDN: cn=admin,dc=osixia,dc=net
+olcRootPW:: e1NTSEF9R0llSUVKRW82eFJXOG5ybENtQXkyZjF3WXlxU0ZFL2M=
 olcDbCheckpoint: 512 30
 olcDbConfig: {0}set_cachesize 0 2097152 0
 olcDbConfig: {1}set_lk_max_objects 1500
@@ -16,14 +16,14 @@ olcDbConfig: {2}set_lk_max_locks 1500
 olcDbConfig: {3}set_lk_max_lockers 1500
 olcDbIndex: objectClass eq
 structuralObjectClass: olcHdbConfig
-entryUUID: db09539c-51e1-1034-95f6-9d03bc6be361
+entryUUID: 1dd02bcc-8c54-1034-90ff-f5ce8ee3f703
 creatorsName: cn=config
-createTimestamp: 20150226090154Z
+createTimestamp: 20150511180556Z
 olcAccess: {0}to attrs=userPassword,shadowLastChange by self write by anonymou
- s auth by dn="cn=admin,dc=example,dc=org" write by * none
+ s auth by dn="cn=admin,dc=osixia,dc=net" write by * none
 olcAccess: {1}to dn.base="" by * read
-olcAccess: {2}to * by self write by dn="cn=admin,dc=example,dc=org" write by *
-  none
-entryCSN: 20150511151550.910171Z#000000#000#000000
+olcAccess: {2}to * by self write by dn="cn=admin,dc=osixia,dc=net" write by * 
+ none
+entryCSN: 20150511180557.496167Z#000000#000#000000
 modifiersName: gidNumber=0+uidNumber=0,cn=peercred,cn=external,cn=auth
-modifyTimestamp: 20150511151550Z
+modifyTimestamp: 20150511180557Z
