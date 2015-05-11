@@ -1,16 +1,11 @@
 # AUTO-GENERATED FILE - DO NOT EDIT!! Use ldapmodify.
-# CRC32 8b1aead3
+# CRC32 4f6c59f2
 dn: olcDatabase={1}hdb
 objectClass: olcDatabaseConfig
 objectClass: olcHdbConfig
 olcDatabase: {1}hdb
 olcDbDirectory: /var/lib/ldap
 olcSuffix: dc=test,dc=osixia,dc=net
-olcAccess: {0}to attrs=userPassword,shadowLastChange by self write by anonymou
- s auth by dn="cn=admin,dc=test,dc=osixia,dc=net" write by * none
-olcAccess: {1}to dn.base="" by * read
-olcAccess: {2}to * by self write by dn="cn=admin,dc=test,dc=osixia,dc=net" wri
- te by * read
 olcLastMod: TRUE
 olcRootDN: cn=admin,dc=test,dc=osixia,dc=net
 olcRootPW:: e1NTSEF9bU9FWlh4OUpPNmlhK1dkeFV4S0FKam43R3dmNVJrby8=
@@ -24,6 +19,11 @@ structuralObjectClass: olcHdbConfig
 entryUUID: db09539c-51e1-1034-95f6-9d03bc6be361
 creatorsName: cn=config
 createTimestamp: 20150226090154Z
-entryCSN: 20150226090154.826706Z#000000#000#000000
-modifiersName: cn=config
-modifyTimestamp: 20150226090154Z
+olcAccess: {0}to attrs=userPassword,shadowLastChange by self write by anonymou
+ s auth by dn="cn=admin,dc=example,dc=org" write by * none
+olcAccess: {1}to dn.base="" by * read
+olcAccess: {2}to * by self write by dn="cn=admin,dc=example,dc=org" write by *
+  none
+entryCSN: 20150511151550.910171Z#000000#000#000000
+modifiersName: gidNumber=0+uidNumber=0,cn=peercred,cn=external,cn=auth
+modifyTimestamp: 20150511151550Z

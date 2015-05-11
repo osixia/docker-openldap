@@ -12,7 +12,7 @@ load test_helper
 
   run_image -e USE_TLS=false
   wait_service slapd
-  run docker exec $CONTAINER_ID ldapsearch -x -h 127.0.0.1 -b dc=example,dc=org
+  run docker exec $CONTAINER_ID ldapsearch -x -h 127.0.0.1 -b dc=example,dc=org -D "cn=admin,dc=example,dc=org" -w admin
   clear_container
 
   [ "$status" -eq 0 ]
@@ -23,7 +23,7 @@ load test_helper
 
   run_image
   wait_service slapd
-  run docker exec $CONTAINER_ID ldapsearch -x -h ldap.example.org -b dc=example,dc=org -ZZ
+  run docker exec $CONTAINER_ID ldapsearch -x -h ldap.example.org -b dc=example,dc=org -ZZ -D "cn=admin,dc=example,dc=org" -w admin
   clear_container
 
   [ "$status" -eq 0 ]
@@ -34,7 +34,7 @@ load test_helper
 
   run_image -v $BATS_TEST_DIRNAME/ssl:/osixia/slapd/ssl -e SSL_CRT_FILENAME=test-ldap.crt -e SSL_KEY_FILENAME=test-ldap.key -e SSL_CA_CRT_FILENAME=test-ca.crt
   wait_service slapd
-  run docker exec $CONTAINER_ID ldapsearch -x -h ldap-test.example.com -b dc=example,dc=org -ZZ
+  run docker exec $CONTAINER_ID ldapsearch -x -h ldap-test.example.com -b dc=example,dc=org -ZZ 
   clear_container
 
   chown -R $UNAME:$UNAME $BATS_TEST_DIRNAME || true

@@ -9,6 +9,26 @@ chown -R openldap:openldap /etc/ldap
 # container first start
 if [ ! -e "$FIRST_START_DONE" ]; then
 
+  function get_base_dn(){
+    BASE_DN=""
+    IFS='.' read -ra BASE_DN_TABLE <<< "$LDAP_DOMAIN"
+    for i in "${BASE_DN_TABLE[@]}"; do
+      EXT="dc=$i,"
+      BASE_DN=$BASE_DN$EXT
+    done
+
+    BASE_DN=${BASE_DN::-1}
+  }
+
+  function is_new_schema(){
+    local COUNT=$(ldapsearch -Q -Y EXTERNAL -H ldapi:/// -b cn=schema,cn=config cn | grep -c $1)
+    if [ "$COUNT" -eq 0 ]; then
+      echo 1
+    else
+      echo 0
+    fi
+  }
+
   # database is uninitialized
   if [ -z "$(ls -A /var/lib/ldap)" ]; then
 
@@ -29,20 +49,21 @@ slapd slapd/dump_database select when needed
 EOF
 
     dpkg-reconfigure -f noninteractive slapd
+
+    # start OpenLDAP
+    slapd -h "ldapi:///" -u openldap -g openldap
+
+    get_base_dn 
+    sed -i "s|dc=example,dc=org|$BASE_DN|g" /osixia/slapd/security.ldif
+
+    ldapmodify -Y EXTERNAL -Q -H ldapi:/// -f /osixia/slapd/security.ldif
+
+  else
+
+    # start OpenLDAP
+    slapd -h "ldapi:///" -u openldap -g openldap
+
   fi
-
-
-function is_new_schema(){
-    local COUNT=$(ldapsearch -Q -Y EXTERNAL -H ldapi:/// -b cn=schema,cn=config cn | grep -c $1)
-    if [ "$COUNT" -eq 0 ]; then
-      echo 1
-    else
-      echo 0
-    fi
-  }
-
-  # start OpenLDAP
-  slapd -h "ldapi:///" -u openldap -g openldap
 
   # add ppolicy schema if not already exists
   ADD_PPOLICY=$(is_new_schema ppolicy)
@@ -64,7 +85,6 @@ function is_new_schema(){
     sed -i "s,/osixia/slapd/ssl/ldap.crt,/osixia/slapd/ssl/${SSL_CRT_FILENAME},g" /osixia/slapd/tls.ldif
     sed -i "s,/osixia/slapd/ssl/ldap.key,/osixia/slapd/ssl/${SSL_KEY_FILENAME},g" /osixia/slapd/tls.ldif
 
-    # set tls config
     ldapmodify -Y EXTERNAL -Q -H ldapi:/// -f /osixia/slapd/tls.ldif
 
     # add localhost route to certificate cn (need docker 1.5.0)
