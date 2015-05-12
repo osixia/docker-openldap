@@ -65,11 +65,6 @@ EOF
 
   fi
 
-  # add ppolicy schema if not already exists
-  ADD_PPOLICY=$(is_new_schema ppolicy)
-  if [ "$ADD_PPOLICY" -eq 1 ]; then
-    ldapadd -c -Y EXTERNAL -Q -H ldapi:/// -f /etc/ldap/schema/ppolicy.ldif
-  fi
 
   # TLS config
   if [ "${USE_TLS,,}" == "true" ]; then
@@ -93,6 +88,12 @@ EOF
 
     # local ldap tls client config
     sed -i "s,TLS_CACERT.*,TLS_CACERT /osixia/slapd/ssl/${SSL_CA_CRT_FILENAME},g" /etc/ldap/ldap.conf
+  fi
+
+  # add ppolicy schema if not already exists
+  ADD_PPOLICY=$(is_new_schema ppolicy)
+  if [ "$ADD_PPOLICY" -eq 1 ]; then
+    ldapadd -c -Y EXTERNAL -Q -H ldapi:/// -f /etc/ldap/schema/ppolicy.ldif
   fi
 
   # convert  schemas to ldif

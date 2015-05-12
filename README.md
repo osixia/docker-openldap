@@ -27,7 +27,7 @@ make sure to replace `CONTAINER_ID` by your container id :
 You should now be in the container terminal, 
 and we can search on the ldap server :
 	
-	ldapsearch -x -h 127.0.0.1 -b dc=example,dc=org
+	ldapsearch -x -h 127.0.0.1 -b dc=example,dc=org -D "cn=admin,dc=example,dc=org" -w admin
 	
 This should output :
 
