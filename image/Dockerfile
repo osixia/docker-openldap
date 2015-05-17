@@ -1,4 +1,4 @@
-FROM osixia/baseimage:0.10.3
+FROM osixia/baseimage:0.10.4
 MAINTAINER Bertrand Gouny <bertrand.gouny@osixia.net>
 
 # Use baseimage-docker's init system.

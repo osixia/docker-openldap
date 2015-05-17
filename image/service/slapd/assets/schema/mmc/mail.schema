@@ -1,0 +1,128 @@
+##
+## Needed attributes for MMC Mail Plugin
+##
+## Cédric Delfosse (cdelfosse@mandriva.com)
+## Matthieu Vogelweith (mvogelweith@mandriva.com)
+## Jean-Philippe Braun (jpbraun@mandriva.com)
+
+# Attributes
+attributetype ( 1.3.6.1.4.1.21103.1.1.13.1
+        NAME 'maildrop'
+        DESC 'Mail addresses where mails are forwarded -- ie forwards'
+        EQUALITY caseIgnoreMatch
+        SUBSTR caseIgnoreSubstringsMatch
+        SYNTAX 1.3.6.1.4.1.1466.115.121.1.15{512})
+
+attributetype ( 1.3.6.1.4.1.21103.1.1.13.2
+        NAME 'mailalias'
+        DESC 'Mail addresses accepted by this account -- ie aliases'
+        EQUALITY caseIgnoreMatch
+        SUBSTR caseIgnoreSubstringsMatch
+        SYNTAX 1.3.6.1.4.1.1466.115.121.1.15{512})
+
+attributetype ( 1.3.6.1.4.1.21103.1.1.13.3
+        NAME 'mailenable'
+        DESC 'Mail Account / Virtual alias validity'
+        EQUALITY caseIgnoreMatch
+        SUBSTR caseIgnoreSubstringsMatch
+        SYNTAX 1.3.6.1.4.1.1466.115.121.1.15{8})
+
+attributetype ( 1.3.6.1.4.1.21103.1.1.13.4
+        NAME 'mailbox'
+        DESC 'Mailbox path where mails are delivered'
+        EQUALITY caseIgnoreMatch
+        SUBSTR caseIgnoreSubstringsMatch
+        SYNTAX 1.3.6.1.4.1.1466.115.121.1.15{512})
+
+attributetype ( 1.3.6.1.4.1.21103.1.1.13.5
+        NAME 'virtualdomain'
+        DESC 'A mail domain name'
+        EQUALITY caseIgnoreMatch
+        SUBSTR caseIgnoreSubstringsMatch
+        SYNTAX 1.3.6.1.4.1.1466.115.121.1.15{512})
+
+attributetype ( 1.3.6.1.4.1.21103.1.1.13.6
+        NAME 'virtualdomaindescription'
+        DESC 'Virtual domain description'
+        EQUALITY caseIgnoreMatch
+        SUBSTR caseIgnoreSubstringsMatch
+        SYNTAX 1.3.6.1.4.1.1466.115.121.1.15{512})
+
+attributetype ( 1.3.6.1.4.1.21103.1.1.13.7
+        NAME 'mailuserquota'
+        DESC 'Mailbox quota for a user in kilo-bytes'
+        EQUALITY integerMatch
+        SYNTAX 1.3.6.1.4.1.1466.115.121.1.27 SINGLE-VALUE )
+
+attributetype ( 1.3.6.1.4.1.21103.1.1.13.8
+        NAME 'mailhost'
+        DESC 'The mail server IP address or FQDN for a user'
+        EQUALITY caseIgnoreIA5Match
+        SUBSTR caseIgnoreIA5SubstringsMatch
+        SYNTAX 1.3.6.1.4.1.1466.115.121.1.26{256} SINGLE-VALUE)
+
+attributetype ( 1.3.6.1.4.1.21103.1.1.13.9
+        NAME 'mailaliasmember'
+        DESC 'Member of a virtual alias'
+        SUP distinguishedName )
+
+attributetype ( 1.3.6.1.4.1.21103.1.1.13.10
+        NAME 'mailproxy'
+        DESC 'Mail proxy'
+        EQUALITY caseIgnoreIA5Match
+        SUBSTR caseIgnoreIA5SubstringsMatch
+        SYNTAX 1.3.6.1.4.1.1466.115.121.1.26{256} SINGLE-VALUE)
+
+attributetype ( 1.3.6.1.4.1.21103.1.1.13.11
+        NAME 'mailhidden'
+        DESC 'Mail Account hidden in address book'
+        EQUALITY caseIgnoreMatch
+        SUBSTR caseIgnoreSubstringsMatch
+        SYNTAX 1.3.6.1.4.1.1466.115.121.1.15{8})
+
+# Mail Account Objectclass
+objectclass ( 1.3.6.1.4.1.21103.1.2.13.1
+        NAME 'mailAccount'
+        DESC 'Mail Account'
+        SUP top
+        AUXILIARY
+        MUST (
+            mail
+            )
+        MAY (
+            mailalias $ maildrop $ mailenable $ mailbox $ mailuserquota $
+            mailhost $ mailproxy $ mailhidden
+            )
+        )
+
+# Mail Domain Objectclass
+objectclass ( 1.3.6.1.4.1.21103.1.2.13.2
+        NAME 'mailDomain'
+        DESC 'Domain mail entry'
+        SUP top
+        STRUCTURAL
+        MUST (
+            virtualdomain
+            )
+        MAY (
+            virtualdomaindescription $ mailuserquota
+            )
+        )
+
+# Mail Group Objectclass
+objectclass ( 1.3.6.1.4.1.21103.1.2.13.3
+        NAME 'mailGroup' SUP top AUXILIARY
+        DESC 'Mail Group'
+        MUST ( mail )
+        MAY ( mailhidden )
+        )
+
+# Virtual Alias Objectclass
+objectclass ( 1.3.6.1.4.1.21103.1.2.13.4
+        NAME 'mailAlias'
+        DESC 'Mail Alias'
+        SUP top
+        STRUCTURAL
+        MUST ( mailalias )
+        MAY ( mail $ mailaliasmember $ mailenable )
+        )

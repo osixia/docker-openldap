@@ -27,7 +27,7 @@ make sure to replace `CONTAINER_ID` by your container id :
 You should now be in the container terminal, 
 and we can search on the ldap server :
 	
-	ldapsearch -x -h 127.0.0.1 -b dc=example,dc=org
+	ldapsearch -x -h 127.0.0.1 -b dc=example,dc=org -D "cn=admin,dc=example,dc=org" -w admin
 	
 This should output :
 
@@ -65,7 +65,7 @@ By default the admin has the password **admin**. All those default settings can 
 
 The directories `/var/lib/ldap` (LDAP database files) and `/etc/ldap/slapd.d`  (LDAP config files) has been declared as volumes, so your ldap files are saved outside the container in data volumes.
 
-This mean that you can stop, and restart the container and get back your ldap without losing any data. But if you remove the container, data volumes will me removed too, except if you have linked this data volume to an other container.
+Be careful, if you remove the container, data volumes will me removed too, except if you have linked this data volume to an other container.
 
 For more information about docker data volume, please refer to :
 

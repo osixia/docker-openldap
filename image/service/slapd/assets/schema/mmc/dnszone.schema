@@ -1,0 +1,155 @@
+# A schema for storing DNS zones in LDAP
+#
+attributetype ( 1.3.6.1.4.1.2428.20.0.0  NAME 'dNSTTL'
+    DESC 'An integer denoting time to live'
+    EQUALITY integerMatch
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.27 )
+
+attributetype ( 1.3.6.1.4.1.2428.20.0.1 NAME 'dNSClass'
+    DESC 'The class of a resource record'
+    EQUALITY caseIgnoreIA5Match
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
+
+attributetype ( 1.3.6.1.4.1.2428.20.0.2 NAME 'zoneName'
+    DESC 'The name of a zone, i.e. the name of the highest node in the zone'
+    EQUALITY caseIgnoreIA5Match
+    SUBSTR caseIgnoreIA5SubstringsMatch
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
+
+attributetype ( 1.3.6.1.4.1.2428.20.0.3 NAME 'relativeDomainName'
+    DESC 'The starting labels of a domain name'
+    EQUALITY caseIgnoreIA5Match
+    SUBSTR caseIgnoreIA5SubstringsMatch
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
+
+attributetype ( 1.3.6.1.4.1.2428.20.1.12 NAME 'pTRRecord'
+    DESC 'domain name pointer, RFC 1035'
+    EQUALITY caseIgnoreIA5Match
+    SUBSTR caseIgnoreIA5SubstringsMatch
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
+
+attributetype ( 1.3.6.1.4.1.2428.20.1.13 NAME 'hInfoRecord'
+    DESC 'host information, RFC 1035'
+    EQUALITY caseIgnoreIA5Match
+    SUBSTR caseIgnoreIA5SubstringsMatch
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
+
+attributetype ( 1.3.6.1.4.1.2428.20.1.14 NAME 'mInfoRecord'
+    DESC 'mailbox or mail list information, RFC 1035'
+    EQUALITY caseIgnoreIA5Match
+    SUBSTR caseIgnoreIA5SubstringsMatch
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
+
+attributetype ( 1.3.6.1.4.1.2428.20.1.16 NAME 'tXTRecord'
+    DESC 'text string, RFC 1035'
+    EQUALITY caseIgnoreIA5Match
+    SUBSTR caseIgnoreIA5SubstringsMatch
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
+
+attributetype ( 1.3.6.1.4.1.2428.20.1.18 NAME 'aFSDBRecord'
+    DESC 'for AFS Data Base location, RFC 1183'
+    EQUALITY caseIgnoreIA5Match
+    SUBSTR caseIgnoreIA5SubstringsMatch
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
+
+attributetype ( 1.3.6.1.4.1.2428.20.1.24 NAME 'SigRecord'
+    DESC 'Signature, RFC 2535'
+    EQUALITY caseIgnoreIA5Match
+    SUBSTR caseIgnoreIA5SubstringsMatch
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
+
+attributetype ( 1.3.6.1.4.1.2428.20.1.25 NAME 'KeyRecord'
+    DESC 'Key, RFC 2535'
+    EQUALITY caseIgnoreIA5Match
+    SUBSTR caseIgnoreIA5SubstringsMatch
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
+
+attributetype ( 1.3.6.1.4.1.2428.20.1.28 NAME 'aAAARecord'
+    DESC 'IPv6 address, RFC 1886'
+    EQUALITY caseIgnoreIA5Match
+    SUBSTR caseIgnoreIA5SubstringsMatch
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
+
+attributetype ( 1.3.6.1.4.1.2428.20.1.29 NAME 'LocRecord'
+    DESC 'Location, RFC 1876'
+    EQUALITY caseIgnoreIA5Match
+    SUBSTR caseIgnoreIA5SubstringsMatch
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
+
+attributetype ( 1.3.6.1.4.1.2428.20.1.30 NAME 'nXTRecord'
+    DESC 'non-existant, RFC 2535'
+    EQUALITY caseIgnoreIA5Match
+    SUBSTR caseIgnoreIA5SubstringsMatch
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
+
+attributetype ( 1.3.6.1.4.1.2428.20.1.33 NAME 'sRVRecord'
+    DESC 'service location, RFC 2782'
+    EQUALITY caseIgnoreIA5Match
+    SUBSTR caseIgnoreIA5SubstringsMatch
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
+
+attributetype ( 1.3.6.1.4.1.2428.20.1.35 NAME 'nAPTRRecord'
+    DESC 'Naming Authority Pointer, RFC 2915'
+    EQUALITY caseIgnoreIA5Match
+    SUBSTR caseIgnoreIA5SubstringsMatch
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
+
+attributetype ( 1.3.6.1.4.1.2428.20.1.36 NAME 'kXRecord'
+    DESC 'Key Exchange Delegation, RFC 2230'
+    EQUALITY caseIgnoreIA5Match
+    SUBSTR caseIgnoreIA5SubstringsMatch
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
+
+attributetype ( 1.3.6.1.4.1.2428.20.1.37 NAME 'certRecord'
+    DESC 'certificate, RFC 2538'
+    EQUALITY caseIgnoreIA5Match
+    SUBSTR caseIgnoreIA5SubstringsMatch
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
+
+attributetype ( 1.3.6.1.4.1.2428.20.1.38 NAME 'a6Record'
+    DESC 'A6 Record Type, RFC 2874'
+    EQUALITY caseIgnoreIA5Match
+    SUBSTR caseIgnoreIA5SubstringsMatch
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
+
+attributetype ( 1.3.6.1.4.1.2428.20.1.39 NAME 'dNameRecord'
+    DESC 'Non-Terminal DNS Name Redirection, RFC 2672'
+    EQUALITY caseIgnoreIA5Match
+    SUBSTR caseIgnoreIA5SubstringsMatch
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
+
+attributetype ( 1.3.6.1.4.1.2428.20.1.43 NAME 'dSRecord'
+    DESC 'Delegation Signer, RFC 3658'
+    EQUALITY caseIgnoreIA5Match
+    SUBSTR caseIgnoreIA5SubstringsMatch
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
+
+attributetype ( 1.3.6.1.4.1.2428.20.1.44 NAME 'sSHFPRecord'
+    DESC 'SSH Key Fingerprint, draft-ietf-secsh-dns-05.txt'
+    EQUALITY caseIgnoreIA5Match
+    SUBSTR caseIgnoreIA5SubstringsMatch
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
+
+attributetype ( 1.3.6.1.4.1.2428.20.1.46 NAME 'rRSIGRecord'
+    DESC 'RRSIG, RFC 3755'
+    EQUALITY caseIgnoreIA5Match
+    SUBSTR caseIgnoreIA5SubstringsMatch
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
+
+attributetype ( 1.3.6.1.4.1.2428.20.1.47 NAME 'nSECRecord'
+    DESC 'NSEC, RFC 3755'
+    EQUALITY caseIgnoreIA5Match
+    SUBSTR caseIgnoreIA5SubstringsMatch
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
+
+objectclass ( 1.3.6.1.4.1.2428.20.3 NAME 'dNSZone'
+        SUP top STRUCTURAL
+    MUST ( zoneName $ relativeDomainName )
+        MAY ( DNSTTL $ DNSClass $
+              ARecord $ MDRecord $ MXRecord $ NSRecord $
+          SOARecord $ CNAMERecord $ PTRRecord $ HINFORecord $
+              MINFORecord $ TXTRecord $ AFSDBRecord $ SIGRecord $
+              KEYRecord $ AAAARecord $ LOCRecord $ NXTRecord $
+              SRVRecord $ NAPTRRecord $ KXRecord $ CERTRecord $
+              A6Record $ DNAMERecord $ DSRecord $ SSHFPRecord $
+              RRSIGRecord $ NSECRecord ) )
