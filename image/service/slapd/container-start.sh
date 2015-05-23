@@ -2,6 +2,11 @@
 
 FIRST_START_DONE="/etc/docker-openldap-first-start-done"
 
+# Reduce maximum number of number of open file descriptors to 1024
+# otherwise slapd consumes two orders of magnitude more of RAM
+# see https://github.com/docker/docker/issues/8231
+ulimit -n 1024
+
 #fix file permissions
 chown -R openldap:openldap /var/lib/ldap 
 chown -R openldap:openldap /etc/ldap
