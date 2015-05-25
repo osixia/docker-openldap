@@ -8,8 +8,9 @@ FIRST_START_DONE="/etc/docker-openldap-first-start-done"
 ulimit -n 1024
 
 #fix file permissions
-chown -R openldap:openldap /var/lib/ldap 
+chown -R openldap:openldap /var/lib/ldap
 chown -R openldap:openldap /etc/ldap
+chown -R openldap:openldap /osixia/slapd
 
 # container first start
 if [ ! -e "$FIRST_START_DONE" ]; then
@@ -55,18 +56,53 @@ EOF
 
     dpkg-reconfigure -f noninteractive slapd
 
-    # start OpenLDAP
-    slapd -h "ldapi:///" -u openldap -g openldap
+  fi
 
-    get_base_dn 
+  ls -al /osixia/slapd/ssl
+
+  # start OpenLDAP
+  slapd -h "ldapi:///" -u openldap -g openldap
+
+  # config is uninitialized
+  if [ -z "$(ls -A /etc/ldap/slapd.d)" ]; then
+
+    get_base_dn
     sed -i "s|dc=example,dc=org|$BASE_DN|g" /osixia/slapd/security.ldif
 
     ldapmodify -Y EXTERNAL -Q -H ldapi:/// -f /osixia/slapd/security.ldif
 
-  else
+    # add ppolicy schema if not already exists
+    ADD_PPOLICY=$(is_new_schema ppolicy)
+    if [ "$ADD_PPOLICY" -eq 1 ]; then
+      ldapadd -c -Y EXTERNAL -Q -H ldapi:/// -f /etc/ldap/schema/ppolicy.ldif
+    fi
 
-    # start OpenLDAP
-    slapd -h "ldapi:///" -u openldap -g openldap
+    # convert  schemas to ldif
+    SCHEMAS=""
+    for f in $(find /osixia/slapd/schema -name \*.schema -type f); do
+      SCHEMAS="$SCHEMAS ${f}"
+    done
+    /osixia/slapd/schema-to-ldif.sh "$SCHEMAS"
+
+    for f in $(find /osixia/slapd/schema -name \*.ldif -type f); do
+      echo "Processing file ${f}"
+      # add schema if not already exists
+      SCHEMA=$(basename "${f}" .ldif)
+      ADD_SCHEMA=$(is_new_schema $SCHEMA)
+      if [ "$ADD_SCHEMA" -eq 1 ]; then
+        echo "add schema ${SCHEMA}"
+        ldapadd -c -Y EXTERNAL -Q -H ldapi:/// -f $f
+      else
+        echo "schema ${f} already exists"
+      fi
+
+    done
+
+    # OpenLDAP config
+    for f in $(find /osixia/slapd/config -name \*.ldif -type f); do
+      echo "Processing file ${f}"
+      ldapmodify -Y EXTERNAL -Q -H ldapi:/// -f $f
+    done
 
   fi
 
@@ -76,6 +112,9 @@ EOF
 
     # check certificat and key or create it
     /sbin/ssl-kit "/osixia/slapd/ssl/$SSL_CRT_FILENAME" "/osixia/slapd/ssl/$SSL_KEY_FILENAME" --ca-crt=/osixia/slapd/ssl/$SSL_CA_CRT_FILENAME --gnutls
+
+    # fix file permissions
+    chown -R openldap:openldap /osixia/slapd
 
     # create DHParamFile if not found
     [ -f /osixia/slapd/ssl/dhparam.pem ] || openssl dhparam -out /osixia/slapd/ssl/dhparam.pem 2048
@@ -95,46 +134,11 @@ EOF
     sed -i "s,TLS_CACERT.*,TLS_CACERT /osixia/slapd/ssl/${SSL_CA_CRT_FILENAME},g" /etc/ldap/ldap.conf
   fi
 
-  # add ppolicy schema if not already exists
-  ADD_PPOLICY=$(is_new_schema ppolicy)
-  if [ "$ADD_PPOLICY" -eq 1 ]; then
-    ldapadd -c -Y EXTERNAL -Q -H ldapi:/// -f /etc/ldap/schema/ppolicy.ldif
-  fi
-
-  # convert  schemas to ldif
-  SCHEMAS=""
-  for f in $(find /osixia/slapd/schema -name \*.schema -type f); do
-    SCHEMAS="$SCHEMAS ${f}"
-  done
-  /osixia/slapd/schema-to-ldif.sh "$SCHEMAS"
-
-  for f in $(find /osixia/slapd/schema -name \*.ldif -type f); do
-    echo "Processing file ${f}"
-    # add schema if not already exists
-    SCHEMA=$(basename "${f}" .ldif)
-    ADD_SCHEMA=$(is_new_schema $SCHEMA)
-    if [ "$ADD_SCHEMA" -eq 1 ]; then
-      echo "add schema ${SCHEMA}"
-      ldapadd -c -Y EXTERNAL -Q -H ldapi:/// -f $f
-    else
-      echo "schema ${f} already exists"
-    fi
-
-  done
-
-  # OpenLDAP config 
-  for f in $(find /osixia/slapd/config -name \*.ldif -type f); do
-    echo "Processing file ${f}"
-    ldapmodify -Y EXTERNAL -Q -H ldapi:/// -f $f
-  done
 
   # stop OpenLDAP
   kill -INT `cat /run/slapd/slapd.pid`
 
   touch $FIRST_START_DONE
 fi
-
-# fix file permissions
-chown openldap:openldap -R /osixia/slapd
 
 exit 0
