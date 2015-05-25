@@ -12,13 +12,11 @@ RUN apt-get -y update && /sbin/enable-service ssl-kit \
 	&& LC_ALL=C DEBIAN_FRONTEND=noninteractive apt-get install -y --force-yes --no-install-recommends slapd ldap-utils \
 	&& rm -rf /var/lib/ldap
 
-# Add install script and OpenLDAP assets
-ADD service/install.sh /tmp/install.sh
+# Add OpenLDAP assets
 ADD service/slapd/assets /osixia/slapd
 
-# Run install script and clean all
-RUN ./tmp/install.sh \
-    && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+# Clean all
+RUN apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 # Add default env variables
 ADD env.yml /etc/env.yml
