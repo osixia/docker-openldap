@@ -12,7 +12,7 @@ Add support of tls. Use docker 1.5.0
 Run OpenLDAP docker image :
 
 	docker run -d osixia/openldap
-  
+
 This start a new container with a OpenLDAP server running inside.
 The odd string printed by this command is the `CONTAINER_ID`.
 We are going to use this `CONTAINER_ID` to execute some commands inside the container.
@@ -24,11 +24,11 @@ make sure to replace `CONTAINER_ID` by your container id :
 
 	docker exec -it CONTAINER_ID bash
 
-You should now be in the container terminal, 
+You should now be in the container terminal,
 and we can search on the ldap server :
-	
+
 	ldapsearch -x -h 127.0.0.1 -b dc=example,dc=org -D "cn=admin,dc=example,dc=org" -w admin
-	
+
 This should output :
 
 	# extended LDIF
@@ -38,17 +38,17 @@ This should output :
 	# filter: (objectclass=*)
 	# requesting: ALL
 	#
-	
+
 	[...]
 
 	# numResponses: 3
 	# numEntries: 2
-	
+
 if you have the following error, OpenLDAP is not started yet, wait some time.
 
 		ldap_sasl_bind(SIMPLE): Can't contact LDAP server (-1)
-	
-	
+
+
 ## Examples
 
 ### Create new ldap server
@@ -71,10 +71,10 @@ For more information about docker data volume, please refer to :
 
 > [https://docs.docker.com/userguide/dockervolumes/](https://docs.docker.com/userguide/dockervolumes/)
 
-	
+
 ### Use an existing ldap database
 
-This can be achieved by mounting host directories as volume. 
+This can be achieved by mounting host directories as volume.
 Assuming you have a LDAP database on your docker host in the directory `/data/slapd/database`
 and the corresponding LDAP config files on your docker host in the directory `/data/slapd/config`
 simply mount this directories as a volume to `/var/lib/ldap` and `/etc/ldap/slapd.d`:
@@ -104,7 +104,7 @@ Or you can set your custom certificate at run time, by mouting your a directory 
 	-e SSL_KEY_FILENAME=my-ldap.key \
 	-e SSL_CA_CRT_FILENAME=the-ca.crt \
 	-d osixia/openldap
-	
+
 #### Disable TLS
 Add -e USE_TLS=false to the run command :
 
@@ -116,7 +116,10 @@ If you are looking for a simple solution to administrate your ldap server you ca
 
 ## Environment Variables
 
-Environement variables defaults are set in **image/env.yml**. You can modify environment variable values directly in this file and rebuild the image ([see manual build](#manual-build)) or you can override those values at run time with -e argument. See example below.
+Environement variables defaults are set in **image/env.yml**. You can modify environment variable values directly in this file and rebuild the image ([see manual build](#manual-build)). You can also override those values at run time with -e argument or by setting your own env.yml file as a docker volume to `/etc/env.yml`. See examples below.
+
+General container configuration :
+- **LDAP_LOG_LEVEL**: Slap log level. defaults to  `-1`. See table 5.1 in http://www.openldap.org/doc/admin24/slapdconf2.html for the available log levels.
 
 Required for new ldap server :
 - **LDAP_ORGANISATION**: Organisation name. Defaults to `Example Inc.`
@@ -133,9 +136,14 @@ TLS options :
 ### Set environment variables at run time :
 
 Environment variable can be set directly by adding the -e argument in the command line, for example :
-	
+
 	docker run -e LDAP_ORGANISATION="My Compagny" -e LDAP_DOMAIN="my-compagny.com" \
 	-e LDAP_ADMIN_PASSWORD="JonSn0w" -d osixia/openldap
+
+Or by setting your own `env.yml` file as a docker volume to `/etc/env.yml`
+
+	docker run -v /data/my-ldap-env.yml:/etc/env.yml \
+	-d osixia/openldap
 
 ## Manual build
 
@@ -148,15 +156,15 @@ Adapt Makefile, set your image NAME and VERSION, for example :
 
 	NAME = osixia/openldap
 	VERSION = 0.10.0
-	
+
 	becomes :
 	NAME = billy-the-king/openldap
 	VERSION = 0.1.0
 
 Build your image :
-	
+
 	make build
-	
+
 Run your image :
 
 	docker run -d billy-the-king/openldap:0.1.0
@@ -170,5 +178,3 @@ We use **Bats** (Bash Automated Testing System) to test this image:
 Install Bats, and in this project directory run :
 
 	make test
-
-	
