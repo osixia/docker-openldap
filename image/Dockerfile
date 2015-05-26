@@ -28,5 +28,5 @@ ADD service/slapd/daemon.sh /etc/service/slapd/run
 # Set OpenLDAP data and config directories in a data volume
 VOLUME ["/var/lib/ldap", "/etc/ldap/slapd.d"]
 
-# Expose ldap default port
-EXPOSE 389
+# Expose default ports for ldap and ldaps
+EXPOSE 389 636
