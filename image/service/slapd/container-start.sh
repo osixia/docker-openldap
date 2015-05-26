@@ -85,7 +85,7 @@ EOF
   else
     # there is an existing database and config
 
-    # ifthe config was bootstraped with TLS
+    # if the config was bootstraped with TLS
     # to avoid error (#6) we check tls files
     if [ -e "$BOOTSTRAPED_WITH_TLS" ]; then
       check_tls_files
