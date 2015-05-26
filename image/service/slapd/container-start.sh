@@ -1,6 +1,7 @@
 #!/bin/bash -e
 
 FIRST_START_DONE="/etc/docker-openldap-first-start-done"
+BOOTSTRAPED_WITH_TLS="/etc/ldap/slapd.d/docker-openldap-bootstraped-with-tls"
 
 # Reduce maximum number of number of open file descriptors to 1024
 # otherwise slapd consumes two orders of magnitude more of RAM
@@ -15,7 +16,7 @@ chown -R openldap:openldap /osixia/slapd
 # container first start
 if [ ! -e "$FIRST_START_DONE" ]; then
 
-  function get_base_dn(){
+  function get_base_dn() {
     BASE_DN=""
     IFS='.' read -ra BASE_DN_TABLE <<< "$LDAP_DOMAIN"
     for i in "${BASE_DN_TABLE[@]}"; do
@@ -26,7 +27,7 @@ if [ ! -e "$FIRST_START_DONE" ]; then
     BASE_DN=${BASE_DN::-1}
   }
 
-  function is_new_schema(){
+  function is_new_schema() {
     local COUNT=$(ldapsearch -Q -Y EXTERNAL -H ldapi:/// -b cn=schema,cn=config cn | grep -c $1)
     if [ "$COUNT" -eq 0 ]; then
       echo 1
@@ -35,8 +36,26 @@ if [ ! -e "$FIRST_START_DONE" ]; then
     fi
   }
 
-  # database is uninitialized
-  if [ -z "$(ls -A /var/lib/ldap)" ]; then
+  function check_tls_files() {
+    # check certificat and key or create it
+    /sbin/ssl-kit "/osixia/slapd/ssl/$SSL_CRT_FILENAME" "/osixia/slapd/ssl/$SSL_KEY_FILENAME" --ca-crt=/osixia/slapd/ssl/$SSL_CA_CRT_FILENAME --gnutls
+
+    # create DHParamFile if not found
+    [ -f /osixia/slapd/ssl/dhparam.pem ] || openssl dhparam -out /osixia/slapd/ssl/dhparam.pem 2048
+
+    # fix file permissions
+    chown -R openldap:openldap /osixia/slapd
+  }
+
+
+  BOOTSTRAP=false
+
+  # database and config directory are empty -> set bootstrap config
+  if [ -z "$(ls -A /var/lib/ldap)" ] && [ -z "$(ls -A /etc/ldap/slapd.d)" ]; then
+
+    BOOTSTRAP=true
+    echo "database and config directory are empty"
+    echo "-> set bootstrap config"
 
     cat <<EOF | debconf-set-selections
 slapd slapd/internal/generated_adminpw password ${LDAP_ADMIN_PASSWORD}
@@ -56,20 +75,30 @@ EOF
 
     dpkg-reconfigure -f noninteractive slapd
 
+  elif [ -z "$(ls -A /var/lib/ldap)" ] && [ ! -z "$(ls -A /etc/ldap/slapd.d)" ]; then
+    echo "Error: the database directory (/var/lib/ldap) is empty but not the config directory (/etc/ldap/slapd.d)"
+    exit 1
+  elif [ ! -z "$(ls -A /var/lib/ldap)" ] && [ -z "$(ls -A /etc/ldap/slapd.d)" ]; then
+    echo "the config directory (/etc/ldap/slapd.d) is empty but not the database directory (/var/lib/ldap)"
+    exit 1
+
+  else
+    # there is an existing database and config
+
+    # ifthe config was bootstraped with TLS
+    # to avoid error (#6) we check tls files
+    if [ -e "$BOOTSTRAPED_WITH_TLS" ]; then
+      check_tls_files
+    fi
   fi
 
-  ls -al /osixia/slapd/ssl
-
   # start OpenLDAP
+  echo "Starting openldap..."
   slapd -h "ldapi:///" -u openldap -g openldap
+  echo "ok"
 
-  # config is uninitialized
-  if [ -z "$(ls -A /etc/ldap/slapd.d)" ]; then
-
-    get_base_dn
-    sed -i "s|dc=example,dc=org|$BASE_DN|g" /osixia/slapd/security.ldif
-
-    ldapmodify -Y EXTERNAL -Q -H ldapi:/// -f /osixia/slapd/security.ldif
+  # set bootstrap config part 2
+  if $BOOTSTRAP; then
 
     # add ppolicy schema if not already exists
     ADD_PPOLICY=$(is_new_schema ppolicy)
@@ -84,6 +113,7 @@ EOF
     done
     /osixia/slapd/schema-to-ldif.sh "$SCHEMAS"
 
+    # add schemas
     for f in $(find /osixia/slapd/schema -name \*.ldif -type f); do
       echo "Processing file ${f}"
       # add schema if not already exists
@@ -95,10 +125,13 @@ EOF
       else
         echo "schema ${f} already exists"
       fi
-
     done
 
-    # OpenLDAP config
+    # adapt security config file
+    get_base_dn
+    sed -i "s|dc=example,dc=org|$BASE_DN|g" /osixia/slapd/config/security.ldif
+
+    # process config files
     for f in $(find /osixia/slapd/config -name \*.ldif -type f); do
       echo "Processing file ${f}"
       ldapmodify -Y EXTERNAL -Q -H ldapi:/// -f $f
@@ -106,18 +139,10 @@ EOF
 
   fi
 
-
   # TLS config
   if [ "${USE_TLS,,}" == "true" ]; then
 
-    # check certificat and key or create it
-    /sbin/ssl-kit "/osixia/slapd/ssl/$SSL_CRT_FILENAME" "/osixia/slapd/ssl/$SSL_KEY_FILENAME" --ca-crt=/osixia/slapd/ssl/$SSL_CA_CRT_FILENAME --gnutls
-
-    # fix file permissions
-    chown -R openldap:openldap /osixia/slapd
-
-    # create DHParamFile if not found
-    [ -f /osixia/slapd/ssl/dhparam.pem ] || openssl dhparam -out /osixia/slapd/ssl/dhparam.pem 2048
+    check_tls_files
 
     # adapt tls ldif
     sed -i "s,/osixia/slapd/ssl/ca.crt,/osixia/slapd/ssl/${SSL_CA_CRT_FILENAME},g" /osixia/slapd/tls.ldif
@@ -126,14 +151,18 @@ EOF
 
     ldapmodify -Y EXTERNAL -Q -H ldapi:/// -f /osixia/slapd/tls.ldif
 
+    if $BOOTSTRAP; then
+      touch $BOOTSTRAPED_WITH_TLS
+    fi
+
     # add localhost route to certificate cn (need docker 1.5.0)
     cn=$(openssl x509 -in /osixia/slapd/ssl/$SSL_CRT_FILENAME -subject -noout | sed -n 's/.*CN=\(.*\)\/*\(.*\)/\1/p')
     echo "127.0.0.1 $cn" >> /etc/hosts
 
     # local ldap tls client config
     sed -i "s,TLS_CACERT.*,TLS_CACERT /osixia/slapd/ssl/${SSL_CA_CRT_FILENAME},g" /etc/ldap/ldap.conf
-  fi
 
+  fi
 
   # stop OpenLDAP
   kill -INT `cat /run/slapd/slapd.pid`

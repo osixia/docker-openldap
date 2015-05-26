@@ -8,7 +8,7 @@
   - Limit max open file descriptors to fix slapd memory usage #9
   - Don't disable network access from outside #8
   - Make log level configurable via environment variable #7
-
+  - Support for ldaps #10
 
 ## 0.10.1 (release date: 2015-05-17)
   - Add ldapi

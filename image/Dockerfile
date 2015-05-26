@@ -10,7 +10,7 @@ RUN groupadd -r openldap && useradd -r -g openldap openldap
 # Install OpenLDAP and ldap-utils (and ssl-kit from baseimage), remove default ldap db
 RUN apt-get -y update && /sbin/enable-service ssl-kit \
 	&& LC_ALL=C DEBIAN_FRONTEND=noninteractive apt-get install -y --force-yes --no-install-recommends slapd ldap-utils \
-	&& rm -rf /var/lib/ldap
+	&& rm -rf /var/lib/ldap /etc/ldap/slapd.d
 
 # Add OpenLDAP assets
 ADD service/slapd/assets /osixia/slapd
