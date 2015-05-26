@@ -17,8 +17,6 @@ This start a new container with a OpenLDAP server running inside.
 The odd string printed by this command is the `CONTAINER_ID`.
 We are going to use this `CONTAINER_ID` to execute some commands inside the container.
 
-Wait 1 or 2 minutes the container startup to be completed.
-
 Then run a terminal on this container,
 make sure to replace `CONTAINER_ID` by your container id :
 
