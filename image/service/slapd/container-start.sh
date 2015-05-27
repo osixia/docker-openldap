@@ -1,7 +1,7 @@
-#!/bin/bash -e
+#!/bin/bash -ex
 
 FIRST_START_DONE="/etc/docker-openldap-first-start-done"
-BOOTSTRAPED_WITH_TLS="/etc/ldap/slapd.d/docker-openldap-bootstraped-with-tls"
+WAS_STARTED_WITH_TLS="/etc/ldap/slapd.d/docker-openldap-was-started-with-tls"
 
 # Reduce maximum number of number of open file descriptors to 1024
 # otherwise slapd consumes two orders of magnitude more of RAM
@@ -37,8 +37,13 @@ if [ ! -e "$FIRST_START_DONE" ]; then
   }
 
   function check_tls_files() {
+
+    local CA_CRT=$1
+    local LDAP_CRT=$2
+    local LDAP_KEY=$3
+
     # check certificat and key or create it
-    /sbin/ssl-kit "/osixia/slapd/ssl/$SSL_CRT_FILENAME" "/osixia/slapd/ssl/$SSL_KEY_FILENAME" --ca-crt=/osixia/slapd/ssl/$SSL_CA_CRT_FILENAME --gnutls
+    /sbin/ssl-kit "/osixia/slapd/ssl/$LDAP_CRT" "/osixia/slapd/ssl/$LDAP_KEY" --ca-crt=/osixia/slapd/ssl/$CA_CRT --gnutls
 
     # create DHParamFile if not found
     [ -f /osixia/slapd/ssl/dhparam.pem ] || openssl dhparam -out /osixia/slapd/ssl/dhparam.pem 2048
@@ -87,8 +92,11 @@ EOF
 
     # if the config was bootstraped with TLS
     # to avoid error (#6) we check tls files
-    if [ -e "$BOOTSTRAPED_WITH_TLS" ]; then
-      check_tls_files
+    if [ -e "$WAS_STARTED_WITH_TLS" ]; then
+
+      . $WAS_STARTED_WITH_TLS
+
+      check_tls_files $PREVIOUS_SSL_CA_CRT_FILENAME $PREVIOUS_SSL_CRT_FILENAME $PREVIOUS_SSL_KEY_FILENAME
     fi
   fi
 
@@ -142,18 +150,21 @@ EOF
   # TLS config
   if [ "${USE_TLS,,}" == "true" ]; then
 
-    check_tls_files
+    check_tls_files $SSL_CA_CRT_FILENAME $SSL_CRT_FILENAME $SSL_KEY_FILENAME
 
     # adapt tls ldif
-    sed -i "s,/osixia/slapd/ssl/ca.crt,/osixia/slapd/ssl/${SSL_CA_CRT_FILENAME},g" /osixia/slapd/tls.ldif
-    sed -i "s,/osixia/slapd/ssl/ldap.crt,/osixia/slapd/ssl/${SSL_CRT_FILENAME},g" /osixia/slapd/tls.ldif
-    sed -i "s,/osixia/slapd/ssl/ldap.key,/osixia/slapd/ssl/${SSL_KEY_FILENAME},g" /osixia/slapd/tls.ldif
+    sed -i "s,/osixia/slapd/ssl/ca.crt,/osixia/slapd/ssl/${SSL_CA_CRT_FILENAME},g" /osixia/slapd/tls-enable.ldif
+    sed -i "s,/osixia/slapd/ssl/ldap.crt,/osixia/slapd/ssl/${SSL_CRT_FILENAME},g" /osixia/slapd/tls-enable.ldif
+    sed -i "s,/osixia/slapd/ssl/ldap.key,/osixia/slapd/ssl/${SSL_KEY_FILENAME},g" /osixia/slapd/tls-enable.ldif
 
-    ldapmodify -Y EXTERNAL -Q -H ldapi:/// -f /osixia/slapd/tls.ldif
+    ldapmodify -Y EXTERNAL -Q -H ldapi:/// -f /osixia/slapd/tls-enable.ldif
 
-    if $BOOTSTRAP; then
-      touch $BOOTSTRAPED_WITH_TLS
-    fi
+    [[ -f "$WAS_STARTED_WITH_TLS" ]] && rm -f "$WAS_STARTED_WITH_TLS"
+    touch $WAS_STARTED_WITH_TLS
+    echo "export PREVIOUS_SSL_CA_CRT_FILENAME=${SSL_CA_CRT_FILENAME}" >> $WAS_STARTED_WITH_TLS
+    echo "export PREVIOUS_SSL_CRT_FILENAME=${SSL_CRT_FILENAME}" >> $WAS_STARTED_WITH_TLS
+    echo "export PREVIOUS_SSL_KEY_FILENAME=${SSL_KEY_FILENAME}" >> $WAS_STARTED_WITH_TLS
+    chmod +x $WAS_STARTED_WITH_TLS
 
     # add localhost route to certificate cn (need docker 1.5.0)
     cn=$(openssl x509 -in /osixia/slapd/ssl/$SSL_CRT_FILENAME -subject -noout | sed -n 's/.*CN=\(.*\)\/*\(.*\)/\1/p')
@@ -161,6 +172,11 @@ EOF
 
     # local ldap tls client config
     sed -i "s,TLS_CACERT.*,TLS_CACERT /osixia/slapd/ssl/${SSL_CA_CRT_FILENAME},g" /etc/ldap/ldap.conf
+
+  else
+
+    [[ -f "$WAS_STARTED_WITH_TLS" ]] && rm -f "$WAS_STARTED_WITH_TLS"
+    ldapmodify -Y EXTERNAL -Q -H ldapi:/// -f /osixia/slapd/tls-disable.ldif
 
   fi
 
