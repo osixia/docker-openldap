@@ -185,6 +185,9 @@ EOF
   if [ "${USE_REPLICATION,,}" == "true" ]; then
 
 
+    cp /var/lib/ldap/DB_CONFIG /var/lib/ldap/accesslog
+    chown openldap:openldap /var/lib/ldap/accesslog
+
   else
 
     # disable replication

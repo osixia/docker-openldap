@@ -1,4 +1,76 @@
+# add replicator user
+dn: $REPLICATOR_DN
+cn: replicator
+sn: user
+objectClass: person
+userPassword: $REPLICATOR_PASSWORD
+
+# sets up the config database
+dn: cn=config
+objectClass: olcGlobal
+cn: config
+olcServerID: $SERVER_ID ldap://$SERVER_NAME
+
+# sets up syncrepl as a provider
 dn: cn=module,cn=config
 objectClass: olcModuleList
 cn: module
 olcModuleLoad: syncprov.la
+
+dn: cn=config
+changetype: modify
+replace: olcServerID
+olcServerID: 1 $URI1
+olcServerID: 2 $URI2
+olcServerID: 3 $URI3
+
+dn: olcOverlay=syncprov,olcDatabase={0}config,cn=config
+changetype: add
+objectClass: olcOverlayConfig
+objectClass: olcSyncProvConfig
+olcOverlay: syncprov
+
+dn: olcDatabase={0}config,cn=config
+changetype: modify
+add: olcSyncRepl
+olcSyncRepl: rid=001 provider=$URI1 binddn="cn=config" bindmethod=simple
+ credentials=secret searchbase="cn=config" type=refreshAndPersist
+ retry="5 5 300 5" timeout=1
+
+olcSyncRepl: rid=002 provider=$URI2 binddn="cn=config" bindmethod=simple
+ credentials=secret searchbase="cn=config" type=refreshAndPersist
+ retry="5 5 300 5" timeout=1
+
+olcSyncRepl: rid=003 provider=$URI3 binddn="cn=config" bindmethod=simple
+ credentials=secret searchbase="cn=config" type=refreshAndPersist
+ retry="5 5 300 5" timeout=1
+-
+add: olcMirrorMode
+olcMirrorMode: TRUE
+
+
+dn: olcDatabase={1}$BACKEND,cn=config
+objectClass: olcDatabaseConfig
+objectClass: olc${BACKEND}Config
+olcDatabase: {1}$BACKEND
+olcSuffix: $BASEDN
+olcDbDirectory: ./db
+olcRootDN: $MANAGERDN
+olcRootPW: $PASSWD
+olcLimits: dn.exact="$MANAGERDN" time.soft=unlimited time.hard=unlimited size.soft=unlimited size.hard=unlimited
+olcSyncRepl: rid=004 provider=$URI1 binddn="$MANAGERDN" bindmethod=simple
+ credentials=$PASSWD searchbase="$BASEDN" type=refreshOnly
+ interval=00:00:00:10 retry="5 5 300 5" timeout=1
+olcSyncRepl: rid=005 provider=$URI2 binddn="$MANAGERDN" bindmethod=simple
+ credentials=$PASSWD searchbase="$BASEDN" type=refreshOnly
+ interval=00:00:00:10 retry="5 5 300 5" timeout=1
+olcSyncRepl: rid=006 provider=$URI3 binddn="$MANAGERDN" bindmethod=simple
+ credentials=$PASSWD searchbase="$BASEDN" type=refreshOnly
+ interval=00:00:00:10 retry="5 5 300 5" timeout=1
+olcMirrorMode: TRUE
+
+dn: olcOverlay=syncprov,olcDatabase={1}${BACKEND},cn=config
+changetype: add
+objectClass: olcOverlayConfig
+objectClass: olcSyncProvConfig
+olcOverlay: syncprov
