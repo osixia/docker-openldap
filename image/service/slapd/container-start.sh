@@ -176,7 +176,7 @@ EOF
   else
 
     [[ -f "$WAS_STARTED_WITH_TLS" ]] && rm -f "$WAS_STARTED_WITH_TLS"
-    ldapmodify -Y EXTERNAL -Q -H ldapi:/// -f /osixia/slapd/tls-disable.ldif
+    ldapmodify -c -Y EXTERNAL -Q -H ldapi:/// -f /osixia/slapd/tls-disable.ldif || true
 
   fi
 
