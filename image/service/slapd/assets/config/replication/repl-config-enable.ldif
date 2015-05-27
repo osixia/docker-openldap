@@ -16,8 +16,8 @@ olcOverlay: syncprov
 dn: olcDatabase={0}config,cn=config
 changetype: modify
 add: olcSyncRepl
-olcSyncRepl: rid=001 provider=ldap://ldap1.example.org binddn="cn=admin,cn=config" bindmethod=simple credentials=config searchbase="cn=config" type=refreshAndPersist retry="5 5 300 5" timeout=1
-olcSyncRepl: rid=002 provider=ldap://ldap2.example.org binddn="cn=admin,cn=config" bindmethod=simple credentials=config searchbase="cn=config" type=refreshAndPersist retry="5 5 300 5" timeout=1
+olcSyncRepl: rid=001 provider=ldap://ldap1.example.org binddn="cn=admin,cn=config" bindmethod=simple credentials=config searchbase="cn=config" type=refreshAndPersist retry="5 5 300 5" timeout=1 attrs="*,+"
+olcSyncRepl: rid=002 provider=ldap://ldap2.example.org binddn="cn=admin,cn=config" bindmethod=simple credentials=config searchbase="cn=config" type=refreshAndPersist retry="5 5 300 5" timeout=1 attrs="*,+"
 -
 add: olcMirrorMode
 olcMirrorMode: TRUE

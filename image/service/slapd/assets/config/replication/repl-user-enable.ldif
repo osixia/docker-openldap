@@ -1,0 +1,8 @@
+dn: cn=replicator,dc=example,dc=org
+changetype: add
+objectClass: top
+objectClass: person
+cn: synchronisator
+sn: synchronisator
+description: LDAP synchronisator
+userPassword: {SSHA}hAUGoGZEFAyJnZg/Q/aTWGnpdDv9edCh

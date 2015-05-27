@@ -187,6 +187,11 @@ EOF
 
   else
 
+    # disable replication
+    for f in $(find /osixia/slapd/config/replication -name \*-disable.ldif -type f); do
+      echo "Processing file ${f}"
+      ldapmodify -Y EXTERNAL -Q -H ldapi:/// -f $f
+    done
 
   fi
 
