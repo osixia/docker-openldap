@@ -1,4 +1,4 @@
-#!/bin/bash -ex
+#!/bin/bash -e
 
 FIRST_START_DONE="/etc/docker-openldap-first-start-done"
 WAS_STARTED_WITH_TLS="/etc/ldap/slapd.d/docker-openldap-was-started-with-tls"
@@ -114,15 +114,15 @@ EOF
       ldapadd -c -Y EXTERNAL -Q -H ldapi:/// -f /etc/ldap/schema/ppolicy.ldif
     fi
 
-    # convert  schemas to ldif
+    # convert schemas to ldif
     SCHEMAS=""
-    for f in $(find /osixia/slapd/schema -name \*.schema -type f); do
+    for f in $(find /osixia/slapd/config/bootstrap/schema -name \*.schema -type f); do
       SCHEMAS="$SCHEMAS ${f}"
     done
     /osixia/slapd/schema-to-ldif.sh "$SCHEMAS"
 
     # add schemas
-    for f in $(find /osixia/slapd/schema -name \*.ldif -type f); do
+    for f in $(find /osixia/slapd/config/bootstrap/schema -name \*.ldif -type f); do
       echo "Processing file ${f}"
       # add schema if not already exists
       SCHEMA=$(basename "${f}" .ldif)
@@ -137,10 +137,10 @@ EOF
 
     # adapt security config file
     get_base_dn
-    sed -i "s|dc=example,dc=org|$BASE_DN|g" /osixia/slapd/config/security.ldif
+    sed -i "s|dc=example,dc=org|$BASE_DN|g" /osixia/slapd/config/bootstrap/security.ldif
 
     # process config files
-    for f in $(find /osixia/slapd/config -name \*.ldif -type f); do
+    for f in $(find /osixia/slapd/config/bootstrap -name \*.ldif -type f); do
       echo "Processing file ${f}"
       ldapmodify -Y EXTERNAL -Q -H ldapi:/// -f $f
     done
@@ -153,11 +153,11 @@ EOF
     check_tls_files $SSL_CA_CRT_FILENAME $SSL_CRT_FILENAME $SSL_KEY_FILENAME
 
     # adapt tls ldif
-    sed -i "s,/osixia/slapd/ssl/ca.crt,/osixia/slapd/ssl/${SSL_CA_CRT_FILENAME},g" /osixia/slapd/tls-enable.ldif
-    sed -i "s,/osixia/slapd/ssl/ldap.crt,/osixia/slapd/ssl/${SSL_CRT_FILENAME},g" /osixia/slapd/tls-enable.ldif
-    sed -i "s,/osixia/slapd/ssl/ldap.key,/osixia/slapd/ssl/${SSL_KEY_FILENAME},g" /osixia/slapd/tls-enable.ldif
+    sed -i "s,/osixia/slapd/ssl/ca.crt,/osixia/slapd/ssl/${SSL_CA_CRT_FILENAME},g" /osixia/slapd/config/tls/tls-enable.ldif
+    sed -i "s,/osixia/slapd/ssl/ldap.crt,/osixia/slapd/ssl/${SSL_CRT_FILENAME},g" /osixia/slapd/config/tls/tls-enable.ldif
+    sed -i "s,/osixia/slapd/ssl/ldap.key,/osixia/slapd/ssl/${SSL_KEY_FILENAME},g" /osixia/slapd/config/tls/tls-enable.ldif
 
-    ldapmodify -Y EXTERNAL -Q -H ldapi:/// -f /osixia/slapd/tls-enable.ldif
+    ldapmodify -Y EXTERNAL -Q -H ldapi:/// -f /osixia/slapd/config/tls/tls-enable.ldif
 
     [[ -f "$WAS_STARTED_WITH_TLS" ]] && rm -f "$WAS_STARTED_WITH_TLS"
     touch $WAS_STARTED_WITH_TLS
@@ -176,9 +176,20 @@ EOF
   else
 
     [[ -f "$WAS_STARTED_WITH_TLS" ]] && rm -f "$WAS_STARTED_WITH_TLS"
-    ldapmodify -c -Y EXTERNAL -Q -H ldapi:/// -f /osixia/slapd/tls-disable.ldif || true
+    ldapmodify -c -Y EXTERNAL -Q -H ldapi:/// -f /osixia/slapd/config/tls/tls-disable.ldif || true
 
   fi
+
+
+  # replication config
+  if [ "${USE_REPLICATION,,}" == "true" ]; then
+
+
+  else
+
+
+  fi
+
 
   # stop OpenLDAP
   kill -INT `cat /run/slapd/slapd.pid`
