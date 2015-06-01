@@ -13,6 +13,8 @@ chown -R openldap:openldap /var/lib/ldap
 chown -R openldap:openldap /etc/ldap
 chown -R openldap:openldap /osixia/slapd
 
+/etc/init.d/ntp restart
+
 # container first start
 if [ ! -e "$FIRST_START_DONE" ]; then
 
