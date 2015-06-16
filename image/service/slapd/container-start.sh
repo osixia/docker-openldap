@@ -139,10 +139,10 @@ EOF
 
     # adapt security config file
     get_base_dn
-    sed -i "s|dc=example,dc=org|$BASE_DN|g" /osixia/slapd/config/bootstrap/security.ldif
+    sed -i "s|dc=example,dc=org|$BASE_DN|g" /osixia/slapd/config/bootstrap/ldif/security.ldif
 
     # process config files
-    for f in $(find /osixia/slapd/config/bootstrap -name \*.ldif -type f); do
+    for f in $(find /osixia/slapd/config/bootstrap/ldif -name \*.ldif -type f); do
       echo "Processing file ${f}"
       ldapmodify -Y EXTERNAL -Q -H ldapi:/// -f $f
     done
@@ -151,6 +151,8 @@ EOF
 
   # TLS config
   if [ "${USE_TLS,,}" == "true" ]; then
+
+    echo "Use TLS"
 
     check_tls_files $SSL_CA_CRT_FILENAME $SSL_CRT_FILENAME $SSL_KEY_FILENAME
 
@@ -177,6 +179,8 @@ EOF
 
   else
 
+    echo "Don't use TLS"
+
     [[ -f "$WAS_STARTED_WITH_TLS" ]] && rm -f "$WAS_STARTED_WITH_TLS"
     ldapmodify -c -Y EXTERNAL -Q -H ldapi:/// -f /osixia/slapd/config/tls/tls-disable.ldif || true
 
@@ -186,16 +190,17 @@ EOF
   # replication config
   if [ "${USE_REPLICATION,,}" == "true" ]; then
 
+    echo "Use replication"
+    #cp /var/lib/ldap/DB_CONFIG /var/lib/ldap/accesslog
+    #chown openldap:openldap /var/lib/ldap/accesslog
 
-    cp /var/lib/ldap/DB_CONFIG /var/lib/ldap/accesslog
-    chown openldap:openldap /var/lib/ldap/accesslog
 
   else
-
+    echo "Don't use replication"
     # disable replication
     for f in $(find /osixia/slapd/config/replication -name \*-disable.ldif -type f); do
       echo "Processing file ${f}"
-      ldapmodify -Y EXTERNAL -Q -H ldapi:/// -f $f
+      #ldapmodify -Y EXTERNAL -Q -H ldapi:/// -f $f
     done
 
   fi
