@@ -137,12 +137,16 @@ EOF
       fi
     done
 
+    # adapt config password
+    CONFIG_PASSWORD_ENCRYPTED=$(slappasswd -s $LDAP_CONFIG_PASSWORD)
+    sed -i "s|{{ CONFIG_PASSWORD_ENCRYPTED }}|$CONFIG_PASSWORD_ENCRYPTED|g" /osixia/slapd/config/bootstrap/ldif/config-password.ldif
+
     # adapt security config file
     get_base_dn
-    sed -i "s|dc=example,dc=org|$BASE_DN|g" /osixia/slapd/config/bootstrap/security.ldif
+    sed -i "s|dc=example,dc=org|$BASE_DN|g" /osixia/slapd/config/bootstrap/ldif/security.ldif
 
     # process config files
-    for f in $(find /osixia/slapd/config/bootstrap -path /osixia/slapd/config/bootstrap/schema -prune -name \*.ldif -type f); do
+    for f in $(find /osixia/slapd/config/bootstrap/ldif  -name \*.ldif -type f); do
       echo "Processing file ${f}"
       ldapmodify -Y EXTERNAL -Q -H ldapi:/// -f $f
     done
@@ -192,8 +196,123 @@ EOF
 
     echo "Set replication"
 
-    #cp /var/lib/ldap/DB_CONFIG /var/lib/ldap/accesslog
-    #chown openldap:openldap /var/lib/ldap/accesslog
+    # copy template file
+    cp /osixia/slapd/config/replication/replication-enable-template.ldif /osixia/slapd/config/replication/replication-enable.ldif
+
+    function addReplicationSyncRepl() {
+
+      local TYPE=$1
+      local HOST=$2
+      local INFOS=(${3})
+
+      olcSyncReplLine="olcSyncRepl:"
+
+      if [ "$TYPE" == "CONFIG" ]; then
+        olcSyncReplLine="$olcSyncReplLine rid=00$i"
+      else
+        olcSyncReplLine="$olcSyncReplLine rid=10$i"
+      fi
+
+      olcSyncReplLine="$olcSyncReplLine provider=$HOST"
+
+      for info in "${INFOS[@]}"
+      do
+
+        info=($info)
+        local key_value_pair=(${!info[0]})
+        local key=${!key_value_pair[0]}
+        local value=${!key_value_pair[1]}
+
+        olcSyncReplLine="$olcSyncReplLine $key=\"$value\""
+
+      done
+
+      if [ "$TYPE" == "CONFIG" ]; then
+        sed -i "s|{{ REPLICATION_HOSTS_CONFIG_SYNC_REPL }}|$olcSyncReplLine\n{{ REPLICATION_HOSTS_CONFIG_SYNC_REPL }}|g" /osixia/slapd/config/replication/replication-enable.ldif
+      else
+        sed -i "s|{{ REPLICATION_HOSTS_HDB_SYNC_REPL }}|$olcSyncReplLine\n{{ REPLICATION_HOSTS_HDB_SYNC_REPL }}|g" /osixia/slapd/config/replication/replication-enable.ldif
+      fi
+    }
+
+
+    # replication hosts config
+    function addReplicationHost() {
+
+      local HOST=$1
+      local INFOS=(${!2})
+
+      local SERVER_ID_FOUND=false
+      local SYNCPROV_CONFIG_OBJECT_FOUND=false
+      local SYNCPROV_HDB_OBJECT_FOUND=false
+
+      for info in "${INFOS[@]}"
+      do
+        info=($info)
+        local key_value_pair=(${!info[0]})
+        local key=${!key_value_pair[0]}
+        local value=${!key_value_pair[1]}
+
+        # olcServerID
+        if [ "$key" == "server_id" ]; then
+          sed -i "s|{{ REPLICATION_HOSTS }}|olcServerID: $value $HOST\n{{ REPLICATION_HOSTS }}|g" /osixia/slapd/config/replication/replication-enable.ldif
+          SERVER_ID_FOUND=true
+
+        # olcSyncRepl for config and hdb
+        elif [ "$key" == "syncprov_config" ]; then
+          addReplicationSyncRepl CONFIG $HOST "$value"
+          SYNCPROV_CONFIG_OBJECT_FOUND=true
+
+        elif [ "$key" == "syncprov_hdb" ]; then
+          addReplicationSyncRepl HDB $HOST "$value"
+          SYNCPROV_HDB_OBJECT_FOUND=true
+
+        fi
+      done
+
+      if ! $SERVER_ID_FOUND; then
+        echo "Error: Replication host ${HOST} must define a server_id"
+        exit 1
+      fi
+
+      if ! $SYNCPROV_CONFIG_OBJECT_FOUND; then
+        echo "Error: Replication host ${HOST} must define a syncprov_config object"
+        exit 1
+      fi
+
+      if ! $SYNCPROV_HDB_OBJECT_FOUND; then
+        echo "Error: Replication host ${HOST} must define a syncprov_hdb object"
+        exit 1
+      fi
+    }
+
+    REPLICATION_HOSTS=($REPLICATION_HOSTS)
+    i=1
+    for host in "${REPLICATION_HOSTS[@]}"
+    do
+
+      #host var contain a variable name, we access to the variable value and cast it to a table
+      infos=(${!host})
+
+      # it's a table of infos
+      if [ "${#infos[@]}" -gt "1" ]; then
+
+        addReplicationHost ${!infos[0]} ${infos[1]}
+
+      else
+        echo "Error: Replication host ${!host} must define a server_id, syncprov_config and syncprov_hdb object"
+        exit 1
+      fi
+
+      ((i++))
+    done
+
+
+    sed -i "/{{ REPLICATION_HOSTS }}/d" /osixia/slapd/config/replication/replication-enable.ldif
+    sed -i "/{{ REPLICATION_HOSTS_CONFIG_SYNC_REPL }}/d" /osixia/slapd/config/replication/replication-enable.ldif
+    sed -i "/{{ REPLICATION_HOSTS_HDB_SYNC_REPL }}/d" /osixia/slapd/config/replication/replication-enable.ldif
+
+    cat /osixia/slapd/config/replication/replication-enable.ldif
+    ldapmodify -c -Y EXTERNAL -Q -H ldapi:/// -f /osixia/slapd/config/replication/replication-enable.ldif -v -d -1
 
   else
 
