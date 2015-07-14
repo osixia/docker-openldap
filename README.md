@@ -95,9 +95,9 @@ By default TLS is enable, a certificate is created for the CN (common name) ldap
 
 Add your custom certificate, private key and CA certificate in the directory **image/service/slapd/assets/ssl** adjust filename in **image/env.yml** and rebuild the image ([see manual build](#manual-build)).
 
-Or you can set your custom certificate at run time, by mouting a directory containing thoses files to **/osixia/slapd/ssl** and adjust there name with the following environment variables :
+Or you can set your custom certificate at run time, by mouting a directory containing thoses files to **/osixia/slapd/assets/ssl** and adjust there name with the following environment variables :
 
-	docker run -v /path/to/certifates:/osixia/slapd/ssl \
+	docker run -v /path/to/certifates:/osixia/slapd/assets/ssl \
 	-e SSL_CRT_FILENAME=my-ldap.crt \
 	-e SSL_KEY_FILENAME=my-ldap.key \
 	-e SSL_CA_CRT_FILENAME=the-ca.crt \
