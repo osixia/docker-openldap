@@ -44,7 +44,7 @@ load test_helper
 }
 
 @test "ldapsearch existing database and config" {
-skip
+
   run_image -h ldap.example.org -e USE_TLS=false -v $BATS_TEST_DIRNAME/database:/var/lib/ldap -v $BATS_TEST_DIRNAME/config:/etc/ldap/slapd.d
   wait_service slapd
   run docker exec $CONTAINER_ID ldapsearch -x -h ldap.example.org -b dc=osixia,dc=net -D "cn=admin,dc=osixia,dc=net" -w admin
