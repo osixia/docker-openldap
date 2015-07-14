@@ -206,7 +206,7 @@ EOF
 
       sed -i "s|{{ REPLICATION_HOSTS }}|olcServerID: $i ${host}\n{{ REPLICATION_HOSTS }}|g" /osixia/slapd/assets/config/replication/replication-enable.ldif
       sed -i "s|{{ REPLICATION_HOSTS_CONFIG_SYNC_REPL }}|olcSyncRepl: rid=00$i provider=${host} ${REPLICATION_CONFIG_SYNCPROV}\n{{ REPLICATION_HOSTS_CONFIG_SYNC_REPL }}|g" /osixia/slapd/assets/config/replication/replication-enable.ldif
-      sed -i "s|{{ REPLICATION_HOSTS_HDB_SYNC_REPL }}|olcSyncRepl: rid=10$i provider=${host} ${REPLICATION_HDB_CONFIG}\n{{ REPLICATION_HOSTS_HDB_SYNC_REPL }}|g" /osixia/slapd/assets/config/replication/replication-enable.ldif
+      sed -i "s|{{ REPLICATION_HOSTS_HDB_SYNC_REPL }}|olcSyncRepl: rid=10$i provider=${host} ${REPLICATION_HDB_SYNCPROV}\n{{ REPLICATION_HOSTS_HDB_SYNC_REPL }}|g" /osixia/slapd/assets/config/replication/replication-enable.ldif
 
       ((i++))
     done
