@@ -13,7 +13,7 @@ RUN apt-get -y update && /sbin/enable-service ssl-kit \
 	slapd ldap-utils ntp \
 	&& rm -rf /var/lib/ldap /etc/ldap/slapd.d
 
-# Add services to /osixia
+# Add service directory to /osixia
 ADD service /osixia
 
 # Use baseimage service auto-install script and clean all

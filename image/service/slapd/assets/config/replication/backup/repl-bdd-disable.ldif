@@ -1,8 +1,0 @@
-dn: olcDatabase={1}hdb,cn=config
-changetype: modify
-delete: olcSyncRepl
--
-delete: olcMirrorMode
-
-dn: olcOverlay=syncprov,olcDatabase={2}bdb,cn=config
-changetype: delete

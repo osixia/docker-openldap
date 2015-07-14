@@ -138,7 +138,7 @@ EOF
       fi
     done
 
-    # adapt config password
+    # set config password
     CONFIG_PASSWORD_ENCRYPTED=$(slappasswd -s $LDAP_CONFIG_PASSWORD)
     sed -i "s|{{ CONFIG_PASSWORD_ENCRYPTED }}|$CONFIG_PASSWORD_ENCRYPTED|g" /osixia/slapd/assets/config/bootstrap/ldif/config-password.ldif
 
@@ -175,8 +175,14 @@ EOF
     echo "export PREVIOUS_SSL_KEY_FILENAME=${SSL_KEY_FILENAME}" >> $WAS_STARTED_WITH_TLS
     chmod +x $WAS_STARTED_WITH_TLS
 
-    # local ldap tls client config
+    # ldap client config
     sed -i "s,TLS_CACERT.*,TLS_CACERT /osixia/slapd/assets/ssl/${SSL_CA_CRT_FILENAME},g" /etc/ldap/ldap.conf
+    echo "TLS_REQCERT demand" >> /etc/ldap/ldap.conf
+
+    [[ -f "$HOME/.ldaprc" ]] && rm -f $HOME/.ldaprc
+    touch $HOME/.ldaprc
+    echo "TLS_CERT /osixia/slapd/assets/ssl/${SSL_CRT_FILENAME}" >> $HOME/.ldaprc
+    echo "TLS_KEY /osixia/slapd/assets/ssl/${SSL_KEY_FILENAME}" >> $HOME/.ldaprc
 
   else
 

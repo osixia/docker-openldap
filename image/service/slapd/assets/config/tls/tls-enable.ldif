@@ -16,4 +16,4 @@ replace: olcTLSDHParamFile
 olcTLSDHParamFile: /osixia/slapd/assets/ssl/dhparam.pem
 -
 replace: olcTLSVerifyClient
-olcTLSVerifyClient: never
+olcTLSVerifyClient: demand
