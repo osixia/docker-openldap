@@ -4,16 +4,16 @@ replace: olcTLSCipherSuite
 olcTLSCipherSuite: SECURE256:-VERS-SSL3.0
 -
 replace: olcTLSCACertificateFile
-olcTLSCACertificateFile: /osixia/slapd/assets/ssl/ca.crt
+olcTLSCACertificateFile: /osixia/service/slapd/assets/ssl/ca.crt
 -
 replace: olcTLSCertificateFile
-olcTLSCertificateFile: /osixia/slapd/assets/ssl/ldap.crt
+olcTLSCertificateFile: /osixia/service/slapd/assets/ssl/ldap.crt
 -
 replace: olcTLSCertificateKeyFile
-olcTLSCertificateKeyFile: /osixia/slapd/assets/ssl/ldap.key
+olcTLSCertificateKeyFile: /osixia/service/slapd/assets/ssl/ldap.key
 -
 replace: olcTLSDHParamFile
-olcTLSDHParamFile: /osixia/slapd/assets/ssl/dhparam.pem
+olcTLSDHParamFile: /osixia/service/slapd/assets/ssl/dhparam.pem
 -
 replace: olcTLSVerifyClient
 olcTLSVerifyClient: demand
