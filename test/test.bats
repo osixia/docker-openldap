@@ -69,8 +69,8 @@ load test_helper
   run_image -h ldap.example.org -e USE_REPLICATION=true
 
   # add route to hosts
-  docker exec $LDAP_REPL_CID /osixia/test/add-host.sh $CONTAINER_IP ldap.example.org
-  docker exec $CONTAINER_ID /osixia/test/add-host.sh $LDAP_REPL_IP ldap2.example.org
+  docker exec $LDAP_REPL_CID /osixia/service/slapd/assets/test/add-host.sh $CONTAINER_IP ldap.example.org
+  docker exec $CONTAINER_ID /osixia/service/slapd/assets/test/add-host.sh $LDAP_REPL_IP ldap2.example.org
 
   # wait services on both servers
   wait_service slapd
@@ -85,7 +85,7 @@ load test_helper
   wait_service_by_cid $LDAP_REPL_CID slapd
 
   # add user on ldap2.example.org
-  docker exec $LDAP_REPL_CID ldapadd -x -D "cn=admin,dc=example,dc=org" -w admin -f /osixia/test/new-user.ldif -h ldap2.example.org -ZZ
+  docker exec $LDAP_REPL_CID ldapadd -x -D "cn=admin,dc=example,dc=org" -w admin -f /osixia/service/slapd/assets/test/new-user.ldif -h ldap2.example.org -ZZ
 
   sleep 5
 

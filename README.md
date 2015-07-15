@@ -124,8 +124,8 @@ Create the second ldap server, save the container id in LDAP2_CID and get its IP
 Add the pair "ip hostname" to /etc/hosts on each containers,
 beacause ldap.example.org and ldap2.example.org are fake hostnames
 
-	docker exec $LDAP_CID /osixia/test/add-host.sh $LDAP2_IP ldap2.example.org
-	docker exec $LDAP2_CID /osixia/test/add-host.sh $LDAP_IP ldap.example.org
+	docker exec $LDAP_CID /osixia/service/slapd/assets/test/add-host.sh $LDAP2_IP ldap2.example.org
+	docker exec $LDAP2_CID /osixia/service/slapd/assets/test/add-host.sh $LDAP_IP ldap.example.org
 
 We reload slapd to let him take into consideration /etc/hosts changes
 
@@ -136,7 +136,7 @@ That's it ! But a litle test to be sure :
 
 Add a new user "billy" on the first ldap server
 
-	docker exec $LDAP_CID ldapadd -x -D "cn=admin,dc=example,dc=org" -w admin -f /osixia/test/new-user.ldif -h ldap.example.org -ZZ
+	docker exec $LDAP_CID ldapadd -x -D "cn=admin,dc=example,dc=org" -w admin -f /osixia/service/slapd/assets/test/new-user.ldif -h ldap.example.org -ZZ
 
 Search on the second ldap server, and billy should show up !
 

@@ -14,7 +14,7 @@ RUN apt-get -y update && /sbin/install-service-available ssl-helper-gnutls \
 	&& rm -rf /var/lib/ldap /etc/ldap/slapd.d
 
 # Add service directory to /osixia
-ADD service /osixia
+ADD service /osixia/service
 
 # Use baseimage install-service script and clean all
 RUN ./sbin/install-service && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
