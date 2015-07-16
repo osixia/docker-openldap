@@ -37,7 +37,7 @@ load test_helper
   run docker exec $CONTAINER_ID ldapsearch -x -h ldap.osixia.net -b dc=example,dc=org -ZZ -D "cn=admin,dc=example,dc=org" -w admin
   clear_container
 
-  chown -R $UNAME:$UNAME $BATS_TEST_DIRNAME || true
+  chown -R $USER:$USER $BATS_TEST_DIRNAME || true
 
   [ "$status" -eq 0 ]
 
