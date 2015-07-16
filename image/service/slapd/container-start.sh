@@ -14,8 +14,6 @@ chown -R openldap:openldap /var/lib/ldap
 chown -R openldap:openldap /etc/ldap
 chown -R openldap:openldap /osixia/service/slapd
 
-/etc/init.d/ntp restart
-
 # container first start
 if [ ! -e "$FIRST_START_DONE" ]; then
 
@@ -236,13 +234,6 @@ EOF
     ldapmodify -c -Y EXTERNAL -Q -H ldapi:/// -f /osixia/service/slapd/assets/config/replication/replication-disable.ldif || true
 
   fi
-
-
-  # stop OpenLDAP
-  SLAPD_PID=$(cat /run/slapd/slapd.pid)
-  echo "Kill slapd, pid: $SLAPD_PID"
-  kill -INT $SLAPD_PID
-  echo "ok"
 
   touch $FIRST_START_DONE
 fi
