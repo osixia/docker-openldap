@@ -11,6 +11,12 @@ echo "Kill slapd, pid: $SLAPD_PID"
 kill -INT $SLAPD_PID
 echo "ok"
 
-sleep 2
+sleep 5
+
+# special replication test config
+if [ "${IS_REPLICATION_TEST,,}" == "true" ]; then
+  echo "test wait 10 seconds"
+  sleep 10
+fi
 
 exec /usr/sbin/slapd -h "ldap://$HOSTNAME ldaps://$HOSTNAME ldapi:///" -u openldap -g openldap -d $LDAP_LOG_LEVEL
