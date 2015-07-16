@@ -13,7 +13,7 @@ RUN apt-get -y update && /sbin/install-service-available ssl-helper-gnutls \
 	slapd ldap-utils \
 	&& rm -rf /var/lib/ldap /etc/ldap/slapd.d
 
-# Add service directory to /osixia
+# Add service directory to /osixia/service
 ADD service /osixia/service
 
 # Use baseimage install-service script and clean all
