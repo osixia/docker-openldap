@@ -37,7 +37,7 @@ load test_helper
   run docker exec $CONTAINER_ID ldapsearch -x -h ldap.osixia.net -b dc=example,dc=org -ZZ -D "cn=admin,dc=example,dc=org" -w admin
   clear_container
 
-  chown -R $USER:$USER $BATS_TEST_DIRNAME || true
+  chmod 777 -R test/config/ test/database/ test/ssl/
 
   [ "$status" -eq 0 ]
 
@@ -50,7 +50,7 @@ load test_helper
   run docker exec $CONTAINER_ID ldapsearch -x -h ldap.example.org -b dc=osixia,dc=net -D "cn=admin,dc=osixia,dc=net" -w admin
   clear_container
 
-  chown -R $USER:$USER $BATS_TEST_DIRNAME || true
+  chmod 777 -R test/config/ test/database/ test/ssl/
 
   [ "$status" -eq 0 ]
 
@@ -65,6 +65,8 @@ load test_helper
   LDAP_REPL_CID=$(docker run -h ldap2.example.org -e USE_REPLICATION=true -e IS_REPLICATION_TEST=true -d $NAME:$VERSION)
   LDAP_REPL_IP=$(get_container_ip_by_cid $LDAP_REPL_CID)
 
+  sleep 2
+
   # ldap server
   run_image -h ldap.example.org -e USE_REPLICATION=true -e IS_REPLICATION_TEST=true
 
@@ -76,12 +78,10 @@ load test_helper
   wait_service slapd
   wait_service_by_cid $LDAP_REPL_CID slapd
 
-  sleep 10
-
   # add user on ldap2.example.org
   docker exec $LDAP_REPL_CID ldapadd -x -D "cn=admin,dc=example,dc=org" -w admin -f /osixia/service/slapd/assets/test/new-user.ldif -h ldap2.example.org -ZZ
 
-  sleep 10
+  sleep 5
 
   # search user on ldap.example.org
   docker exec $CONTAINER_ID ldapsearch -x -h ldap.example.org -b dc=example,dc=org -D "cn=admin,dc=example,dc=org" -w admin -ZZ >> $tmp_file
