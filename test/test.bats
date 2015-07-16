@@ -50,7 +50,7 @@ load test_helper
   run docker exec $CONTAINER_ID ldapsearch -x -h ldap.example.org -b dc=osixia,dc=net -D "cn=admin,dc=osixia,dc=net" -w admin
   clear_container
 
-  chown -R $UNAME:$UNAME $BATS_TEST_DIRNAME || true
+  chown -R $USER:$USER $BATS_TEST_DIRNAME || true
 
   [ "$status" -eq 0 ]
 
@@ -76,10 +76,12 @@ load test_helper
   wait_service slapd
   wait_service_by_cid $LDAP_REPL_CID slapd
 
+  sleep 10
+
   # add user on ldap2.example.org
   docker exec $LDAP_REPL_CID ldapadd -x -D "cn=admin,dc=example,dc=org" -w admin -f /osixia/service/slapd/assets/test/new-user.ldif -h ldap2.example.org -ZZ
 
-  sleep 5
+  sleep 10
 
   # search user on ldap.example.org
   docker exec $CONTAINER_ID ldapsearch -x -h ldap.example.org -b dc=example,dc=org -D "cn=admin,dc=example,dc=org" -w admin -ZZ >> $tmp_file
