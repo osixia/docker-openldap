@@ -104,7 +104,7 @@ EOF
   # start OpenLDAP
   echo "Starting openldap..."
   slapd -h "ldapi:///" -u openldap -g openldap
-  echo "ok"
+  echo "[ok]"
 
   # set bootstrap config part 2
   if $BOOTSTRAP; then
@@ -195,37 +195,41 @@ EOF
   # replication config
   if [ "${USE_REPLICATION,,}" == "true" ]; then
 
-    echo "Use replication"
+    if [ -e "$WAS_STARTED_WITH_REPLICATION" ]; then
+      echo "Replication already set"
+    else
+      echo "Use replication"
 
-    # copy template file
-    cp /osixia/service/slapd/assets/config/replication/replication-enable-template.ldif /osixia/service/slapd/assets/config/replication/replication-enable.ldif
+      # copy template file
+      cp /osixia/service/slapd/assets/config/replication/replication-enable-template.ldif /osixia/service/slapd/assets/config/replication/replication-enable.ldif
 
-    REPLICATION_HOSTS=($REPLICATION_HOSTS)
-    i=1
-    for host in "${REPLICATION_HOSTS[@]}"
-    do
+      REPLICATION_HOSTS=($REPLICATION_HOSTS)
+      i=1
+      for host in "${REPLICATION_HOSTS[@]}"
+      do
 
-      #host var contain a variable name, we access to the variable value and cast it to a table
-      host=${!host}
+        #host var contain a variable name, we access to the variable value and cast it to a table
+        host=${!host}
 
-      sed -i "s|{{ REPLICATION_HOSTS }}|olcServerID: $i ${host}\n{{ REPLICATION_HOSTS }}|g" /osixia/service/slapd/assets/config/replication/replication-enable.ldif
-      sed -i "s|{{ REPLICATION_HOSTS_CONFIG_SYNC_REPL }}|olcSyncRepl: rid=00$i provider=${host} ${REPLICATION_CONFIG_SYNCPROV}\n{{ REPLICATION_HOSTS_CONFIG_SYNC_REPL }}|g" /osixia/service/slapd/assets/config/replication/replication-enable.ldif
-      sed -i "s|{{ REPLICATION_HOSTS_HDB_SYNC_REPL }}|olcSyncRepl: rid=10$i provider=${host} ${REPLICATION_HDB_SYNCPROV}\n{{ REPLICATION_HOSTS_HDB_SYNC_REPL }}|g" /osixia/service/slapd/assets/config/replication/replication-enable.ldif
+        sed -i "s|{{ REPLICATION_HOSTS }}|olcServerID: $i ${host}\n{{ REPLICATION_HOSTS }}|g" /osixia/service/slapd/assets/config/replication/replication-enable.ldif
+        sed -i "s|{{ REPLICATION_HOSTS_CONFIG_SYNC_REPL }}|olcSyncRepl: rid=00$i provider=${host} ${REPLICATION_CONFIG_SYNCPROV}\n{{ REPLICATION_HOSTS_CONFIG_SYNC_REPL }}|g" /osixia/service/slapd/assets/config/replication/replication-enable.ldif
+        sed -i "s|{{ REPLICATION_HOSTS_HDB_SYNC_REPL }}|olcSyncRepl: rid=10$i provider=${host} ${REPLICATION_HDB_SYNCPROV}\n{{ REPLICATION_HOSTS_HDB_SYNC_REPL }}|g" /osixia/service/slapd/assets/config/replication/replication-enable.ldif
 
-      ((i++))
-    done
+        ((i++))
+      done
 
-    get_base_dn
-    sed -i "s|\$BASE_DN|$BASE_DN|g" /osixia/service/slapd/assets/config/replication/replication-enable.ldif
-    sed -i "s|\$LDAP_ADMIN_PASSWORD|$LDAP_ADMIN_PASSWORD|g" /osixia/service/slapd/assets/config/replication/replication-enable.ldif
-    sed -i "s|\$LDAP_CONFIG_PASSWORD|$LDAP_CONFIG_PASSWORD|g" /osixia/service/slapd/assets/config/replication/replication-enable.ldif
+      get_base_dn
+      sed -i "s|\$BASE_DN|$BASE_DN|g" /osixia/service/slapd/assets/config/replication/replication-enable.ldif
+      sed -i "s|\$LDAP_ADMIN_PASSWORD|$LDAP_ADMIN_PASSWORD|g" /osixia/service/slapd/assets/config/replication/replication-enable.ldif
+      sed -i "s|\$LDAP_CONFIG_PASSWORD|$LDAP_CONFIG_PASSWORD|g" /osixia/service/slapd/assets/config/replication/replication-enable.ldif
 
-    sed -i "/{{ REPLICATION_HOSTS }}/d" /osixia/service/slapd/assets/config/replication/replication-enable.ldif
-    sed -i "/{{ REPLICATION_HOSTS_CONFIG_SYNC_REPL }}/d" /osixia/service/slapd/assets/config/replication/replication-enable.ldif
-    sed -i "/{{ REPLICATION_HOSTS_HDB_SYNC_REPL }}/d" /osixia/service/slapd/assets/config/replication/replication-enable.ldif
+      sed -i "/{{ REPLICATION_HOSTS }}/d" /osixia/service/slapd/assets/config/replication/replication-enable.ldif
+      sed -i "/{{ REPLICATION_HOSTS_CONFIG_SYNC_REPL }}/d" /osixia/service/slapd/assets/config/replication/replication-enable.ldif
+      sed -i "/{{ REPLICATION_HOSTS_HDB_SYNC_REPL }}/d" /osixia/service/slapd/assets/config/replication/replication-enable.ldif
 
-    ldapmodify -c -Y EXTERNAL -Q -H ldapi:/// -f /osixia/service/slapd/assets/config/replication/replication-enable.ldif
-    touch $WAS_STARTED_WITH_REPLICATION
+      ldapmodify -c -Y EXTERNAL -Q -H ldapi:/// -f /osixia/service/slapd/assets/config/replication/replication-enable.ldif
+      touch $WAS_STARTED_WITH_REPLICATION
+    fi
 
   else
 
@@ -233,13 +237,15 @@ EOF
     [[ -f "$WAS_STARTED_WITH_REPLICATION" ]] && rm -f "$WAS_STARTED_WITH_REPLICATION"
     ldapmodify -c -Y EXTERNAL -Q -H ldapi:/// -f /osixia/service/slapd/assets/config/replication/replication-disable.ldif || true
 
+    rm -f $WAS_STARTED_WITH_REPLICATION
+
   fi
-  
+
   # stop OpenLDAP
   SLAPD_PID=$(cat /run/slapd/slapd.pid)
   echo "Kill slapd, pid: $SLAPD_PID"
   kill -INT $SLAPD_PID
-  echo "ok"
+  echo "[ok]"
 
   touch $FIRST_START_DONE
 fi
