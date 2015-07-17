@@ -90,6 +90,8 @@ wait_service_by_cid() {
 
   cid=$1
 
+  sleep 1
+
   # first wait image init end
   while ! is_file_exists_by_cid $cid /etc/my_init_startup_files_completed
   do
