@@ -20,7 +20,7 @@ ADD service /osixia/service
 RUN ./sbin/install-service && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 # Add default env variables
-ADD env.yml /etc/env.yml
+ADD env.yaml /etc/env.yaml
 
 # Set OpenLDAP data and config directories in a data volume
 VOLUME ["/var/lib/ldap", "/etc/ldap/slapd.d"]
