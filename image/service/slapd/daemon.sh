@@ -5,6 +5,4 @@
 # see https://github.com/docker/docker/issues/8231
 ulimit -n 1024
 
-sleep 3
-
 exec /usr/sbin/slapd -h "ldap://$HOSTNAME ldaps://$HOSTNAME ldapi:///" -u openldap -g openldap -d $LDAP_LOG_LEVEL

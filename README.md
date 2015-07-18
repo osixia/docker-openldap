@@ -93,7 +93,7 @@ By default TLS is enable, a certificate is created with the container hostname (
 
 #### Use your own certificate
 
-Add your custom certificate, private key and CA certificate in the directory **image/service/slapd/assets/ssl** adjust filename in **image/env.yml** and rebuild the image ([see manual build](#manual-build)).
+Add your custom certificate, private key and CA certificate in the directory **image/service/slapd/assets/ssl** adjust filename in **image/env.yaml** and rebuild the image ([see manual build](#manual-build)).
 
 Or you can set your custom certificate at run time, by mouting a directory containing thoses files to **/osixia/service/slapd/assets/ssl** and adjust there name with the following environment variables :
 
@@ -161,7 +161,7 @@ If you are looking for a simple solution to administrate your ldap server you ca
 
 ## Environment Variables
 
-Environement variables defaults are set in **image/env.yml**. You can modify environment variable values directly in this file and rebuild the image ([see manual build](#manual-build)). You can also override those values at run time with -e argument or by setting your own env.yml file as a docker volume to `/etc/env.yml`. See examples below.
+Environement variables defaults are set in **image/env.yaml**. You can modify environment variable values directly in this file and rebuild the image ([see manual build](#manual-build)). You can also override those values at run time with -e argument or by setting your own env.yaml file as a docker volume to `/etc/env.yaml`. See examples below.
 
 General container configuration :
 - **LDAP_LOG_LEVEL**: Slap log level. defaults to  `-1`. See table 5.1 in http://www.openldap.org/doc/admin24/slapdconf2.html for the available log levels.
@@ -190,9 +190,9 @@ Environment variable can be set directly by adding the -e argument in the comman
 	docker run -h ldap.example.org -e LDAP_ORGANISATION="My Compagny" -e LDAP_DOMAIN="my-compagny.com" \
 	-e LDAP_ADMIN_PASSWORD="JonSn0w" -d osixia/openldap
 
-Or by setting your own `env.yml` file as a docker volume to `/etc/env.yml`
+Or by setting your own `env.yaml` file as a docker volume to `/etc/env.yaml`
 
-	docker run -h ldap.example.org -v /data/my-ldap-env.yml:/etc/env.yml \
+	docker run -h ldap.example.org -v /data/my-ldap-env.yaml:/etc/env.yaml \
 	-d osixia/openldap
 
 ## Manual build
