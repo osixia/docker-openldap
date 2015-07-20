@@ -71,8 +71,8 @@ load test_helper
   run_image -h ldap.example.org -e USE_REPLICATION=true -e IS_REPLICATION_TEST=true
 
   # add route to hosts
-  docker exec $LDAP_REPL_CID /osixia/service/slapd/assets/test/add-host.sh $CONTAINER_IP ldap.example.org
-  docker exec $CONTAINER_ID /osixia/service/slapd/assets/test/add-host.sh $LDAP_REPL_IP ldap2.example.org
+  docker exec $LDAP_REPL_CID /sbin/add-host $CONTAINER_IP ldap.example.org
+  docker exec $CONTAINER_ID /sbin/add-host $LDAP_REPL_IP ldap2.example.org
 
   # wait services on both servers
   wait_service slapd

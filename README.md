@@ -111,26 +111,20 @@ Add -e USE_TLS=false to the run command :
 ### Multi master replication
 Quick example, with the default config.
 
-Create the first ldap server, save the container id in LDAP_CID and get its IP:
-
+	#Create the first ldap server, save the container id in LDAP_CID and get its IP:
 	LDAP_CID=$(docker run -h ldap.example.org -e USE_REPLICATION=true -d osixia/openldap)
 	LDAP_IP=$(docker inspect -f "{{ .NetworkSettings.IPAddress }}" $LDAP_CID)
 
-Create the second ldap server, save the container id in LDAP2_CID and get its IP:
-
+	#Create the second ldap server, save the container id in LDAP2_CID and get its IP:
 	LDAP2_CID=$(docker run -h ldap2.example.org -e USE_REPLICATION=true -d osixia/openldap)
 	LDAP2_IP=$(docker inspect -f "{{ .NetworkSettings.IPAddress }}" $LDAP2_CID)
 
-Add the pair "ip hostname" to /etc/hosts on each containers,
-beacause ldap.example.org and ldap2.example.org are fake hostnames
+	#Add the pair "ip hostname" to /etc/hosts on each containers,
+	#beacause ldap.example.org and ldap2.example.org are fake hostnames
 
-	docker exec $LDAP_CID /osixia/service/slapd/assets/test/add-host.sh $LDAP2_IP ldap2.example.org
-	docker exec $LDAP2_CID /osixia/service/slapd/assets/test/add-host.sh $LDAP_IP ldap.example.org
+	docker exec $LDAP_CID /sbin/add-host $LDAP2_IP ldap2.example.org
+	docker exec $LDAP2_CID /sbin/add-host $LDAP_IP ldap.example.org
 
-We reload slapd to let him take into consideration /etc/hosts changes
-
-	docker exec $LDAP_CID pkill slapd
-	docker exec $LDAP2_CID pkill slapd
 
 That's it ! But a litle test to be sure :
 
