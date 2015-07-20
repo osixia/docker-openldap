@@ -6,7 +6,7 @@ A docker image to run OpenLDAP.
 Fork of Nick Stenning docker-slapd :
 https://github.com/nickstenning/docker-slapd
 
-Add support of TLS and multi master replication.
+Add support of TLS, multi master replication and easy bootstrap.
 
 ## Quick start
 Run OpenLDAP docker image :
