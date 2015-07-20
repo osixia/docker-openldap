@@ -186,7 +186,7 @@ Environment variable can be set directly by adding the -e argument in the comman
 
 Or by setting your own `env.yaml` file as a docker volume to `/etc/env.yaml`
 
-	docker run -h ldap.example.org -v /data/my-ldap-env.yaml:/etc/env.yaml \
+	docker run -h ldap.example.org -v /data/my-env.yaml:/etc/env.yaml \
 	-d osixia/openldap
 
 ## Manual build
