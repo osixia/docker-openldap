@@ -247,6 +247,8 @@ EOF
   kill -INT $SLAPD_PID
   echo "[ok]"
 
+  sleep 3
+
   touch $FIRST_START_DONE
 fi
 
