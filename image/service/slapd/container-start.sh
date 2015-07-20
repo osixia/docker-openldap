@@ -208,7 +208,7 @@ EOF
       for host in "${REPLICATION_HOSTS[@]}"
       do
 
-        #host var contain a variable name, we access to the variable value and cast it to a table
+        #host var contain a variable name, we access to the variable value
         host=${!host}
 
         sed -i "s|{{ REPLICATION_HOSTS }}|olcServerID: $i ${host}\n{{ REPLICATION_HOSTS }}|g" /osixia/service/slapd/assets/config/replication/replication-enable.ldif

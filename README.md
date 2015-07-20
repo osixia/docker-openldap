@@ -56,7 +56,7 @@ It will create an empty ldap for the compagny **Example Inc.** and the domain **
 
 By default the admin has the password **admin**. All those default settings can be changed at the docker command line, for example :
 
-	docker run -h ldap.example.org -e LDAP_ORGANISATION="My Compagny" -e LDAP_DOMAIN="my-compagny.com" \
+	docker run -h ldap.my-compagny.com -e LDAP_ORGANISATION="My Compagny" -e LDAP_DOMAIN="my-compagny.com" \
 	-e LDAP_ADMIN_PASSWORD="JonSn0w" -d osixia/openldap
 
 #### Data persitance
@@ -157,12 +157,13 @@ If you are looking for a simple solution to administrate your ldap server you ca
 Environement variables defaults are set in **image/env.yaml**. You can modify environment variable values directly in this file and rebuild the image ([see manual build](#manual-build)). You can also override those values at run time with -e argument or by setting your own env.yaml file as a docker volume to `/etc/env.yaml`. See examples below.
 
 General container configuration :
-- **LDAP_LOG_LEVEL**: Slap log level. defaults to  `-1`. See table 5.1 in http://www.openldap.org/doc/admin24/slapdconf2.html for the available log levels.
+- **LDAP_LOG_LEVEL**: Slap log level. defaults to  `256`. See table 5.1 in http://www.openldap.org/doc/admin24/slapdconf2.html for the available log levels.
 
 Required and used for new ldap server only :
 - **LDAP_ORGANISATION**: Organisation name. Defaults to `Example Inc.`
 - **LDAP_DOMAIN**: Ldap domain. Defaults to `example.org`
-- **LDAP_ADMIN_PASSWORD** Admin password. Defaults to `admin`
+- **LDAP_ADMIN_PASSWORD** Ldap Admin password. Defaults to `admin`
+- **LDAP_CONFIG_PASSWORD** Ldap Config password. Defaults to `config`
 
 TLS options :
 - **USE_TLS**: Add openldap TLS capabilities. Defaults to `true`
@@ -198,7 +199,7 @@ Clone this project :
 Adapt Makefile, set your image NAME and VERSION, for example :
 
 	NAME = osixia/openldap
-	VERSION = 0.10.0
+	VERSION = 1.0.0
 
 	becomes :
 	NAME = billy-the-king/openldap
