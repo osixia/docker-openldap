@@ -138,14 +138,14 @@ EOF
 
     # set config password
     CONFIG_PASSWORD_ENCRYPTED=$(slappasswd -s $LDAP_CONFIG_PASSWORD)
-    sed -i "s|{{ CONFIG_PASSWORD_ENCRYPTED }}|$CONFIG_PASSWORD_ENCRYPTED|g" /osixia/service/slapd/assets/config/bootstrap/ldif/config-password.ldif
+    sed -i "s|{{ CONFIG_PASSWORD_ENCRYPTED }}|$CONFIG_PASSWORD_ENCRYPTED|g" /osixia/service/slapd/assets/config/bootstrap/ldif/01-config-password.ldif
 
     # adapt security config file
     get_base_dn
-    sed -i "s|dc=example,dc=org|$BASE_DN|g" /osixia/service/slapd/assets/config/bootstrap/ldif/security.ldif
+    sed -i "s|dc=example,dc=org|$BASE_DN|g" /osixia/service/slapd/assets/config/bootstrap/ldif/02-security.ldif
 
     # process config files
-    for f in $(find /osixia/service/slapd/assets/config/bootstrap/ldif  -name \*.ldif -type f); do
+    for f in $(find /osixia/service/slapd/assets/config/bootstrap/ldif  -name \*.ldif -type f | sort); do
       echo "Processing file ${f}"
       ldapmodify -Y EXTERNAL -Q -H ldapi:/// -f $f
     done
@@ -199,9 +199,6 @@ EOF
       echo "Replication already set"
     else
       echo "Use replication"
-
-      # copy template file
-      cp /osixia/service/slapd/assets/config/replication/replication-enable-template.ldif /osixia/service/slapd/assets/config/replication/replication-enable.ldif
 
       REPLICATION_HOSTS=($REPLICATION_HOSTS)
       i=1
