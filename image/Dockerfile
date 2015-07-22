@@ -8,7 +8,7 @@ CMD ["/osixia/tool/run"]
 RUN groupadd -r openldap && useradd -r -g openldap openldap
 
 # Install OpenLDAP, ldap-utils and ssl-helper from baseimage, remove default ldap db
-RUN apt-get -y update && /sbin/install-service-available ssl-helper-gnutls \
+RUN apt-get -y update && /sbin/add-service-available ssl-helper-gnutls \
 	&& LC_ALL=C DEBIAN_FRONTEND=noninteractive apt-get install -y --force-yes --no-install-recommends \
 	slapd ldap-utils \
 	&& rm -rf /var/lib/ldap /etc/ldap/slapd.d
