@@ -109,11 +109,8 @@ EOF
   # set bootstrap config part 2
   if $BOOTSTRAP; then
 
-    # add ppolicy schema if not already exists
-    ADD_PPOLICY=$(is_new_schema ppolicy)
-    if [ "$ADD_PPOLICY" -eq 1 ]; then
-      ldapadd -c -Y EXTERNAL -Q -H ldapi:/// -f /etc/ldap/schema/ppolicy.ldif
-    fi
+    # add ppolicy schema
+    ldapadd -c -Y EXTERNAL -Q -H ldapi:/// -f /etc/ldap/schema/ppolicy.ldif
 
     # convert schemas to ldif
     SCHEMAS=""
