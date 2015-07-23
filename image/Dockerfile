@@ -1,36 +1,29 @@
 FROM osixia/light-baseimage:0.1.0
 MAINTAINER Bertrand Gouny <bertrand.gouny@osixia.net>
 
-# Use osixia/light-baseimage's init system.
-CMD ["/osixia/tool/run"]
+# Use baseimage's init system.
+# https://github.com/osixia/docker-light-baseimage/blob/stable/image/tool/run
+CMD ["/container/tool/run"]
 
-# Add service directory to /osixia/service
-ADD service /osixia/service
+# Add openldap user and group first to make sure their IDs get assigned consistently, regardless of whatever dependencies get added
+RUN groupadd -r openldap && useradd -r -g openldap openldap
 
-# Scripts /sbin/add-service-available
-# /sbin/install-service and /sbin/clean-container
-# are tools from osixia/light-baseimage
-RUN /sbin/add-service-available ssl-helper-gnutls \
- && /sbin/install-service \
- && /sbin/clean-container
+# Install OpenLDAP, ldap-utils and ssl-helper from baseimage and remove default ldap db
+# https://github.com/osixia/docker-light-baseimage/blob/stable/image/tool/install-service-available
+RUN apt-get -y update \
+    && /container/tool/install-service-available ssl-helper-gnutls \
+	  && LC_ALL=C DEBIAN_FRONTEND=noninteractive apt-get install -y --force-yes --no-install-recommends \
+	     slapd ldap-utils \
+	  && rm -rf /var/lib/ldap /etc/ldap/slapd.d
 
-# /sbin/add-service-available ssl-helper-gnutls
-# Add ssl-helper-gnutls, used to generate TLS default certificates
+# Add service directory to /container/service
+ADD service /container/service
 
-# /sbin/install-service
-# make an apt-get update
-# run /osixia/service/*/install.sh
-# link /osixia/service/*/container-start.sh to /etc/my_init.d/*
-# link /osixia/service/*/daemon.sh to /etc/service/*/run
-
-# Files in /etc/my_init.d will be run during container start,
-# Files in /etc/service/*/run are the process run by the docker image
-
-# /sbin/clean-container remove unnecessary files
-
-# More information :
-# https://github.com/osixia/docker-light-baseimage
-
+# Use baseimage install-service script and clean all
+# https://github.com/osixia/docker-light-baseimage/blob/stable/image/tool/install-service
+RUN /container/tool/install-service \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 # Add default env variables
 ADD env.yaml /etc/env.yaml

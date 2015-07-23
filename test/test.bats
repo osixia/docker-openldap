@@ -32,7 +32,7 @@ load test_helper
 
 @test "ldapsearch new database with strict TLS and custom ca/crt" {
 
-  run_image -h ldap.osixia.net -v $BATS_TEST_DIRNAME/ssl:/osixia/service/slapd/assets/ssl -e SSL_CRT_FILENAME=ldap-test.crt -e SSL_KEY_FILENAME=ldap-test.key -e SSL_CA_CRT_FILENAME=ca-test.crt
+  run_image -h ldap.osixia.net -v $BATS_TEST_DIRNAME/ssl:/container/service/slapd/assets/ssl -e SSL_CRT_FILENAME=ldap-test.crt -e SSL_KEY_FILENAME=ldap-test.key -e SSL_CA_CRT_FILENAME=ca-test.crt
   wait_service slapd
   run docker exec $CONTAINER_ID ldapsearch -x -h ldap.osixia.net -b dc=example,dc=org -ZZ -D "cn=admin,dc=example,dc=org" -w admin
   clear_container
@@ -79,7 +79,7 @@ load test_helper
   wait_service_by_cid $LDAP_REPL_CID slapd
 
   # add user on ldap2.example.org
-  docker exec $LDAP_REPL_CID ldapadd -x -D "cn=admin,dc=example,dc=org" -w admin -f /osixia/service/slapd/assets/test/new-user.ldif -h ldap2.example.org -ZZ
+  docker exec $LDAP_REPL_CID ldapadd -x -D "cn=admin,dc=example,dc=org" -w admin -f /container/service/slapd/assets/test/new-user.ldif -h ldap2.example.org -ZZ
 
   sleep 5
 

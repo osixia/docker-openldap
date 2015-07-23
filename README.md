@@ -95,9 +95,9 @@ By default TLS is enable, a certificate is created with the container hostname (
 
 Add your custom certificate, private key and CA certificate in the directory **image/service/slapd/assets/ssl** adjust filename in **image/env.yaml** and rebuild the image ([see manual build](#manual-build)).
 
-Or you can set your custom certificate at run time, by mouting a directory containing thoses files to **/osixia/service/slapd/assets/ssl** and adjust there name with the following environment variables :
+Or you can set your custom certificate at run time, by mouting a directory containing thoses files to **/container/service/slapd/assets/ssl** and adjust there name with the following environment variables :
 
-	docker run -h ldap.example.org -v /path/to/certifates:/osixia/service/slapd/assets/ssl \
+	docker run -h ldap.example.org -v /path/to/certifates:/container/service/slapd/assets/ssl \
 	-e SSL_CRT_FILENAME=my-ldap.crt \
 	-e SSL_KEY_FILENAME=my-ldap.key \
 	-e SSL_CA_CRT_FILENAME=the-ca.crt \
@@ -129,7 +129,7 @@ That's it ! But a litle test to be sure :
 
 Add a new user "billy" on the first ldap server
 
-	docker exec $LDAP_CID ldapadd -x -D "cn=admin,dc=example,dc=org" -w admin -f /osixia/service/slapd/assets/test/new-user.ldif -h ldap.example.org -ZZ
+	docker exec $LDAP_CID ldapadd -x -D "cn=admin,dc=example,dc=org" -w admin -f /container/service/slapd/assets/test/new-user.ldif -h ldap.example.org -ZZ
 
 Search on the second ldap server, and billy should show up !
 

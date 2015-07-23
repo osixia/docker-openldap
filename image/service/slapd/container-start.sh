@@ -12,7 +12,7 @@ ulimit -n 1024
 #fix file permissions
 chown -R openldap:openldap /var/lib/ldap
 chown -R openldap:openldap /etc/ldap
-chown -R openldap:openldap /osixia/service/slapd
+chown -R openldap:openldap /container/service/slapd
 
 # container first start
 if [ ! -e "$FIRST_START_DONE" ]; then
@@ -44,13 +44,13 @@ if [ ! -e "$FIRST_START_DONE" ]; then
     local LDAP_KEY=$3
 
     # check certificat and key or create it
-    /sbin/ssl-helper "/osixia/service/slapd/assets/ssl/$LDAP_CRT" "/osixia/service/slapd/assets/ssl/$LDAP_KEY" --ca-crt=/osixia/service/slapd/assets/ssl/$CA_CRT --gnutls
+    /sbin/ssl-helper "/container/service/slapd/assets/ssl/$LDAP_CRT" "/container/service/slapd/assets/ssl/$LDAP_KEY" --ca-crt=/container/service/slapd/assets/ssl/$CA_CRT --gnutls
 
     # create DHParamFile if not found
-    [ -f /osixia/service/slapd/assets/ssl/dhparam.pem ] || openssl dhparam -out /osixia/service/slapd/assets/ssl/dhparam.pem 2048
+    [ -f /container/service/slapd/assets/ssl/dhparam.pem ] || openssl dhparam -out /container/service/slapd/assets/ssl/dhparam.pem 2048
 
     # fix file permissions
-    chown -R openldap:openldap /osixia/service/slapd
+    chown -R openldap:openldap /container/service/slapd
   }
 
 
@@ -114,13 +114,13 @@ EOF
 
     # convert schemas to ldif
     SCHEMAS=""
-    for f in $(find /osixia/service/slapd/assets/config/bootstrap/schema -name \*.schema -type f); do
+    for f in $(find /container/service/slapd/assets/config/bootstrap/schema -name \*.schema -type f); do
       SCHEMAS="$SCHEMAS ${f}"
     done
-    /osixia/service/slapd/assets/schema-to-ldif.sh "$SCHEMAS"
+    /container/service/slapd/assets/schema-to-ldif.sh "$SCHEMAS"
 
     # add schemas
-    for f in $(find /osixia/service/slapd/assets/config/bootstrap/schema -name \*.ldif -type f); do
+    for f in $(find /container/service/slapd/assets/config/bootstrap/schema -name \*.ldif -type f); do
       echo "Processing file ${f}"
       # add schema if not already exists
       SCHEMA=$(basename "${f}" .ldif)
@@ -135,14 +135,14 @@ EOF
 
     # set config password
     CONFIG_PASSWORD_ENCRYPTED=$(slappasswd -s $LDAP_CONFIG_PASSWORD)
-    sed -i "s|{{ CONFIG_PASSWORD_ENCRYPTED }}|$CONFIG_PASSWORD_ENCRYPTED|g" /osixia/service/slapd/assets/config/bootstrap/ldif/01-config-password.ldif
+    sed -i "s|{{ CONFIG_PASSWORD_ENCRYPTED }}|$CONFIG_PASSWORD_ENCRYPTED|g" /container/service/slapd/assets/config/bootstrap/ldif/01-config-password.ldif
 
     # adapt security config file
     get_base_dn
-    sed -i "s|dc=example,dc=org|$BASE_DN|g" /osixia/service/slapd/assets/config/bootstrap/ldif/02-security.ldif
+    sed -i "s|dc=example,dc=org|$BASE_DN|g" /container/service/slapd/assets/config/bootstrap/ldif/02-security.ldif
 
     # process config files
-    for f in $(find /osixia/service/slapd/assets/config/bootstrap/ldif  -name \*.ldif -type f | sort); do
+    for f in $(find /container/service/slapd/assets/config/bootstrap/ldif  -name \*.ldif -type f | sort); do
       echo "Processing file ${f}"
       ldapmodify -Y EXTERNAL -Q -H ldapi:/// -f $f
     done
@@ -157,11 +157,11 @@ EOF
     check_tls_files $SSL_CA_CRT_FILENAME $SSL_CRT_FILENAME $SSL_KEY_FILENAME
 
     # adapt tls ldif
-    sed -i "s,/osixia/service/slapd/assets/ssl/ca.crt,/osixia/service/slapd/assets/ssl/${SSL_CA_CRT_FILENAME},g" /osixia/service/slapd/assets/config/tls/tls-enable.ldif
-    sed -i "s,/osixia/service/slapd/assets/ssl/ldap.crt,/osixia/service/slapd/assets/ssl/${SSL_CRT_FILENAME},g" /osixia/service/slapd/assets/config/tls/tls-enable.ldif
-    sed -i "s,/osixia/service/slapd/assets/ssl/ldap.key,/osixia/service/slapd/assets/ssl/${SSL_KEY_FILENAME},g" /osixia/service/slapd/assets/config/tls/tls-enable.ldif
+    sed -i "s,/container/service/slapd/assets/ssl/ca.crt,/container/service/slapd/assets/ssl/${SSL_CA_CRT_FILENAME},g" /container/service/slapd/assets/config/tls/tls-enable.ldif
+    sed -i "s,/container/service/slapd/assets/ssl/ldap.crt,/container/service/slapd/assets/ssl/${SSL_CRT_FILENAME},g" /container/service/slapd/assets/config/tls/tls-enable.ldif
+    sed -i "s,/container/service/slapd/assets/ssl/ldap.key,/container/service/slapd/assets/ssl/${SSL_KEY_FILENAME},g" /container/service/slapd/assets/config/tls/tls-enable.ldif
 
-    ldapmodify -Y EXTERNAL -Q -H ldapi:/// -f /osixia/service/slapd/assets/config/tls/tls-enable.ldif
+    ldapmodify -Y EXTERNAL -Q -H ldapi:/// -f /container/service/slapd/assets/config/tls/tls-enable.ldif
 
     [[ -f "$WAS_STARTED_WITH_TLS" ]] && rm -f "$WAS_STARTED_WITH_TLS"
     touch $WAS_STARTED_WITH_TLS
@@ -171,20 +171,20 @@ EOF
     chmod +x $WAS_STARTED_WITH_TLS
 
     # ldap client config
-    sed -i "s,TLS_CACERT.*,TLS_CACERT /osixia/service/slapd/assets/ssl/${SSL_CA_CRT_FILENAME},g" /etc/ldap/ldap.conf
+    sed -i "s,TLS_CACERT.*,TLS_CACERT /container/service/slapd/assets/ssl/${SSL_CA_CRT_FILENAME},g" /etc/ldap/ldap.conf
     echo "TLS_REQCERT demand" >> /etc/ldap/ldap.conf
 
     [[ -f "$HOME/.ldaprc" ]] && rm -f $HOME/.ldaprc
     touch $HOME/.ldaprc
-    echo "TLS_CERT /osixia/service/slapd/assets/ssl/${SSL_CRT_FILENAME}" >> $HOME/.ldaprc
-    echo "TLS_KEY /osixia/service/slapd/assets/ssl/${SSL_KEY_FILENAME}" >> $HOME/.ldaprc
+    echo "TLS_CERT /container/service/slapd/assets/ssl/${SSL_CRT_FILENAME}" >> $HOME/.ldaprc
+    echo "TLS_KEY /container/service/slapd/assets/ssl/${SSL_KEY_FILENAME}" >> $HOME/.ldaprc
 
   else
 
     echo "Don't use TLS"
 
     [[ -f "$WAS_STARTED_WITH_TLS" ]] && rm -f "$WAS_STARTED_WITH_TLS"
-    ldapmodify -c -Y EXTERNAL -Q -H ldapi:/// -f /osixia/service/slapd/assets/config/tls/tls-disable.ldif || true
+    ldapmodify -c -Y EXTERNAL -Q -H ldapi:/// -f /container/service/slapd/assets/config/tls/tls-disable.ldif || true
 
   fi
 
@@ -205,23 +205,23 @@ EOF
         #host var contain a variable name, we access to the variable value
         host=${!host}
 
-        sed -i "s|{{ REPLICATION_HOSTS }}|olcServerID: $i ${host}\n{{ REPLICATION_HOSTS }}|g" /osixia/service/slapd/assets/config/replication/replication-enable.ldif
-        sed -i "s|{{ REPLICATION_HOSTS_CONFIG_SYNC_REPL }}|olcSyncRepl: rid=00$i provider=${host} ${REPLICATION_CONFIG_SYNCPROV}\n{{ REPLICATION_HOSTS_CONFIG_SYNC_REPL }}|g" /osixia/service/slapd/assets/config/replication/replication-enable.ldif
-        sed -i "s|{{ REPLICATION_HOSTS_HDB_SYNC_REPL }}|olcSyncRepl: rid=10$i provider=${host} ${REPLICATION_HDB_SYNCPROV}\n{{ REPLICATION_HOSTS_HDB_SYNC_REPL }}|g" /osixia/service/slapd/assets/config/replication/replication-enable.ldif
+        sed -i "s|{{ REPLICATION_HOSTS }}|olcServerID: $i ${host}\n{{ REPLICATION_HOSTS }}|g" /container/service/slapd/assets/config/replication/replication-enable.ldif
+        sed -i "s|{{ REPLICATION_HOSTS_CONFIG_SYNC_REPL }}|olcSyncRepl: rid=00$i provider=${host} ${REPLICATION_CONFIG_SYNCPROV}\n{{ REPLICATION_HOSTS_CONFIG_SYNC_REPL }}|g" /container/service/slapd/assets/config/replication/replication-enable.ldif
+        sed -i "s|{{ REPLICATION_HOSTS_HDB_SYNC_REPL }}|olcSyncRepl: rid=10$i provider=${host} ${REPLICATION_HDB_SYNCPROV}\n{{ REPLICATION_HOSTS_HDB_SYNC_REPL }}|g" /container/service/slapd/assets/config/replication/replication-enable.ldif
 
         ((i++))
       done
 
       get_base_dn
-      sed -i "s|\$BASE_DN|$BASE_DN|g" /osixia/service/slapd/assets/config/replication/replication-enable.ldif
-      sed -i "s|\$LDAP_ADMIN_PASSWORD|$LDAP_ADMIN_PASSWORD|g" /osixia/service/slapd/assets/config/replication/replication-enable.ldif
-      sed -i "s|\$LDAP_CONFIG_PASSWORD|$LDAP_CONFIG_PASSWORD|g" /osixia/service/slapd/assets/config/replication/replication-enable.ldif
+      sed -i "s|\$BASE_DN|$BASE_DN|g" /container/service/slapd/assets/config/replication/replication-enable.ldif
+      sed -i "s|\$LDAP_ADMIN_PASSWORD|$LDAP_ADMIN_PASSWORD|g" /container/service/slapd/assets/config/replication/replication-enable.ldif
+      sed -i "s|\$LDAP_CONFIG_PASSWORD|$LDAP_CONFIG_PASSWORD|g" /container/service/slapd/assets/config/replication/replication-enable.ldif
 
-      sed -i "/{{ REPLICATION_HOSTS }}/d" /osixia/service/slapd/assets/config/replication/replication-enable.ldif
-      sed -i "/{{ REPLICATION_HOSTS_CONFIG_SYNC_REPL }}/d" /osixia/service/slapd/assets/config/replication/replication-enable.ldif
-      sed -i "/{{ REPLICATION_HOSTS_HDB_SYNC_REPL }}/d" /osixia/service/slapd/assets/config/replication/replication-enable.ldif
+      sed -i "/{{ REPLICATION_HOSTS }}/d" /container/service/slapd/assets/config/replication/replication-enable.ldif
+      sed -i "/{{ REPLICATION_HOSTS_CONFIG_SYNC_REPL }}/d" /container/service/slapd/assets/config/replication/replication-enable.ldif
+      sed -i "/{{ REPLICATION_HOSTS_HDB_SYNC_REPL }}/d" /container/service/slapd/assets/config/replication/replication-enable.ldif
 
-      ldapmodify -c -Y EXTERNAL -Q -H ldapi:/// -f /osixia/service/slapd/assets/config/replication/replication-enable.ldif
+      ldapmodify -c -Y EXTERNAL -Q -H ldapi:/// -f /container/service/slapd/assets/config/replication/replication-enable.ldif
       touch $WAS_STARTED_WITH_REPLICATION
     fi
 
@@ -229,7 +229,7 @@ EOF
 
     echo "Don't use replication"
     [[ -f "$WAS_STARTED_WITH_REPLICATION" ]] && rm -f "$WAS_STARTED_WITH_REPLICATION"
-    ldapmodify -c -Y EXTERNAL -Q -H ldapi:/// -f /osixia/service/slapd/assets/config/replication/replication-disable.ldif || true
+    ldapmodify -c -Y EXTERNAL -Q -H ldapi:/// -f /container/service/slapd/assets/config/replication/replication-disable.ldif || true
 
     rm -f $WAS_STARTED_WITH_REPLICATION
 
