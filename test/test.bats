@@ -65,7 +65,7 @@ load test_helper
   LDAP_REPL_CID=$(docker run -h ldap2.example.org -e USE_REPLICATION=true -e IS_REPLICATION_TEST=true -d $NAME:$VERSION)
   LDAP_REPL_IP=$(get_container_ip_by_cid $LDAP_REPL_CID)
 
-  sleep 1
+  sleep 2
 
   # ldap server
   run_image -h ldap.example.org -e USE_REPLICATION=true -e IS_REPLICATION_TEST=true
