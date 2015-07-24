@@ -1,5 +1,7 @@
 # osixia/openldap
 
+[![](https://badge.imagelayers.io/osixia/openldap:latest.svg)](https://imagelayers.io/?images=osixia/openldap:latest 'Get your own badge on imagelayers.io')
+
 A docker image to run OpenLDAP.
 > [www.openldap.org](http://www.openldap.org/)
 
@@ -62,8 +64,6 @@ By default the admin has the password **admin**. All those default settings can 
 #### Data persitance
 
 The directories `/var/lib/ldap` (LDAP database files) and `/etc/ldap/slapd.d`  (LDAP config files) has been declared as volumes, so your ldap files are saved outside the container in data volumes.
-
-Be careful, if you remove the container, data volumes will me removed too, except if you have linked this data volume to an other container.
 
 For more information about docker data volume, please refer to :
 
@@ -147,10 +147,13 @@ Search on the second ldap server, and billy should show up !
 	objectClass: inetOrgPerson
 	[...]
 
-
 ## Administrate your ldap server
 If you are looking for a simple solution to administrate your ldap server you can take a look at our phpLDAPadmin docker image :
 > [osixia/phpldapadmin](https://github.com/osixia/docker-phpLDAPadmin)
+
+## Backups
+A simple solution to backup your ldap server, our openldap-backup docker image :
+> [osixia/openldap-backup](https://github.com/osixia/docker-openldap-backup)
 
 ## Environment Variables
 
