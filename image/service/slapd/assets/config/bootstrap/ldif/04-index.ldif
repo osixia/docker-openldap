@@ -1,0 +1,8 @@
+# Add indexes
+dn: olcDatabase={1}hdb,cn=config
+changetype:  modify
+replace: olcDbIndex
+olcDbIndex: uid eq
+olcDbIndex: memberOf eq
+olcDbIndex: entryCSN eq
+olcDbIndex: entryUUID eq
