@@ -93,30 +93,30 @@ By default TLS is enable, a certificate is created with the container hostname (
 
 #### Use your own certificate
 
-Add your custom certificate, private key and CA certificate in the directory **image/service/slapd/assets/ssl** adjust filename in **image/env.yaml** and rebuild the image ([see manual build](#manual-build)).
+Add your custom certificate, private key and CA certificate in the directory **image/service/slapd/assets/certs** adjust filename in **image/env.yaml** and rebuild the image ([see manual build](#manual-build)).
 
-Or you can set your custom certificate at run time, by mouting a directory containing thoses files to **/container/service/slapd/assets/ssl** and adjust there name with the following environment variables :
+Or you can set your custom certificate at run time, by mouting a directory containing thoses files to **/container/service/slapd/assets/certs** and adjust there name with the following environment variables :
 
-	docker run -h ldap.example.org -v /path/to/certifates:/container/service/slapd/assets/ssl \
-	-e SSL_CRT_FILENAME=my-ldap.crt \
-	-e SSL_KEY_FILENAME=my-ldap.key \
-	-e SSL_CA_CRT_FILENAME=the-ca.crt \
+	docker run -h ldap.example.org -v /path/to/certifates:/container/service/slapd/assets/certs \
+	-e LDAP_TLS_CRT_FILENAME=my-ldap.crt \
+	-e LDAP_TLS_KEY_FILENAME=my-ldap.key \
+	-e LDAP_TLS_CA_CRT_FILENAME=the-ca.crt \
 	-d osixia/openldap
 
 #### Disable TLS
-Add -e USE_TLS=false to the run command :
+Add -e LDAP_PROPOSE_TLS=false to the run command :
 
-	docker run -e USE_TLS=false -d osixia/openldap
+	docker run -e LDAP_PROPOSE_TLS=false -d osixia/openldap
 
 ### Multi master replication
 Quick example, with the default config.
 
 	#Create the first ldap server, save the container id in LDAP_CID and get its IP:
-	LDAP_CID=$(docker run -h ldap.example.org -e USE_REPLICATION=true -d osixia/openldap)
+	LDAP_CID=$(docker run -h ldap.example.org -e LDAP_REPLICATION=true -d osixia/openldap)
 	LDAP_IP=$(docker inspect -f "{{ .NetworkSettings.IPAddress }}" $LDAP_CID)
 
 	#Create the second ldap server, save the container id in LDAP2_CID and get its IP:
-	LDAP2_CID=$(docker run -h ldap2.example.org -e USE_REPLICATION=true -d osixia/openldap)
+	LDAP2_CID=$(docker run -h ldap2.example.org -e LDAP_REPLICATION=true -d osixia/openldap)
 	LDAP2_IP=$(docker inspect -f "{{ .NetworkSettings.IPAddress }}" $LDAP2_CID)
 
 	#Add the pair "ip hostname" to /etc/hosts on each containers,
@@ -169,16 +169,16 @@ Required and used for new ldap server only :
 - **LDAP_CONFIG_PASSWORD** Ldap Config password. Defaults to `config`
 
 TLS options :
-- **USE_TLS**: Add openldap TLS capabilities. Defaults to `true`
-- **SSL_CRT_FILENAME**: Ldap ssl certificate filename. Defaults to `ldap.crt`
-- **SSL_KEY_FILENAME**: Ldap ssl certificate private key filename. Defaults to `ldap.key`
-- **SSL_CA_CRT_FILENAME**: Ldap ssl CA certificate  filename. Defaults to `ca.crt`
+- **LDAP_PROPOSE_TLS**: Add openldap TLS capabilities. Defaults to `true`
+- **LDAP_TLS_CRT_FILENAME**: Ldap ssl certificate filename. Defaults to `ldap.crt`
+- **LDAP_TLS_KEY_FILENAME**: Ldap ssl certificate private key filename. Defaults to `ldap.key`
+- **LDAP_TLS_CA_CRT_FILENAME**: Ldap ssl CA certificate  filename. Defaults to `ca.crt`
 
 Replication options :
-- **USE_REPLICATION**: Add openldap replication capabilities. Defaults to `false`
-- **REPLICATION_CONFIG_SYNCPROV**: olcSyncRepl options used for the config database. Without **rid** and **provider** which are automaticaly added based on REPLICATION_HOSTS.  Defaults to `binddn="cn=admin,cn=config" bindmethod=simple credentials=$LDAP_CONFIG_PASSWORD searchbase="cn=config" type=refreshAndPersist retry="5 5 300 5" timeout=1 starttls=critical`
-- **REPLICATION_HDB_SYNCPROV**: olcSyncRepl options used for the HDB database. Without **rid** and **provider** which are automaticaly added based on REPLICATION_HOSTS.  Defaults to `binddn="cn=admin,$BASE_DN" bindmethod=simple credentials=$LDAP_ADMIN_PASSWORD searchbase="$BASE_DN" type=refreshAndPersist interval=00:00:00:10 retry="5 5 300 5" timeout=1  starttls=critical`
-- **REPLICATION_HOSTS**: list of replication hosts, must contains the current container hostname set by -h on docker run command. Defaults to `['ldap://ldap.example.org', 'ldap://ldap2.example.org']`
+- **LDAP_REPLICATION**: Add openldap replication capabilities. Defaults to `false`
+- **LDAP_REPLICATION_CONFIG_SYNCPROV**: olcSyncRepl options used for the config database. Without **rid** and **provider** which are automaticaly added based on LDAP_REPLICATION_HOSTS.  Defaults to `binddn="cn=admin,cn=config" bindmethod=simple credentials=$LDAP_CONFIG_PASSWORD searchbase="cn=config" type=refreshAndPersist retry="5 5 300 5" timeout=1 starttls=critical`
+- **LDAP_REPLICATION_HDB_SYNCPROV**: olcSyncRepl options used for the HDB database. Without **rid** and **provider** which are automaticaly added based on LDAP_REPLICATION_HOSTS.  Defaults to `binddn="cn=admin,$BASE_DN" bindmethod=simple credentials=$LDAP_ADMIN_PASSWORD searchbase="$BASE_DN" type=refreshAndPersist interval=00:00:00:10 retry="5 5 300 5" timeout=1  starttls=critical`
+- **LDAP_REPLICATION_HOSTS**: list of replication hosts, must contains the current container hostname set by -h on docker run command. Defaults to `['ldap://ldap.example.org', 'ldap://ldap2.example.org']`
 
 ### Set environment variables at run time :
 

@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.0.1
+  - Rename environment variables
+
+## 1.0.0
+  - Use light-baseimage
+  - Improve documentation
+
 ## 0.10.2
 
   - New features:

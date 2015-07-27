@@ -44,10 +44,10 @@ if [ ! -e "$FIRST_START_DONE" ]; then
     local LDAP_KEY=$3
 
     # check certificat and key or create it
-    /sbin/ssl-helper "/container/service/slapd/assets/ssl/$LDAP_CRT" "/container/service/slapd/assets/ssl/$LDAP_KEY" --ca-crt=/container/service/slapd/assets/ssl/$CA_CRT --gnutls
+    /sbin/ssl-helper "/container/service/slapd/assets/certs/$LDAP_CRT" "/container/service/slapd/assets/certs/$LDAP_KEY" --ca-crt=/container/service/slapd/assets/certs/$CA_CRT --gnutls
 
     # create DHParamFile if not found
-    [ -f /container/service/slapd/assets/ssl/dhparam.pem ] || openssl dhparam -out /container/service/slapd/assets/ssl/dhparam.pem 2048
+    [ -f /container/service/slapd/assets/certs/dhparam.pem ] || openssl dhparam -out /container/service/slapd/assets/certs/dhparam.pem 2048
 
     # fix file permissions
     chown -R openldap:openldap /container/service/slapd
@@ -97,7 +97,7 @@ EOF
 
       . $WAS_STARTED_WITH_TLS
 
-      check_tls_files $PREVIOUS_SSL_CA_CRT_FILENAME $PREVIOUS_SSL_CRT_FILENAME $PREVIOUS_SSL_KEY_FILENAME
+      check_tls_files $PREVIOUS_LDAP_TLS_CA_CRT_FILENAME $PREVIOUS_LDAP_TLS_CRT_FILENAME $PREVIOUS_LDAP_TLS_KEY_FILENAME
     fi
   fi
 
@@ -150,34 +150,34 @@ EOF
   fi
 
   # TLS config
-  if [ "${USE_TLS,,}" == "true" ]; then
+  if [ "${LDAP_PROPOSE_TLS,,}" == "true" ]; then
 
     echo "Use TLS"
 
-    check_tls_files $SSL_CA_CRT_FILENAME $SSL_CRT_FILENAME $SSL_KEY_FILENAME
+    check_tls_files $LDAP_TLS_CA_CRT_FILENAME $LDAP_TLS_CRT_FILENAME $LDAP_TLS_KEY_FILENAME
 
     # adapt tls ldif
-    sed -i "s,/container/service/slapd/assets/ssl/ca.crt,/container/service/slapd/assets/ssl/${SSL_CA_CRT_FILENAME},g" /container/service/slapd/assets/config/tls/tls-enable.ldif
-    sed -i "s,/container/service/slapd/assets/ssl/ldap.crt,/container/service/slapd/assets/ssl/${SSL_CRT_FILENAME},g" /container/service/slapd/assets/config/tls/tls-enable.ldif
-    sed -i "s,/container/service/slapd/assets/ssl/ldap.key,/container/service/slapd/assets/ssl/${SSL_KEY_FILENAME},g" /container/service/slapd/assets/config/tls/tls-enable.ldif
+    sed -i "s,/container/service/slapd/assets/certs/ca.crt,/container/service/slapd/assets/certs/${LDAP_TLS_CA_CRT_FILENAME},g" /container/service/slapd/assets/config/tls/tls-enable.ldif
+    sed -i "s,/container/service/slapd/assets/certs/ldap.crt,/container/service/slapd/assets/certs/${LDAP_TLS_CRT_FILENAME},g" /container/service/slapd/assets/config/tls/tls-enable.ldif
+    sed -i "s,/container/service/slapd/assets/certs/ldap.key,/container/service/slapd/assets/certs/${LDAP_TLS_KEY_FILENAME},g" /container/service/slapd/assets/config/tls/tls-enable.ldif
 
     ldapmodify -Y EXTERNAL -Q -H ldapi:/// -f /container/service/slapd/assets/config/tls/tls-enable.ldif
 
     [[ -f "$WAS_STARTED_WITH_TLS" ]] && rm -f "$WAS_STARTED_WITH_TLS"
     touch $WAS_STARTED_WITH_TLS
-    echo "export PREVIOUS_SSL_CA_CRT_FILENAME=${SSL_CA_CRT_FILENAME}" >> $WAS_STARTED_WITH_TLS
-    echo "export PREVIOUS_SSL_CRT_FILENAME=${SSL_CRT_FILENAME}" >> $WAS_STARTED_WITH_TLS
-    echo "export PREVIOUS_SSL_KEY_FILENAME=${SSL_KEY_FILENAME}" >> $WAS_STARTED_WITH_TLS
+    echo "export PREVIOUS_LDAP_TLS_CA_CRT_FILENAME=${LDAP_TLS_CA_CRT_FILENAME}" >> $WAS_STARTED_WITH_TLS
+    echo "export PREVIOUS_LDAP_TLS_CRT_FILENAME=${LDAP_TLS_CRT_FILENAME}" >> $WAS_STARTED_WITH_TLS
+    echo "export PREVIOUS_LDAP_TLS_KEY_FILENAME=${LDAP_TLS_KEY_FILENAME}" >> $WAS_STARTED_WITH_TLS
     chmod +x $WAS_STARTED_WITH_TLS
 
     # ldap client config
-    sed -i "s,TLS_CACERT.*,TLS_CACERT /container/service/slapd/assets/ssl/${SSL_CA_CRT_FILENAME},g" /etc/ldap/ldap.conf
+    sed -i "s,TLS_CACERT.*,TLS_CACERT /container/service/slapd/assets/certs/${LDAP_TLS_CA_CRT_FILENAME},g" /etc/ldap/ldap.conf
     echo "TLS_REQCERT demand" >> /etc/ldap/ldap.conf
 
     [[ -f "$HOME/.ldaprc" ]] && rm -f $HOME/.ldaprc
     touch $HOME/.ldaprc
-    echo "TLS_CERT /container/service/slapd/assets/ssl/${SSL_CRT_FILENAME}" >> $HOME/.ldaprc
-    echo "TLS_KEY /container/service/slapd/assets/ssl/${SSL_KEY_FILENAME}" >> $HOME/.ldaprc
+    echo "TLS_CERT /container/service/slapd/assets/certs/${LDAP_TLS_CRT_FILENAME}" >> $HOME/.ldaprc
+    echo "TLS_KEY /container/service/slapd/assets/certs/${LDAP_TLS_KEY_FILENAME}" >> $HOME/.ldaprc
 
   else
 
@@ -190,24 +190,24 @@ EOF
 
 
   # replication config
-  if [ "${USE_REPLICATION,,}" == "true" ]; then
+  if [ "${LDAP_REPLICATION,,}" == "true" ]; then
 
     if [ -e "$WAS_STARTED_WITH_REPLICATION" ]; then
       echo "Replication already set"
     else
       echo "Use replication"
 
-      REPLICATION_HOSTS=($REPLICATION_HOSTS)
+      LDAP_REPLICATION_HOSTS=($LDAP_REPLICATION_HOSTS)
       i=1
-      for host in "${REPLICATION_HOSTS[@]}"
+      for host in "${LDAP_REPLICATION_HOSTS[@]}"
       do
 
         #host var contain a variable name, we access to the variable value
         host=${!host}
 
-        sed -i "s|{{ REPLICATION_HOSTS }}|olcServerID: $i ${host}\n{{ REPLICATION_HOSTS }}|g" /container/service/slapd/assets/config/replication/replication-enable.ldif
-        sed -i "s|{{ REPLICATION_HOSTS_CONFIG_SYNC_REPL }}|olcSyncRepl: rid=00$i provider=${host} ${REPLICATION_CONFIG_SYNCPROV}\n{{ REPLICATION_HOSTS_CONFIG_SYNC_REPL }}|g" /container/service/slapd/assets/config/replication/replication-enable.ldif
-        sed -i "s|{{ REPLICATION_HOSTS_HDB_SYNC_REPL }}|olcSyncRepl: rid=10$i provider=${host} ${REPLICATION_HDB_SYNCPROV}\n{{ REPLICATION_HOSTS_HDB_SYNC_REPL }}|g" /container/service/slapd/assets/config/replication/replication-enable.ldif
+        sed -i "s|{{ LDAP_REPLICATION_HOSTS }}|olcServerID: $i ${host}\n{{ LDAP_REPLICATION_HOSTS }}|g" /container/service/slapd/assets/config/replication/replication-enable.ldif
+        sed -i "s|{{ LDAP_REPLICATION_HOSTS_CONFIG_SYNC_REPL }}|olcSyncRepl: rid=00$i provider=${host} ${LDAP_REPLICATION_CONFIG_SYNCPROV}\n{{ LDAP_REPLICATION_HOSTS_CONFIG_SYNC_REPL }}|g" /container/service/slapd/assets/config/replication/replication-enable.ldif
+        sed -i "s|{{ LDAP_REPLICATION_HOSTS_HDB_SYNC_REPL }}|olcSyncRepl: rid=10$i provider=${host} ${LDAP_REPLICATION_HDB_SYNCPROV}\n{{ LDAP_REPLICATION_HOSTS_HDB_SYNC_REPL }}|g" /container/service/slapd/assets/config/replication/replication-enable.ldif
 
         ((i++))
       done
@@ -217,9 +217,9 @@ EOF
       sed -i "s|\$LDAP_ADMIN_PASSWORD|$LDAP_ADMIN_PASSWORD|g" /container/service/slapd/assets/config/replication/replication-enable.ldif
       sed -i "s|\$LDAP_CONFIG_PASSWORD|$LDAP_CONFIG_PASSWORD|g" /container/service/slapd/assets/config/replication/replication-enable.ldif
 
-      sed -i "/{{ REPLICATION_HOSTS }}/d" /container/service/slapd/assets/config/replication/replication-enable.ldif
-      sed -i "/{{ REPLICATION_HOSTS_CONFIG_SYNC_REPL }}/d" /container/service/slapd/assets/config/replication/replication-enable.ldif
-      sed -i "/{{ REPLICATION_HOSTS_HDB_SYNC_REPL }}/d" /container/service/slapd/assets/config/replication/replication-enable.ldif
+      sed -i "/{{ LDAP_REPLICATION_HOSTS }}/d" /container/service/slapd/assets/config/replication/replication-enable.ldif
+      sed -i "/{{ LDAP_REPLICATION_HOSTS_CONFIG_SYNC_REPL }}/d" /container/service/slapd/assets/config/replication/replication-enable.ldif
+      sed -i "/{{ LDAP_REPLICATION_HOSTS_HDB_SYNC_REPL }}/d" /container/service/slapd/assets/config/replication/replication-enable.ldif
 
       ldapmodify -c -Y EXTERNAL -Q -H ldapi:/// -f /container/service/slapd/assets/config/replication/replication-enable.ldif
       touch $WAS_STARTED_WITH_REPLICATION

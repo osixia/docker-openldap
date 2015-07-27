@@ -8,7 +8,7 @@ olcModuleLoad: syncprov
 dn: cn=config
 changeType: modify
 add: olcServerID
-{{ REPLICATION_HOSTS }}
+{{ LDAP_REPLICATION_HOSTS }}
 
 # Add syncprov on config
 dn: olcOverlay=syncprov,olcDatabase={0}config,cn=config
@@ -21,7 +21,7 @@ olcOverlay: syncprov
 dn: olcDatabase={0}config,cn=config
 changetype: modify
 add: olcSyncRepl
-{{ REPLICATION_HOSTS_CONFIG_SYNC_REPL }}
+{{ LDAP_REPLICATION_HOSTS_CONFIG_SYNC_REPL }}
 -
 add: olcMirrorMode
 olcMirrorMode: TRUE
@@ -37,7 +37,7 @@ olcOverlay: syncprov
 dn: olcDatabase={1}hdb,cn=config
 changetype: modify
 add: olcSyncRepl
-{{ REPLICATION_HOSTS_HDB_SYNC_REPL }}
+{{ LDAP_REPLICATION_HOSTS_HDB_SYNC_REPL }}
 -
 add: olcMirrorMode
 olcMirrorMode: TRUE

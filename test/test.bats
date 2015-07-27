@@ -10,7 +10,7 @@ load test_helper
 
 @test "ldapsearch new database" {
 
-  run_image -h ldap.example.org -e USE_TLS=false
+  run_image -h ldap.example.org -e LDAP_PROPOSE_TLS=false
   wait_service slapd
   run docker exec $CONTAINER_ID ldapsearch -x -h ldap.example.org -b dc=example,dc=org -D "cn=admin,dc=example,dc=org" -w admin
   clear_container
@@ -32,7 +32,7 @@ load test_helper
 
 @test "ldapsearch new database with strict TLS and custom ca/crt" {
 
-  run_image -h ldap.osixia.net -v $BATS_TEST_DIRNAME/ssl:/container/service/slapd/assets/ssl -e SSL_CRT_FILENAME=ldap-test.crt -e SSL_KEY_FILENAME=ldap-test.key -e SSL_CA_CRT_FILENAME=ca-test.crt
+  run_image -h ldap.osixia.net -v $BATS_TEST_DIRNAME/ssl:/container/service/slapd/assets/certs -e LDAP_TLS_CRT_FILENAME=ldap-test.crt -e LDAP_TLS_KEY_FILENAME=ldap-test.key -e LDAP_TLS_CA_CRT_FILENAME=ca-test.crt
   wait_service slapd
   run docker exec $CONTAINER_ID ldapsearch -x -h ldap.osixia.net -b dc=example,dc=org -ZZ -D "cn=admin,dc=example,dc=org" -w admin
   clear_container
@@ -45,7 +45,7 @@ load test_helper
 
 @test "ldapsearch existing database and config" {
 
-  run_image -h ldap.example.org -e USE_TLS=false -v $BATS_TEST_DIRNAME/database:/var/lib/ldap -v $BATS_TEST_DIRNAME/config:/etc/ldap/slapd.d
+  run_image -h ldap.example.org -e LDAP_PROPOSE_TLS=false -v $BATS_TEST_DIRNAME/database:/var/lib/ldap -v $BATS_TEST_DIRNAME/config:/etc/ldap/slapd.d
   wait_service slapd
   run docker exec $CONTAINER_ID ldapsearch -x -h ldap.example.org -b dc=osixia,dc=net -D "cn=admin,dc=osixia,dc=net" -w admin
   clear_container
@@ -62,13 +62,13 @@ load test_helper
   tmp_file="$BATS_TMPDIR/docker-test"
 
   # replication ldap server
-  LDAP_REPL_CID=$(docker run -h ldap2.example.org -e USE_REPLICATION=true -e IS_REPLICATION_TEST=true -d $NAME:$VERSION)
+  LDAP_REPL_CID=$(docker run -h ldap2.example.org -e LDAP_REPLICATION=true -e IS_REPLICATION_TEST=true -d $NAME:$VERSION)
   LDAP_REPL_IP=$(get_container_ip_by_cid $LDAP_REPL_CID)
 
   sleep 2
 
   # ldap server
-  run_image -h ldap.example.org -e USE_REPLICATION=true -e IS_REPLICATION_TEST=true
+  run_image -h ldap.example.org -e LDAP_REPLICATION=true -e IS_REPLICATION_TEST=true
 
   # add route to hosts
   docker exec $LDAP_REPL_CID /sbin/add-host $CONTAINER_IP ldap.example.org
