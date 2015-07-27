@@ -150,7 +150,7 @@ EOF
   fi
 
   # TLS config
-  if [ "${LDAP_PROPOSE_TLS,,}" == "true" ]; then
+  if [ "${LDAP_TLS,,}" == "true" ]; then
 
     echo "Use TLS"
 

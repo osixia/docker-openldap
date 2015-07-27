@@ -104,9 +104,9 @@ Or you can set your custom certificate at run time, by mouting a directory conta
 	-d osixia/openldap
 
 #### Disable TLS
-Add -e LDAP_PROPOSE_TLS=false to the run command :
+Add -e LDAP_TLS=false to the run command :
 
-	docker run -e LDAP_PROPOSE_TLS=false -d osixia/openldap
+	docker run -e LDAP_TLS=false -d osixia/openldap
 
 ### Multi master replication
 Quick example, with the default config.
@@ -169,7 +169,7 @@ Required and used for new ldap server only :
 - **LDAP_CONFIG_PASSWORD** Ldap Config password. Defaults to `config`
 
 TLS options :
-- **LDAP_PROPOSE_TLS**: Add openldap TLS capabilities. Defaults to `true`
+- **LDAP_TLS**: Add openldap TLS capabilities. Defaults to `true`
 - **LDAP_TLS_CRT_FILENAME**: Ldap ssl certificate filename. Defaults to `ldap.crt`
 - **LDAP_TLS_KEY_FILENAME**: Ldap ssl certificate private key filename. Defaults to `ldap.key`
 - **LDAP_TLS_CA_CRT_FILENAME**: Ldap ssl CA certificate  filename. Defaults to `ca.crt`
