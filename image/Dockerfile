@@ -1,4 +1,4 @@
-FROM osixia/light-baseimage:0.1.0
+FROM osixia/light-baseimage:0.1.1
 MAINTAINER Bertrand Gouny <bertrand.gouny@osixia.net>
 
 # Use baseimage's init system.
