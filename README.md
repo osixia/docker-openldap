@@ -177,7 +177,7 @@ TLS options :
 Replication options :
 - **LDAP_REPLICATION**: Add openldap replication capabilities. Defaults to `false`
 - **LDAP_REPLICATION_CONFIG_SYNCPROV**: olcSyncRepl options used for the config database. Without **rid** and **provider** which are automaticaly added based on LDAP_REPLICATION_HOSTS.  Defaults to `binddn="cn=admin,cn=config" bindmethod=simple credentials=$LDAP_CONFIG_PASSWORD searchbase="cn=config" type=refreshAndPersist retry="5 5 300 5" timeout=1 starttls=critical`
-- **LDAP_REPLICATION_HDB_SYNCPROV**: olcSyncRepl options used for the HDB database. Without **rid** and **provider** which are automaticaly added based on LDAP_REPLICATION_HOSTS.  Defaults to `binddn="cn=admin,$BASE_DN" bindmethod=simple credentials=$LDAP_ADMIN_PASSWORD searchbase="$BASE_DN" type=refreshAndPersist interval=00:00:00:10 retry="5 5 300 5" timeout=1  starttls=critical`
+- **LDAP_REPLICATION_HDB_SYNCPROV**: olcSyncRepl options used for the HDB database. Without **rid** and **provider** which are automaticaly added based on LDAP_REPLICATION_HOSTS.  Defaults to `binddn="cn=admin,$LDAP_BASE_DN" bindmethod=simple credentials=$LDAP_ADMIN_PASSWORD searchbase="$LDAP_BASE_DN" type=refreshAndPersist interval=00:00:00:10 retry="5 5 300 5" timeout=1  starttls=critical`
 - **LDAP_REPLICATION_HOSTS**: list of replication hosts, must contains the current container hostname set by -h on docker run command. Defaults to `['ldap://ldap.example.org', 'ldap://ldap2.example.org']`
 
 ### Set environment variables at run time :

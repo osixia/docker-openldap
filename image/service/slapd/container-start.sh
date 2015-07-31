@@ -17,15 +17,15 @@ chown -R openldap:openldap /container/service/slapd
 # container first start
 if [ ! -e "$FIRST_START_DONE" ]; then
 
-  function get_base_dn() {
-    BASE_DN=""
-    IFS='.' read -ra BASE_DN_TABLE <<< "$LDAP_DOMAIN"
-    for i in "${BASE_DN_TABLE[@]}"; do
+  function get_ldap_base_dn() {
+    LDAP_BASE_DN=""
+    IFS='.' read -ra LDAP_BASE_DN_TABLE <<< "$LDAP_DOMAIN"
+    for i in "${LDAP_BASE_DN_TABLE[@]}"; do
       EXT="dc=$i,"
-      BASE_DN=$BASE_DN$EXT
+      LDAP_BASE_DN=$LDAP_BASE_DN$EXT
     done
 
-    BASE_DN=${BASE_DN::-1}
+    LDAP_BASE_DN=${LDAP_BASE_DN::-1}
   }
 
   function is_new_schema() {
@@ -134,12 +134,12 @@ EOF
     done
 
     # set config password
-    CONFIG_PASSWORD_ENCRYPTED=$(slappasswd -s $LDAP_CONFIG_PASSWORD)
-    sed -i "s|{{ CONFIG_PASSWORD_ENCRYPTED }}|$CONFIG_PASSWORD_ENCRYPTED|g" /container/service/slapd/assets/config/bootstrap/ldif/01-config-password.ldif
+    LDAP_CONFIG_PASSWORD_ENCRYPTED=$(slappasswd -s $LDAP_CONFIG_PASSWORD)
+    sed -i "s|{{ LDAP_CONFIG_PASSWORD_ENCRYPTED }}|${LDAP_CONFIG_PASSWORD_ENCRYPTED}|g" /container/service/slapd/assets/config/bootstrap/ldif/01-config-password.ldif
 
     # adapt security config file
-    get_base_dn
-    sed -i "s|dc=example,dc=org|$BASE_DN|g" /container/service/slapd/assets/config/bootstrap/ldif/02-security.ldif
+    get_ldap_base_dn
+    sed -i "s|{{ LDAP_BASE_DN }}|${LDAP_BASE_DN}|g" /container/service/slapd/assets/config/bootstrap/ldif/02-security.ldif
 
     # process config files
     for f in $(find /container/service/slapd/assets/config/bootstrap/ldif  -name \*.ldif -type f | sort); do
@@ -157,9 +157,9 @@ EOF
     check_tls_files $LDAP_TLS_CA_CRT_FILENAME $LDAP_TLS_CRT_FILENAME $LDAP_TLS_KEY_FILENAME
 
     # adapt tls ldif
-    sed -i "s,/container/service/slapd/assets/certs/ca.crt,/container/service/slapd/assets/certs/${LDAP_TLS_CA_CRT_FILENAME},g" /container/service/slapd/assets/config/tls/tls-enable.ldif
-    sed -i "s,/container/service/slapd/assets/certs/ldap.crt,/container/service/slapd/assets/certs/${LDAP_TLS_CRT_FILENAME},g" /container/service/slapd/assets/config/tls/tls-enable.ldif
-    sed -i "s,/container/service/slapd/assets/certs/ldap.key,/container/service/slapd/assets/certs/${LDAP_TLS_KEY_FILENAME},g" /container/service/slapd/assets/config/tls/tls-enable.ldif
+    sed -i "s|{{ LDAP_TLS_CA_CRT_FILENAME }}|${LDAP_TLS_CA_CRT_FILENAME}|g" /container/service/slapd/assets/config/tls/tls-enable.ldif
+    sed -i "s|{{ LDAP_TLS_CRT_FILENAME }}|${LDAP_TLS_CRT_FILENAME}|g" /container/service/slapd/assets/config/tls/tls-enable.ldif
+    sed -i "s|{{ LDAP_TLS_KEY_FILENAME }}|${LDAP_TLS_KEY_FILENAME}|g" /container/service/slapd/assets/config/tls/tls-enable.ldif
 
     ldapmodify -Y EXTERNAL -Q -H ldapi:/// -f /container/service/slapd/assets/config/tls/tls-enable.ldif
 
@@ -212,8 +212,8 @@ EOF
         ((i++))
       done
 
-      get_base_dn
-      sed -i "s|\$BASE_DN|$BASE_DN|g" /container/service/slapd/assets/config/replication/replication-enable.ldif
+      get_ldap_base_dn
+      sed -i "s|\$LDAP_BASE_DN|$LDAP_BASE_DN|g" /container/service/slapd/assets/config/replication/replication-enable.ldif
       sed -i "s|\$LDAP_ADMIN_PASSWORD|$LDAP_ADMIN_PASSWORD|g" /container/service/slapd/assets/config/replication/replication-enable.ldif
       sed -i "s|\$LDAP_CONFIG_PASSWORD|$LDAP_CONFIG_PASSWORD|g" /container/service/slapd/assets/config/replication/replication-enable.ldif
 
