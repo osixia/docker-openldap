@@ -47,7 +47,8 @@ if [ ! -e "$FIRST_START_DONE" ]; then
     /sbin/ssl-helper "/container/service/slapd/assets/certs/$LDAP_CRT" "/container/service/slapd/assets/certs/$LDAP_KEY" --ca-crt=/container/service/slapd/assets/certs/$CA_CRT --gnutls
 
     # create DHParamFile if not found
-    [ -f /container/service/slapd/assets/certs/dhparam.pem ] || openssl dhparam -out /container/service/slapd/assets/certs/dhparam.pem 2048
+    [ -f /container/service/slapd/assets/certs/dhparam.pem ] || certtool --generate-dh-param --sec-param=high --outfile=/container/service/slapd/assets/certs/dhparam.pem
+    chmod 600 /container/service/slapd/assets/certs/dhparam.pem
 
     # fix file permissions
     chown -R openldap:openldap /container/service/slapd
