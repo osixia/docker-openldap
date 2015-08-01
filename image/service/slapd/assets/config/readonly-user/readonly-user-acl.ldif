@@ -3,8 +3,5 @@ changetype: modify
 delete: olcAccess
 -
 add: olcAccess
-olcAccess: {0}to attrs=userPassword,shadowLastChange by self write by dn="cn=admin,{{ LDAP_BASE_DN }}" write by anonymous auth by * none
--
-add: olcAccess
-olcAccess: {1}to * by self write by dn="cn=admin,{{ LDAP_BASE_DN }}" write by dn="cn={{ LDAP_READONLY_USERNAME }},{{ LDAP_BASE_DN }}" read by * none
--
+olcAccess: to attrs=userPassword,shadowLastChange by self write by dn="cn=admin,{{ LDAP_BASE_DN }}" write by anonymous auth by * none
+olcAccess: to * by self write by dn="cn=admin,{{ LDAP_BASE_DN }}" write by dn="cn={{ LDAP_READONLY_USERNAME }},{{ LDAP_BASE_DN }}" read by * none

@@ -3,6 +3,9 @@ changetype: modify
 replace: olcTLSCipherSuite
 olcTLSCipherSuite: SECURE256:-VERS-SSL3.0
 -
+replace: olcTLSProtocolMin
+olcTLSProtocolMin: 3.1
+-
 replace: olcTLSCACertificateFile
 olcTLSCACertificateFile: /container/service/slapd/assets/certs/{{ LDAP_TLS_CA_CRT_FILENAME }}
 -
