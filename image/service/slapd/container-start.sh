@@ -9,7 +9,7 @@ WAS_STARTED_WITH_REPLICATION="/etc/ldap/slapd.d/docker-openldap-was-started-with
 # see https://github.com/docker/docker/issues/8231
 ulimit -n 1024
 
-#fix file permissions
+# fix file permissions
 chown -R openldap:openldap /var/lib/ldap
 chown -R openldap:openldap /etc/ldap
 chown -R openldap:openldap /container/service/slapd
@@ -150,7 +150,7 @@ EOF
 
   fi
 
-  # TLS config
+  # tls config
   if [ "${LDAP_TLS,,}" == "true" ]; then
 
     echo "Use TLS"
@@ -203,7 +203,7 @@ EOF
       for host in "${LDAP_REPLICATION_HOSTS[@]}"
       do
 
-        #host var contain a variable name, we access to the variable value
+        # host var contain a variable name, we access to the variable value
         host=${!host}
 
         sed -i "s|{{ LDAP_REPLICATION_HOSTS }}|olcServerID: $i ${host}\n{{ LDAP_REPLICATION_HOSTS }}|g" /container/service/slapd/assets/config/replication/replication-enable.ldif
