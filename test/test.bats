@@ -71,8 +71,8 @@ load test_helper
   run_image -h ldap.example.org -e LDAP_REPLICATION=true -e IS_REPLICATION_TEST=true
 
   # add route to hosts
-  docker exec $LDAP_REPL_CID /sbin/add-host $CONTAINER_IP ldap.example.org
-  docker exec $CONTAINER_ID /sbin/add-host $LDAP_REPL_IP ldap2.example.org
+  docker exec $LDAP_CID bash -c "echo $LDAP2_IP ldap2.example.org >> /etc/hosts"
+	docker exec $LDAP2_CID bash -c "echo $LDAP_IP ldap.example.org >> /etc/hosts"
 
   # wait services on both servers
   wait_service slapd

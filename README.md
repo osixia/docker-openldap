@@ -121,9 +121,8 @@ Quick example, with the default config.
 
 	#Add the pair "ip hostname" to /etc/hosts on each containers,
 	#beacause ldap.example.org and ldap2.example.org are fake hostnames
-	docker exec $LDAP_CID /sbin/add-host $LDAP2_IP ldap2.example.org
-	docker exec $LDAP2_CID /sbin/add-host $LDAP_IP ldap.example.org
-
+	docker exec $LDAP_CID bash -c "echo $LDAP2_IP ldap2.example.org >> /etc/hosts"
+	docker exec $LDAP2_CID bash -c "echo $LDAP_IP ldap.example.org >> /etc/hosts"
 
 That's it ! But a litle test to be sure :
 
