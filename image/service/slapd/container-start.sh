@@ -104,7 +104,7 @@ EOF
 
   # start OpenLDAP
   echo "Starting openldap..."
-  slapd -h "ldapi:///" -u openldap -g openldap
+  slapd -h "ldap://localhost ldapi:///" -u openldap -g openldap
   echo "[ok]"
 
   # set bootstrap config part 2
@@ -142,11 +142,32 @@ EOF
     get_ldap_base_dn
     sed -i "s|{{ LDAP_BASE_DN }}|${LDAP_BASE_DN}|g" /container/service/slapd/assets/config/bootstrap/ldif/02-security.ldif
 
-    # process config files
-    for f in $(find /container/service/slapd/assets/config/bootstrap/ldif  -name \*.ldif -type f | sort); do
+    # process config files in bootstrap directory (do no process files in subdirectories)
+    for f in $(find /container/service/slapd/assets/config/bootstrap/ldif  -name \*.ldif -mindepth 1 -maxdepth 1 -type f | sort); do
       echo "Processing file ${f}"
       ldapmodify -Y EXTERNAL -Q -H ldapi:/// -f $f
     done
+
+    # read only user
+    if [ "${LDAP_READONLY_USER,,}" == "true" ]; then
+
+      echo "Add read only user"
+
+      LDAP_READONLY_USER_PASSWORD_ENCRYPTED=$(slappasswd -s $LDAP_READONLY_USER_PASSWORD)
+      sed -i "s|{{ LDAP_READONLY_USER_USERNAME }}|${LDAP_READONLY_USER_USERNAME}|g" /container/service/slapd/assets/config/bootstrap/ldif/readonly-user/readonly-user.ldif
+      sed -i "s|{{ LDAP_READONLY_USER_PASSWORD_ENCRYPTED }}|${LDAP_READONLY_USER_PASSWORD_ENCRYPTED}|g" /container/service/slapd/assets/config/bootstrap/ldif/readonly-user/readonly-user.ldif
+      sed -i "s|{{ LDAP_BASE_DN }}|${LDAP_BASE_DN}|g" /container/service/slapd/assets/config/bootstrap/ldif/readonly-user/readonly-user.ldif
+
+      sed -i "s|{{ LDAP_READONLY_USER_USERNAME }}|${LDAP_READONLY_USER_USERNAME}|g" /container/service/slapd/assets/config/bootstrap/ldif/readonly-user/readonly-user-acl.ldif
+      sed -i "s|{{ LDAP_BASE_DN }}|${LDAP_BASE_DN}|g" /container/service/slapd/assets/config/bootstrap/ldif/readonly-user/readonly-user-acl.ldif
+
+      echo "Processing file /container/service/slapd/assets/config/bootstrap/ldif/readonly-user/readonly-user.ldif"
+      ldapmodify -h localhost -p 389 -D cn=admin,$LDAP_BASE_DN -w $LDAP_ADMIN_PASSWORD -f /container/service/slapd/assets/config/bootstrap/ldif/readonly-user/readonly-user.ldif
+
+      echo "Processing file /container/service/slapd/assets/config/bootstrap/ldif/readonly-user/readonly-user-acl.ldif"
+      ldapmodify -Y EXTERNAL -Q -H ldapi:/// -f /container/service/slapd/assets/config/bootstrap/ldif/readonly-user/readonly-user-acl.ldif
+
+    fi
 
   fi
 
