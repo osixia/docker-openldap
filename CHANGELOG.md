@@ -1,5 +1,16 @@
 # Changelog
 
+## 1.0.1
+  - Upgrade baseimage: osixia/light-baseimage:0.1.1
+  - Rename environment variables
+
+  - Fixes :
+    - OpenLdap container won't start when dhparam.pem is missing in bound volume #13
+
+## 1.0.0
+  - Use light-baseimage
+  - Improve documentation
+
 ## 0.10.2
 
   - New features:

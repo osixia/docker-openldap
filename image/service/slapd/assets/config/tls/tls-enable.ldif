@@ -3,17 +3,20 @@ changetype: modify
 replace: olcTLSCipherSuite
 olcTLSCipherSuite: SECURE256:-VERS-SSL3.0
 -
+replace: olcTLSProtocolMin
+olcTLSProtocolMin: 3.1
+-
 replace: olcTLSCACertificateFile
-olcTLSCACertificateFile: /container/service/slapd/assets/ssl/ca.crt
+olcTLSCACertificateFile: /container/service/slapd/assets/certs/{{ LDAP_TLS_CA_CRT_FILENAME }}
 -
 replace: olcTLSCertificateFile
-olcTLSCertificateFile: /container/service/slapd/assets/ssl/ldap.crt
+olcTLSCertificateFile: /container/service/slapd/assets/certs/{{ LDAP_TLS_CRT_FILENAME }}
 -
 replace: olcTLSCertificateKeyFile
-olcTLSCertificateKeyFile: /container/service/slapd/assets/ssl/ldap.key
+olcTLSCertificateKeyFile: /container/service/slapd/assets/certs/{{ LDAP_TLS_KEY_FILENAME }}
 -
 replace: olcTLSDHParamFile
-olcTLSDHParamFile: /container/service/slapd/assets/ssl/dhparam.pem
+olcTLSDHParamFile: /container/service/slapd/assets/certs/dhparam.pem
 -
 replace: olcTLSVerifyClient
 olcTLSVerifyClient: demand
