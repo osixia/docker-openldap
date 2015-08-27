@@ -183,6 +183,10 @@ EOF
     sed -i "s|{{ LDAP_TLS_CRT_FILENAME }}|${LDAP_TLS_CRT_FILENAME}|g" /container/service/slapd/assets/config/tls/tls-enable.ldif
     sed -i "s|{{ LDAP_TLS_KEY_FILENAME }}|${LDAP_TLS_KEY_FILENAME}|g" /container/service/slapd/assets/config/tls/tls-enable.ldif
 
+    sed -i "s|{{ LDAP_TLS_CIPHER_SUITE }}|${LDAP_TLS_CIPHER_SUITE}|g" /container/service/slapd/assets/config/tls/tls-enable.ldif
+    sed -i "s|{{ LDAP_TLS_PROTOCOL_MIN }}|${LDAP_TLS_PROTOCOL_MIN}|g" /container/service/slapd/assets/config/tls/tls-enable.ldif
+    sed -i "s|{{ LDAP_TLS_VERIFY_CLIENT }}|${LDAP_TLS_VERIFY_CLIENT}|g" /container/service/slapd/assets/config/tls/tls-enable.ldif
+
     ldapmodify -Y EXTERNAL -Q -H ldapi:/// -f /container/service/slapd/assets/config/tls/tls-enable.ldif
 
     [[ -f "$WAS_STARTED_WITH_TLS" ]] && rm -f "$WAS_STARTED_WITH_TLS"

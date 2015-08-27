@@ -166,7 +166,7 @@ Required and used for new ldap server only :
 - **LDAP_DOMAIN**: Ldap domain. Defaults to `example.org`
 - **LDAP_ADMIN_PASSWORD** Ldap Admin password. Defaults to `admin`
 - **LDAP_CONFIG_PASSWORD** Ldap Config password. Defaults to `config`
- 
+
 - **LDAP_READONLY_USER** Add a read only user. Defaults to `false`
 - **LDAP_READONLY_USER_USERNAME** Read only user username. Defaults to `readonly`
 - **LDAP_READONLY_USER_PASSWORD** Read only user password. Defaults to `readonly`
@@ -209,7 +209,7 @@ Clone this project :
 Adapt Makefile, set your image NAME and VERSION, for example :
 
 	NAME = osixia/openldap
-	VERSION = 1.0.0
+	VERSION = 1.0.2
 
 	becomes :
 	NAME = billy-the-king/openldap
