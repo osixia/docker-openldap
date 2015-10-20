@@ -104,7 +104,7 @@ EOF
 
   # start OpenLDAP
   echo "Starting openldap..."
-  slapd -h "ldap://localhost ldapi:///" -u openldap -g openldap
+  slapd -h "ldap://$HOSTNAME ldap://localhost ldapi:///" -u openldap -g openldap
   echo "[ok]"
 
   # set bootstrap config part 2

@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.0.3
+  - Use light-baseimage:0.1.2
+  - Fixes :
+    - Re-running container with volumes won't start #19
+
 ## 1.0.2
 
   - Add TLS environment variable :
