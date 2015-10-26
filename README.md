@@ -156,7 +156,7 @@ A simple solution to backup your ldap server, our openldap-backup docker image :
 
 ## Environment Variables
 
-Environement variables defaults are set in **image/env.yaml**. You can modify environment variable values directly in this file and rebuild the image ([see manual build](#manual-build)). You can also override those values at run time with -e argument or by setting your own env.yaml file as a docker volume to `/etc/env.yaml`. See examples below.
+Environement variables defaults are set in **image/env.yaml**. You can modify environment variable values directly in this file and rebuild the image ([see manual build](#manual-build)). You can also override those values at run time with -e argument or by setting your own env.yaml file as a docker volume to `/container/environment/env.yaml`. See examples below.
 
 General container configuration :
 - **LDAP_LOG_LEVEL**: Slap log level. defaults to  `256`. See table 5.1 in http://www.openldap.org/doc/admin24/slapdconf2.html for the available log levels.
@@ -199,9 +199,9 @@ Environment variable can be set directly by adding the -e argument in the comman
 	docker run -e LDAP_ORGANISATION="My Compagny" -e LDAP_DOMAIN="my-compagny.com" \
 	-e LDAP_ADMIN_PASSWORD="JonSn0w" -d osixia/openldap
 
-Or by setting your own `env.yaml` file as a docker volume to `/etc/env.yaml`
+Or by setting your own `env.yaml` file as a docker volume to `/container/environment/env.yaml`
 
-	docker run -v /data/my-env.yaml:/etc/env.yaml \
+	docker run -v /data/my-env.yaml:/container/environment/env.yaml \
 	-d osixia/openldap
 
 ## Manual build
