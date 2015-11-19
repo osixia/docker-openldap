@@ -231,8 +231,6 @@ EOF
         disableReplication
     fi
 
-
-
     LDAP_REPLICATION_HOSTS=($LDAP_REPLICATION_HOSTS)
     i=1
     for host in "${LDAP_REPLICATION_HOSTS[@]}"
@@ -264,7 +262,7 @@ EOF
   else
 
     echo "Don't use replication"
-    disableReplication
+    disableReplication || true
 
   fi
 
