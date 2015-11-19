@@ -104,7 +104,19 @@ EOF
 
   # start OpenLDAP
   echo "Starting openldap..."
-  slapd -h "ldap://$HOSTNAME ldap://localhost ldapi:///" -u openldap -g openldap
+
+  # start OpenLDAP with previous replication configuration
+  if [ -e "$WAS_STARTED_WITH_REPLICATION" ]; then
+
+    . $WAS_STARTED_WITH_REPLICATION
+    echo "127.0.0.2 $PREVIOUS_HOSTNAME" >> /etc/hosts
+
+    slapd -h "ldap://$HOSTNAME ldap://$PREVIOUS_HOSTNAME ldap://localhost ldapi:///" -u openldap -g openldap
+  else
+    #start openldap normaly
+    slapd -h "ldap://$HOSTNAME ldap://localhost ldapi:///" -u openldap -g openldap
+  fi
+
   echo "[ok]"
 
   # set bootstrap config part 2
@@ -209,55 +221,60 @@ EOF
 
     echo "Don't use TLS"
 
-    [[ -f "$WAS_STARTED_WITH_TLS" ]] && rm -f "$WAS_STARTED_WITH_TLS"
     ldapmodify -c -Y EXTERNAL -Q -H ldapi:/// -f /container/service/slapd/assets/config/tls/tls-disable.ldif || true
+    [[ -f "$WAS_STARTED_WITH_TLS" ]] && rm -f "$WAS_STARTED_WITH_TLS"
 
   fi
 
 
+  function disableReplication() {
+    echo "Try to disable replication if needed"
+    ldapmodify -c -Y EXTERNAL -Q -H ldapi:/// -f /container/service/slapd/assets/config/replication/replication-disable.ldif || true
+    [[ -f "$WAS_STARTED_WITH_REPLICATION" ]] && rm -f "$WAS_STARTED_WITH_REPLICATION"
+  }
+
   # replication config
   if [ "${LDAP_REPLICATION,,}" == "true" ]; then
 
-    if [ -e "$WAS_STARTED_WITH_REPLICATION" ]; then
-      echo "Replication already set"
-    else
-      echo "Use replication"
+    echo "Use replication"
+    disableReplication || true
 
-      LDAP_REPLICATION_HOSTS=($LDAP_REPLICATION_HOSTS)
-      i=1
-      for host in "${LDAP_REPLICATION_HOSTS[@]}"
-      do
+    LDAP_REPLICATION_HOSTS=($LDAP_REPLICATION_HOSTS)
+    i=1
+    for host in "${LDAP_REPLICATION_HOSTS[@]}"
+    do
 
-        # host var contain a variable name, we access to the variable value
-        host=${!host}
+      # host var contain a variable name, we access to the variable value
+      host=${!host}
 
-        sed -i "s|{{ LDAP_REPLICATION_HOSTS }}|olcServerID: $i ${host}\n{{ LDAP_REPLICATION_HOSTS }}|g" /container/service/slapd/assets/config/replication/replication-enable.ldif
-        sed -i "s|{{ LDAP_REPLICATION_HOSTS_CONFIG_SYNC_REPL }}|olcSyncRepl: rid=00$i provider=${host} ${LDAP_REPLICATION_CONFIG_SYNCPROV}\n{{ LDAP_REPLICATION_HOSTS_CONFIG_SYNC_REPL }}|g" /container/service/slapd/assets/config/replication/replication-enable.ldif
-        sed -i "s|{{ LDAP_REPLICATION_HOSTS_HDB_SYNC_REPL }}|olcSyncRepl: rid=10$i provider=${host} ${LDAP_REPLICATION_HDB_SYNCPROV}\n{{ LDAP_REPLICATION_HOSTS_HDB_SYNC_REPL }}|g" /container/service/slapd/assets/config/replication/replication-enable.ldif
+      sed -i "s|{{ LDAP_REPLICATION_HOSTS }}|olcServerID: $i ${host}\n{{ LDAP_REPLICATION_HOSTS }}|g" /container/service/slapd/assets/config/replication/replication-enable.ldif
+      sed -i "s|{{ LDAP_REPLICATION_HOSTS_CONFIG_SYNC_REPL }}|olcSyncRepl: rid=00$i provider=${host} ${LDAP_REPLICATION_CONFIG_SYNCPROV}\n{{ LDAP_REPLICATION_HOSTS_CONFIG_SYNC_REPL }}|g" /container/service/slapd/assets/config/replication/replication-enable.ldif
+      sed -i "s|{{ LDAP_REPLICATION_HOSTS_HDB_SYNC_REPL }}|olcSyncRepl: rid=10$i provider=${host} ${LDAP_REPLICATION_HDB_SYNCPROV}\n{{ LDAP_REPLICATION_HOSTS_HDB_SYNC_REPL }}|g" /container/service/slapd/assets/config/replication/replication-enable.ldif
 
-        ((i++))
-      done
+      ((i++))
+    done
 
-      get_ldap_base_dn
-      sed -i "s|\$LDAP_BASE_DN|$LDAP_BASE_DN|g" /container/service/slapd/assets/config/replication/replication-enable.ldif
-      sed -i "s|\$LDAP_ADMIN_PASSWORD|$LDAP_ADMIN_PASSWORD|g" /container/service/slapd/assets/config/replication/replication-enable.ldif
-      sed -i "s|\$LDAP_CONFIG_PASSWORD|$LDAP_CONFIG_PASSWORD|g" /container/service/slapd/assets/config/replication/replication-enable.ldif
+    get_ldap_base_dn
+    sed -i "s|\$LDAP_BASE_DN|$LDAP_BASE_DN|g" /container/service/slapd/assets/config/replication/replication-enable.ldif
+    sed -i "s|\$LDAP_ADMIN_PASSWORD|$LDAP_ADMIN_PASSWORD|g" /container/service/slapd/assets/config/replication/replication-enable.ldif
+    sed -i "s|\$LDAP_CONFIG_PASSWORD|$LDAP_CONFIG_PASSWORD|g" /container/service/slapd/assets/config/replication/replication-enable.ldif
 
-      sed -i "/{{ LDAP_REPLICATION_HOSTS }}/d" /container/service/slapd/assets/config/replication/replication-enable.ldif
-      sed -i "/{{ LDAP_REPLICATION_HOSTS_CONFIG_SYNC_REPL }}/d" /container/service/slapd/assets/config/replication/replication-enable.ldif
-      sed -i "/{{ LDAP_REPLICATION_HOSTS_HDB_SYNC_REPL }}/d" /container/service/slapd/assets/config/replication/replication-enable.ldif
+    sed -i "/{{ LDAP_REPLICATION_HOSTS }}/d" /container/service/slapd/assets/config/replication/replication-enable.ldif
+    sed -i "/{{ LDAP_REPLICATION_HOSTS_CONFIG_SYNC_REPL }}/d" /container/service/slapd/assets/config/replication/replication-enable.ldif
+    sed -i "/{{ LDAP_REPLICATION_HOSTS_HDB_SYNC_REPL }}/d" /container/service/slapd/assets/config/replication/replication-enable.ldif
 
-      ldapmodify -c -Y EXTERNAL -Q -H ldapi:/// -f /container/service/slapd/assets/config/replication/replication-enable.ldif
-      touch $WAS_STARTED_WITH_REPLICATION
-    fi
+    echo "Enable replication"
+    ldapmodify -c -Y EXTERNAL -Q -H ldapi:/// -f /container/service/slapd/assets/config/replication/replication-enable.ldif || true
+
+    [[ -f "$WAS_STARTED_WITH_REPLICATION" ]] && rm -f "$WAS_STARTED_WITH_REPLICATION"
+    touch $WAS_STARTED_WITH_REPLICATION
+    echo "export PREVIOUS_HOSTNAME=${HOSTNAME}" >> $WAS_STARTED_WITH_REPLICATION
+    chmod +x $WAS_STARTED_WITH_REPLICATION
 
   else
 
     echo "Don't use replication"
-    [[ -f "$WAS_STARTED_WITH_REPLICATION" ]] && rm -f "$WAS_STARTED_WITH_REPLICATION"
-    ldapmodify -c -Y EXTERNAL -Q -H ldapi:/// -f /container/service/slapd/assets/config/replication/replication-disable.ldif || true
-
-    rm -f $WAS_STARTED_WITH_REPLICATION
+    disableReplication || true
 
   fi
 
