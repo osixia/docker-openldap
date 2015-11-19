@@ -104,7 +104,19 @@ EOF
 
   # start OpenLDAP
   echo "Starting openldap..."
-  slapd -h "ldap://$HOSTNAME ldap://localhost ldapi:///" -u openldap -g openldap
+
+  # start OpenLDAP with previous replication configuration
+  if [ -e "$WAS_STARTED_WITH_REPLICATION" ]; then
+
+    . $WAS_STARTED_WITH_REPLICATION
+    echo "127.0.0.2 $PREVIOUS_HOSTNAME" >> /etc/hosts
+
+    slapd -h "ldap://$HOSTNAME ldap://$PREVIOUS_HOSTNAME ldap://localhost ldapi:///" -u openldap -g openldap
+  else
+    #start openldap normaly
+    slapd -h "ldap://$HOSTNAME ldap://localhost ldapi:///" -u openldap -g openldap -d -1
+  fi
+
   echo "[ok]"
 
   # set bootstrap config part 2
@@ -209,27 +221,23 @@ EOF
 
     echo "Don't use TLS"
 
-    [[ -f "$WAS_STARTED_WITH_TLS" ]] && rm -f "$WAS_STARTED_WITH_TLS"
     ldapmodify -c -Y EXTERNAL -Q -H ldapi:/// -f /container/service/slapd/assets/config/tls/tls-disable.ldif || true
+    [[ -f "$WAS_STARTED_WITH_TLS" ]] && rm -f "$WAS_STARTED_WITH_TLS"
 
   fi
 
 
   function disableReplication() {
-
+    echo "Try to disable replication if needed"
     ldapmodify -c -Y EXTERNAL -Q -H ldapi:/// -f /container/service/slapd/assets/config/replication/replication-disable.ldif || true
     [[ -f "$WAS_STARTED_WITH_REPLICATION" ]] && rm -f "$WAS_STARTED_WITH_REPLICATION"
-
   }
 
   # replication config
   if [ "${LDAP_REPLICATION,,}" == "true" ]; then
 
     echo "Use replication"
-
-    if [ -e "$WAS_STARTED_WITH_REPLICATION" ]; then
-        disableReplication
-    fi
+    disableReplication || true
 
     LDAP_REPLICATION_HOSTS=($LDAP_REPLICATION_HOSTS)
     i=1
@@ -255,9 +263,13 @@ EOF
     sed -i "/{{ LDAP_REPLICATION_HOSTS_CONFIG_SYNC_REPL }}/d" /container/service/slapd/assets/config/replication/replication-enable.ldif
     sed -i "/{{ LDAP_REPLICATION_HOSTS_HDB_SYNC_REPL }}/d" /container/service/slapd/assets/config/replication/replication-enable.ldif
 
-    ldapmodify -c -Y EXTERNAL -Q -H ldapi:/// -f /container/service/slapd/assets/config/replication/replication-enable.ldif
-    touch $WAS_STARTED_WITH_REPLICATION
+    echo "Enable replication"
+    ldapmodify -c -Y EXTERNAL -Q -H ldapi:/// -f /container/service/slapd/assets/config/replication/replication-enable.ldif || true
 
+    [[ -f "$WAS_STARTED_WITH_REPLICATION" ]] && rm -f "$WAS_STARTED_WITH_REPLICATION"
+    touch $WAS_STARTED_WITH_REPLICATION
+    echo "export PREVIOUS_HOSTNAME=${HOSTNAME}" >> $WAS_STARTED_WITH_REPLICATION
+    chmod +x $WAS_STARTED_WITH_REPLICATION
 
   else
 
