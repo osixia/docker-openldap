@@ -114,7 +114,7 @@ EOF
     slapd -h "ldap://$HOSTNAME ldap://$PREVIOUS_HOSTNAME ldap://localhost ldapi:///" -u openldap -g openldap
   else
     #start openldap normaly
-    slapd -h "ldap://$HOSTNAME ldap://localhost ldapi:///" -u openldap -g openldap -d -1
+    slapd -h "ldap://$HOSTNAME ldap://localhost ldapi:///" -u openldap -g openldap
   fi
 
   echo "[ok]"
