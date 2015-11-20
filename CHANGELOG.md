@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.0.6
+  - Use light-baseimage:0.1.5
+
 ## 1.0.5
   - Use light-baseimage:0.1.4
   - Fix replication bug when the hostname was changed
