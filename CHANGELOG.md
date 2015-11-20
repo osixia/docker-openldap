@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.0.7
+  - Fix startup bug
+
 ## 1.0.6
   - Use light-baseimage:0.1.5
 
