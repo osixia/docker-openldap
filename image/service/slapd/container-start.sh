@@ -281,7 +281,7 @@ EOF
   # stop OpenLDAP
   SLAPD_PID=$(cat /run/slapd/slapd.pid)
   echo "Kill slapd, pid: $SLAPD_PID"
-  kill $SLAPD_PID
+  kill -9 $SLAPD_PID
   echo "[ok]"
 
   sleep 3
