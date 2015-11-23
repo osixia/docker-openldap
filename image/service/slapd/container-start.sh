@@ -1,4 +1,4 @@
-#!/bin/bash -ex
+#!/bin/bash -e
 
 FIRST_START_DONE="/etc/docker-openldap-first-start-done"
 WAS_STARTED_WITH_TLS="/etc/ldap/slapd.d/docker-openldap-was-started-with-tls"
@@ -103,21 +103,33 @@ EOF
   fi
 
   # start OpenLDAP
-  echo "Starting openldap..."
+
+
+  function startOpenLDAP(){
+
+    if [ -n "$PREVIOUS_HOSTNAME" ]; then
+      PREVIOUS_HOSTNAME="ldap://$PREVIOUS_HOSTNAME"
+    fi
+
+    #start openldap normaly
+    echo "Starting openldap..."
+    slapd -h "ldap://$HOSTNAME $PREVIOUS_HOSTNAME ldap://localhost ldapi:///" -u openldap -g openldap
+    echo "[ok]"
+  }
 
   # start OpenLDAP with previous replication configuration
   if [ -e "$WAS_STARTED_WITH_REPLICATION" ]; then
 
     . $WAS_STARTED_WITH_REPLICATION
-    echo "127.0.0.2 $PREVIOUS_HOSTNAME" >> /etc/hosts
 
-    slapd -h "ldap://$HOSTNAME ldap://$PREVIOUS_HOSTNAME ldap://localhost ldapi:///" -u openldap -g openldap -d $LDAP_LOG_LEVEL
-  else
-    #start openldap normaly
-    slapd -h "ldap://$HOSTNAME ldap://localhost ldapi:///" -u openldap -g openldap -d $LDAP_LOG_LEVEL
+    if [ "$PREVIOUS_HOSTNAME" != "$HOSTNAME" ]; then
+      echo "127.0.0.2 $PREVIOUS_HOSTNAME" >> /etc/hosts
+    else
+      PREVIOUS_HOSTNAME=""
+    fi
   fi
 
-  echo "[ok]"
+  startOpenLDAP
 
   # set bootstrap config part 2
   if $BOOTSTRAP; then

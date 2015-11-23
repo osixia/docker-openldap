@@ -1,7 +1,7 @@
 # Changelog
 
 ## 1.0.8
-  - Fix startup bug
+  - Fix an other startup bug ! whuhu
 
 ## 1.0.7
   - Fix startup bug
