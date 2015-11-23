@@ -1,4 +1,4 @@
-#!/bin/bash -e
+#!/bin/bash -ex
 
 FIRST_START_DONE="/etc/docker-openldap-first-start-done"
 WAS_STARTED_WITH_TLS="/etc/ldap/slapd.d/docker-openldap-was-started-with-tls"
@@ -111,10 +111,10 @@ EOF
     . $WAS_STARTED_WITH_REPLICATION
     echo "127.0.0.2 $PREVIOUS_HOSTNAME" >> /etc/hosts
 
-    slapd -h "ldap://$HOSTNAME ldap://$PREVIOUS_HOSTNAME ldap://localhost ldapi:///" -u openldap -g openldap
+    slapd -h "ldap://$HOSTNAME ldap://$PREVIOUS_HOSTNAME ldap://localhost ldapi:///" -u openldap -g openldap -d $LDAP_LOG_LEVEL
   else
     #start openldap normaly
-    slapd -h "ldap://$HOSTNAME ldap://localhost ldapi:///" -u openldap -g openldap
+    slapd -h "ldap://$HOSTNAME ldap://localhost ldapi:///" -u openldap -g openldap -d $LDAP_LOG_LEVEL
   fi
 
   echo "[ok]"
