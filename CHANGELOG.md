@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.0.9
+  - Update to light-baseimage:0.2.0
+  - Makefile with build no cache
+
 ## 1.0.8
   - Fix an other startup bug ! whuhu
 
@@ -30,7 +34,7 @@
 
 ## 1.0.1
 
-  - Upgrade baseimage: osixia/light-baseimage:0.1.1
+  - Upgrade baseimage: light-baseimage:0.1.1
   - Rename environment variables
 
   - Fixes :

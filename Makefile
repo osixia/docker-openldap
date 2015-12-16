@@ -1,12 +1,15 @@
 NAME = osixia/openldap
-VERSION = 1.0.8
+VERSION = 1.0.9
 
-.PHONY: all build test tag_latest release
+.PHONY: all build build-nocache test tag_latest release
 
 all: build
 
 build:
 	docker build -t $(NAME):$(VERSION) --rm image
+
+build-nocache:
+	docker build -t $(NAME):$(VERSION) --no-cache --rm image
 
 test:
 	env NAME=$(NAME) VERSION=$(VERSION) bats test/test.bats
