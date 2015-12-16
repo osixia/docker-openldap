@@ -34,7 +34,7 @@
 
 ## 1.0.1
 
-  - Upgrade baseimage: osixia/light-baseimage:0.1.1
+  - Upgrade baseimage: light-baseimage:0.1.1
   - Rename environment variables
 
   - Fixes :
