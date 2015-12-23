@@ -1,4 +1,4 @@
-FROM osixia/light-baseimage:0.2.0
+FROM osixia/light-baseimage:0.2.1-dev
 MAINTAINER Bertrand Gouny <bertrand.gouny@osixia.net>
 
 # Use baseimage's init system.
@@ -11,7 +11,7 @@ RUN groupadd -r openldap && useradd -r -g openldap openldap
 # Install OpenLDAP, ldap-utils and ssl-helper from baseimage and remove default ldap db
 # https://github.com/osixia/docker-light-baseimage/blob/stable/image/tool/install-service-available
 RUN apt-get -y update \
-    && /container/tool/install-service-available ssl-helper-gnutls \
+    && /container/tool/install-service-available cfssl \
 	  && LC_ALL=C DEBIAN_FRONTEND=noninteractive apt-get install -y --force-yes --no-install-recommends \
 	     slapd ldap-utils \
 	  && rm -rf /var/lib/ldap /etc/ldap/slapd.d

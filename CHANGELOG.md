@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.1.0
+  - Update to light-baseimage:0.2.1
+  - Use cfssl to generate ssl certs
+
 ## 1.0.9
   - Update to light-baseimage:0.2.0
   - Makefile with build no cache
