@@ -26,7 +26,7 @@ RUN /container/tool/install-service \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 # Add default env variables
-ADD env.yaml /container/environment/env.yaml
+ADD env.yaml /container/environment/99-default/env.yaml
 
 # Set OpenLDAP data and config directories in a data volume
 VOLUME ["/var/lib/ldap", "/etc/ldap/slapd.d"]
