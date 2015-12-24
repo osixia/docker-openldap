@@ -8,7 +8,7 @@ CMD ["/container/tool/run"]
 # Add openldap user and group first to make sure their IDs get assigned consistently, regardless of whatever dependencies get added
 RUN groupadd -r openldap && useradd -r -g openldap openldap
 
-# Install OpenLDAP, ldap-utils and ssl-helper from baseimage and remove default ldap db
+# Install OpenLDAP, ldap-utils and cfssl from baseimage and remove default ldap db
 # https://github.com/osixia/docker-light-baseimage/blob/stable/image/tool/install-service-available
 RUN apt-get -y update \
     && /container/tool/install-service-available cfssl \
