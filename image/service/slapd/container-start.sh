@@ -43,25 +43,7 @@ if [ ! -e "$FIRST_START_DONE" ]; then
     local LDAP_CRT=$2
     local LDAP_KEY=$3
 
-    #
-    cfssl-helper
-    ssl-helper "/container/service/slapd/assets/certs/$LDAP_CRT" "/container/service/slapd/assets/certs/$LDAP_KEY" "/container/service/slapd/assets/certs/$CA_CRT"
-
-    #
-    if [ ! -e $/container/service/slapd/assets/certs/$LDAP_CRT ] && [ ! -e /container/service/slapd/assets/certs/$LDAP_KEY ] && [ ! -e /container/service/slapd/assets/certs/$CA_CRT]; then
-
-      CSR_FILE="/container/cert.csr"
-
-      cfssl-generate-default-cert-csr $CSR_FILE
-      cfssl-cmd gencert $CSR_FILE | cfssljson -bare $DEPOT/$CERT_CN
-
-    fi
-
-
-
-
-    # check certificat and key or create it
-    /sbin/ssl-helper "/container/service/slapd/assets/certs/$LDAP_CRT" "/container/service/slapd/assets/certs/$LDAP_KEY" --ca-crt=/container/service/slapd/assets/certs/$CA_CRT --gnutls
+    cfssl-helper LDAP "/container/service/slapd/assets/certs/$LDAP_CRT" "/container/service/slapd/assets/certs/$LDAP_KEY" "/container/service/slapd/assets/certs/$CA_CRT"
 
     # create DHParamFile if not found
     [ -f /container/service/slapd/assets/certs/dhparam.pem ] || certtool --generate-dh-param --sec-param=high --outfile=/container/service/slapd/assets/certs/dhparam.pem
