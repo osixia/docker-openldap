@@ -79,7 +79,7 @@ load test_helper
   # add user on ldap2.example.org
   docker exec $LDAP_REPL_CID ldapadd -x -D "cn=admin,dc=example,dc=org" -w admin -f /container/service/slapd/assets/test/new-user.ldif -h ldap2.example.org -ZZ
 
-  sleep 2
+  sleep 5
 
   # search user on ldap.example.org
   docker exec $CONTAINER_ID ldapsearch -x -h ldap.example.org -b dc=example,dc=org -D "cn=admin,dc=example,dc=org" -w admin -ZZ >> $tmp_file
