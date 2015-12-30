@@ -43,7 +43,7 @@ if [ ! -e "$FIRST_START_DONE" ]; then
     local LDAP_CRT=$2
     local LDAP_KEY=$3
 
-    cfssl-helper LDAP "/container/service/slapd/assets/certs/$LDAP_CRT" "/container/service/slapd/assets/certs/$LDAP_KEY" "/container/service/slapd/assets/certs/$CA_CRT"
+    cfssl-helper ldap "/container/service/slapd/assets/certs/$LDAP_CRT" "/container/service/slapd/assets/certs/$LDAP_KEY" "/container/service/slapd/assets/certs/$CA_CRT"
 
     # create DHParamFile if not found
     [ -f /container/service/slapd/assets/certs/dhparam.pem ] || certtool --generate-dh-param --sec-param=high --outfile=/container/service/slapd/assets/certs/dhparam.pem
