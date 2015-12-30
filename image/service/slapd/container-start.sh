@@ -250,14 +250,9 @@ EOF
     echo "Use replication"
     disableReplication || true
 
-    LDAP_REPLICATION_HOSTS=($LDAP_REPLICATION_HOSTS)
     i=1
-    for host in "${LDAP_REPLICATION_HOSTS[@]}"
+    for host in $(complex-bash-env iterate "${LDAP_REPLICATION_HOSTS}")
     do
-
-      # host var contain a variable name, we access to the variable value
-      host=${!host}
-
       sed -i --follow-symlinks "s|{{ LDAP_REPLICATION_HOSTS }}|olcServerID: $i ${host}\n{{ LDAP_REPLICATION_HOSTS }}|g" /container/service/slapd/assets/config/replication/replication-enable.ldif
       sed -i --follow-symlinks "s|{{ LDAP_REPLICATION_HOSTS_CONFIG_SYNC_REPL }}|olcSyncRepl: rid=00$i provider=${host} ${LDAP_REPLICATION_CONFIG_SYNCPROV}\n{{ LDAP_REPLICATION_HOSTS_CONFIG_SYNC_REPL }}|g" /container/service/slapd/assets/config/replication/replication-enable.ldif
       sed -i --follow-symlinks "s|{{ LDAP_REPLICATION_HOSTS_HDB_SYNC_REPL }}|olcSyncRepl: rid=10$i provider=${host} ${LDAP_REPLICATION_HDB_SYNCPROV}\n{{ LDAP_REPLICATION_HOSTS_HDB_SYNC_REPL }}|g" /container/service/slapd/assets/config/replication/replication-enable.ldif
