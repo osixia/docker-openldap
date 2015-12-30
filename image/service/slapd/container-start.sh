@@ -111,7 +111,7 @@ EOF
     fi
 
     #start openldap normaly
-    echo "Starting openldap..."
+    echo -n "Starting openldap..."
     slapd -h "ldap://$HOSTNAME $PREVIOUS_HOSTNAME ldap://localhost ldapi:///" -u openldap -g openldap
     echo "[ok]"
   }
@@ -286,11 +286,11 @@ EOF
 
   # stop OpenLDAP
   SLAPD_PID=$(cat /run/slapd/slapd.pid)
-  echo "Kill slapd, pid: $SLAPD_PID"
+  echo -n "Kill slapd, pid: $SLAPD_PID..."
   kill -15 $SLAPD_PID
+  # wait until slapd is terminated
+  while [ -e /proc/$SLAPD_PID ]; do sleep 0.1; done
   echo "[ok]"
-
-  sleep 3
 
   touch $FIRST_START_DONE
 fi
