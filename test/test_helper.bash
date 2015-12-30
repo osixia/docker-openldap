@@ -93,7 +93,7 @@ wait_service_by_cid() {
   # first wait image init end
   while ! is_file_exists_by_cid $cid /etc/my_init_startup_files_completed
   do
-    sleep 0.1
+    sleep 0.5
   done
 
   for service in "${@:2}"
@@ -101,7 +101,7 @@ wait_service_by_cid() {
     # wait service
     while ! is_service_running_by_cid $cid $service
     do
-      sleep 0.1
+      sleep 0.5
     done
   done
 }
