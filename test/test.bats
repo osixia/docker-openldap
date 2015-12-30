@@ -62,13 +62,11 @@ load test_helper
   tmp_file="$BATS_TMPDIR/docker-test"
 
   # replication ldap server
-  LDAP_REPL_CID=$(docker run -h ldap2.example.org -e LDAP_REPLICATION=true -e IS_REPLICATION_TEST=true -d $NAME:$VERSION)
+  LDAP_REPL_CID=$(docker run -h ldap2.example.org -e LDAP_REPLICATION=true -d $NAME:$VERSION)
   LDAP_REPL_IP=$(get_container_ip_by_cid $LDAP_REPL_CID)
 
-  sleep 2
-
   # ldap server
-  run_image -h ldap.example.org -e LDAP_REPLICATION=true -e IS_REPLICATION_TEST=true
+  run_image -h ldap.example.org -e LDAP_REPLICATION=true
 
   # add route to hosts
   docker exec $CONTAINER_ID bash -c "echo $LDAP_REPL_IP ldap2.example.org >> /etc/hosts"
@@ -81,7 +79,7 @@ load test_helper
   # add user on ldap2.example.org
   docker exec $LDAP_REPL_CID ldapadd -x -D "cn=admin,dc=example,dc=org" -w admin -f /container/service/slapd/assets/test/new-user.ldif -h ldap2.example.org -ZZ
 
-  sleep 5
+  sleep 2
 
   # search user on ldap.example.org
   docker exec $CONTAINER_ID ldapsearch -x -h ldap.example.org -b dc=example,dc=org -D "cn=admin,dc=example,dc=org" -w admin -ZZ >> $tmp_file
