@@ -166,7 +166,7 @@ EOF
     sed -i --follow-symlinks "s|{{ LDAP_BASE_DN }}|${LDAP_BASE_DN}|g" /container/service/slapd/assets/config/bootstrap/ldif/02-security.ldif
 
     # process config files in bootstrap directory (do no process files in subdirectories)
-    for f in $(find /container/service/slapd/assets/config/bootstrap/ldif  -name \*.ldif -mindepth 1 -maxdepth 1 -type f | sort); do
+    for f in $(find /container/service/slapd/assets/config/bootstrap/ldif -mindepth 1 -maxdepth 1 -type f -name \*.ldif  | sort); do
       echo "Processing file ${f}"
       ldapmodify -Y EXTERNAL -Q -H ldapi:/// -f $f
     done
