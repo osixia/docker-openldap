@@ -239,7 +239,7 @@ EOF
 
 
   function disableReplication() {
-    echo "Try to disable replication if needed"
+    echo "Try to disable replication"
     ldapmodify -c -Y EXTERNAL -Q -H ldapi:/// -f /container/service/slapd/assets/config/replication/replication-disable.ldif || true
     [[ -f "$WAS_STARTED_WITH_REPLICATION" ]] && rm -f "$WAS_STARTED_WITH_REPLICATION"
   }
