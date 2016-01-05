@@ -1,5 +1,5 @@
 # This is the default image startup configuration file
-# this file define environment variables used during the container FIRST start in startup scripts.
+# this file define environment variables used during the container **first start** in **startup scripts**.
 
 # This file is deleted right after startup scripts are processed for the first time,
 # after that all theses values will not be available in the container environment.

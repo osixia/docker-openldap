@@ -1,31 +1,25 @@
-# osixia/openldap
+# osixia/openldap:1.1.0
 
 [![](https://badge.imagelayers.io/osixia/openldap:latest.svg)](https://imagelayers.io/?images=osixia/openldap:latest 'Get your own badge on imagelayers.io')
 
-A docker image to run OpenLDAP.
+A docker image to run OpenLDAP. Latest release : 1.1.0 / OpenLDAP 2.4.40 - [Changelog](Changelog.md)
+
 > [www.openldap.org](http://www.openldap.org/)
 
-Fork of Nick Stenning docker-slapd :
-https://github.com/nickstenning/docker-slapd
+Support TLS, multi-master replication and quick bootstrap.
 
-Add support of TLS, multi master replication and easy bootstrap.
-
-## Quick start
+## Quick Start
 Run OpenLDAP docker image :
 
-	docker run -d osixia/openldap
+	docker run --name my-openldap-container -d osixia/openldap:1.1.0
 
-This start a new container with a OpenLDAP server running inside.
-The odd string printed by this command is the `CONTAINER_ID`.
-We are going to use this `CONTAINER_ID` to execute some commands inside the container.
+This start a new container with OpenLDAP running inside. Let's make our first search in our LDAP server.
 
-Then run a terminal on this container,
-make sure to replace `CONTAINER_ID` by your container id :
+Open a bash in the container :
 
-	docker exec -it CONTAINER_ID bash
+	docker exec -it my-openldap-container bash
 
-You should now be in the container terminal,
-and we can search on the ldap server :
+In the container terminal run the following commands :
 
 	ldapsearch -x -h localhost -b dc=example,dc=org -D "cn=admin,dc=example,dc=org" -w admin
 
@@ -44,22 +38,22 @@ This should output :
 	# numResponses: 3
 	# numEntries: 2
 
-if you have the following error, OpenLDAP is not started yet, wait some time.
+if you have the following error, OpenLDAP is not started yet, you are too fast or your computer is too slow (it's a matter of  point of view) wait some time.
 
 		ldap_sasl_bind(SIMPLE): Can't contact LDAP server (-1)
 
 
-## Examples
+## Beginner Guide
 
 ### Create new ldap server
 
-This is the default behaviour when you run the image.
+This is the default behaviour when you run this image.
 It will create an empty ldap for the compagny **Example Inc.** and the domain **example.org**.
 
 By default the admin has the password **admin**. All those default settings can be changed at the docker command line, for example :
 
-	docker run -e LDAP_ORGANISATION="My Compagny" -e LDAP_DOMAIN="my-compagny.com" \
-	-e LDAP_ADMIN_PASSWORD="JonSn0w" -d osixia/openldap
+	docker run --env LDAP_ORGANISATION="My Compagny" --env LDAP_DOMAIN="my-compagny.com" \
+	--env LDAP_ADMIN_PASSWORD="JonSn0w" -d osixia/openldap
 
 #### Data persitance
 
@@ -98,25 +92,25 @@ Add your custom certificate, private key and CA certificate in the directory **i
 Or you can set your custom certificate at run time, by mouting a directory containing thoses files to **/container/service/slapd/assets/certs** and adjust there name with the following environment variables :
 
 	docker run -h ldap.example.org -v /path/to/certifates:/container/service/slapd/assets/certs \
-	-e LDAP_TLS_CRT_FILENAME=my-ldap.crt \
-	-e LDAP_TLS_KEY_FILENAME=my-ldap.key \
-	-e LDAP_TLS_CA_CRT_FILENAME=the-ca.crt \
+	--env LDAP_TLS_CRT_FILENAME=my-ldap.crt \
+	--env LDAP_TLS_KEY_FILENAME=my-ldap.key \
+	--env LDAP_TLS_CA_CRT_FILENAME=the-ca.crt \
 	-d osixia/openldap
 
 #### Disable TLS
-Add -e LDAP_TLS=false to the run command :
+Add --env LDAP_TLS=false to the run command :
 
-	docker run -e LDAP_TLS=false -d osixia/openldap
+	docker run --env LDAP_TLS=false -d osixia/openldap
 
 ### Multi master replication
 Quick example, with the default config.
 
 	#Create the first ldap server, save the container id in LDAP_CID and get its IP:
-	LDAP_CID=$(docker run -h ldap.example.org -e LDAP_REPLICATION=true -d osixia/openldap)
+	LDAP_CID=$(docker run -h ldap.example.org --env LDAP_REPLICATION=true -d osixia/openldap)
 	LDAP_IP=$(docker inspect -f "{{ .NetworkSettings.IPAddress }}" $LDAP_CID)
 
 	#Create the second ldap server, save the container id in LDAP2_CID and get its IP:
-	LDAP2_CID=$(docker run -h ldap2.example.org -e LDAP_REPLICATION=true -d osixia/openldap)
+	LDAP2_CID=$(docker run -h ldap2.example.org --env LDAP_REPLICATION=true -d osixia/openldap)
 	LDAP2_IP=$(docker inspect -f "{{ .NetworkSettings.IPAddress }}" $LDAP2_CID)
 
 	#Add the pair "ip hostname" to /etc/hosts on each containers,
@@ -146,7 +140,7 @@ Search on the second ldap server, and billy should show up !
 	objectClass: inetOrgPerson
 	[...]
 
-## Administrate your ldap server
+## Administrate Your Ldap Server
 If you are looking for a simple solution to administrate your ldap server you can take a look at our phpLDAPadmin docker image :
 > [osixia/phpldapadmin](https://github.com/osixia/docker-phpLDAPadmin)
 
@@ -154,12 +148,22 @@ If you are looking for a simple solution to administrate your ldap server you ca
 A simple solution to backup your ldap server, our openldap-backup docker image :
 > [osixia/openldap-backup](https://github.com/osixia/docker-openldap-backup)
 
-## Environment Variables
+## Default Environment Variables
+Environement variables defaults are set in **image/environment/default.yaml** and **image/environment/default.yaml.startup**.
 
-Environement variables defaults are set in **image/env.yaml**. You can modify environment variable values directly in this file and rebuild the image ([see manual build](#manual-build)). You can also override those values at run time with -e argument or by setting your own env.yaml file as a docker volume to `/container/environment/env.yaml`. See examples below.
+Go to next point to see how to set your own environment variables.
+
+### default.yaml
+Variables defined in this file are available at any time, anywhere in the container environment.
 
 General container configuration :
 - **LDAP_LOG_LEVEL**: Slap log level. defaults to  `256`. See table 5.1 in http://www.openldap.org/doc/admin24/slapdconf2.html for the available log levels.
+
+### default.yaml.startup
+Variables defined in this file are only available during the container **first start** in **startup scripts**.
+This file is deleted right after startup scripts are processed for the first time,
+after that all theses values will not be available in the container environment.
+That helps to keep your container configuration secret.
 
 Required and used for new ldap server only :
 - **LDAP_ORGANISATION**: Organisation name. Defaults to `Example Inc.`
@@ -185,19 +189,41 @@ TLS options :
 Replication options :
 - **LDAP_REPLICATION**: Add openldap replication capabilities. Defaults to `false`
 
-- **LDAP_REPLICATION_CONFIG_SYNCPROV**: olcSyncRepl options used for the config database. Without **rid** and **provider** which are automaticaly added based on LDAP_REPLICATION_HOSTS.  Defaults to `binddn="cn=admin,cn=config" bindmethod=simple credentials=$LDAP_CONFIG_PASSWORD searchbase="cn=config" type=refreshAndPersist retry="5 5 300 5" timeout=1 starttls=critical`
+- **LDAP_REPLICATION_CONFIG_SYNCPROV**: olcSyncRepl options used for the config database. Without **rid** and **provider** which are automaticaly added based on LDAP_REPLICATION_HOSTS.  Defaults to `binddn="cn=admin,cn=config" bindmethod=simple credentials=$LDAP_CONFIG_PASSWORD searchbase="cn=config" type=refreshAndPersist retry="60 +" timeout=1 starttls=critical`
 
-- **LDAP_REPLICATION_HDB_SYNCPROV**: olcSyncRepl options used for the HDB database. Without **rid** and **provider** which are automaticaly added based on LDAP_REPLICATION_HOSTS.  Defaults to `binddn="cn=admin,$LDAP_BASE_DN" bindmethod=simple credentials=$LDAP_ADMIN_PASSWORD searchbase="$LDAP_BASE_DN" type=refreshAndPersist interval=00:00:00:10 retry="5 5 300 5" timeout=1  starttls=critical`
+- **LDAP_REPLICATION_HDB_SYNCPROV**: olcSyncRepl options used for the HDB database. Without **rid** and **provider** which are automaticaly added based on LDAP_REPLICATION_HOSTS.  Defaults to `binddn="cn=admin,$LDAP_BASE_DN" bindmethod=simple credentials=$LDAP_ADMIN_PASSWORD searchbase="$LDAP_BASE_DN" type=refreshAndPersist interval=00:00:00:10 retry="60 +" timeout=1 starttls=critical`
+
+- **LDAP_REPLICATION_HOSTS**: list of replication hosts, must contains the current container hostname set by -h on docker run command. Defaults to :
+
+		- ldap://ldap.example.org
+		- ldap://ldap2.example.org
+
+	If you want to set this variable at docker run command add the tag `#PYTHON2BASH:` and convert the yaml in python :
+
+		docker run --env LDAP_REPLICATION_HOSTS="#PYTHON2BASH:['ldap://ldap.example.org','ldap://ldap2.example.org']" -d osixia/openldap
+
+	To convert yaml to python online :
+	http://yaml-online-parser.appspot.com/
+
+### Set your own environment variables :
+
+#### Use command line argument
+Environment variables can be set by adding the --env argument in the command line, for example :
+
+	docker run --env LDAP_ORGANISATION="My Compagny" --env LDAP_DOMAIN="my-compagny.com" \
+	--env LDAP_ADMIN_PASSWORD="JonSn0w" -d osixia/openldap
+
+Be aware that environment variable added in command line will be available at any time
+in the container. In this example if an attacker manage to open a terminal in this container
+he will be able to read the admin password in clear text from environment variables.
+
+#### Link environment file
 
 
-- **LDAP_REPLICATION_HOSTS**: list of replication hosts, must contains the current container hostname set by -h on docker run command. Defaults to `['ldap://ldap.example.org', 'ldap://ldap2.example.org']`
 
-### Set environment variables at run time :
 
-Environment variable can be set directly by adding the -e argument in the command line, for example :
+#### Make your own image
 
-	docker run -e LDAP_ORGANISATION="My Compagny" -e LDAP_DOMAIN="my-compagny.com" \
-	-e LDAP_ADMIN_PASSWORD="JonSn0w" -d osixia/openldap
 
 Or by setting your own `env.yaml` file as a docker volume to `/container/environment/env.yaml`
 
@@ -214,10 +240,10 @@ Clone this project :
 Adapt Makefile, set your image NAME and VERSION, for example :
 
 	NAME = osixia/openldap
-	VERSION = 1.0.2
+	VERSION = 1.1.0
 
 	becomes :
-	NAME = billy-the-king/openldap
+	NAME = cool-guy/openldap
 	VERSION = 0.1.0
 
 Build your image :
@@ -226,7 +252,7 @@ Build your image :
 
 Run your image :
 
-	docker run -d billy-the-king/openldap:0.1.0
+	docker run -d cool-guy/openldap:0.1.0
 
 ## Tests
 
