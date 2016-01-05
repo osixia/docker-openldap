@@ -13,7 +13,7 @@ RUN groupadd -r openldap && useradd -r -g openldap openldap
 RUN apt-get -y update \
     && /container/tool/install-service-available cfssl \
 	  && LC_ALL=C DEBIAN_FRONTEND=noninteractive apt-get install -y --force-yes --no-install-recommends \
-       slapd ldap-utils openssl\
+       slapd ldap-utils openssl \
 	  && rm -rf /var/lib/ldap /etc/ldap/slapd.d
 
 # Add service directory to /container/service
