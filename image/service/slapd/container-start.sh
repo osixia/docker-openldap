@@ -1,6 +1,6 @@
 #!/bin/bash -e
 
-FIRST_START_DONE="/etc/docker-openldap-first-start-done"
+FIRST_START_DONE="/container/run/state/slapd-first-start-done"
 WAS_STARTED_WITH_TLS="/etc/ldap/slapd.d/docker-openldap-was-started-with-tls"
 WAS_STARTED_WITH_REPLICATION="/etc/ldap/slapd.d/docker-openldap-was-started-with-replication"
 
