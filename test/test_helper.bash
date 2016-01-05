@@ -83,7 +83,7 @@ is_service_running_by_cid() {
 }
 
 is_file_exists_by_cid() {
-  docker exec $1 cat "/etc/my_init_startup_files_completed" > /dev/null 2>&1
+  docker exec $1 cat "/container/run/state/startup-done" > /dev/null 2>&1
 }
 
 wait_service_by_cid() {
