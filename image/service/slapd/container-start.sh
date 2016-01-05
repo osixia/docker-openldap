@@ -46,7 +46,7 @@ if [ ! -e "$FIRST_START_DONE" ]; then
     cfssl-helper ldap "/container/service/slapd/assets/certs/$LDAP_CRT" "/container/service/slapd/assets/certs/$LDAP_KEY" "/container/service/slapd/assets/certs/$CA_CRT"
 
     # create DHParamFile if not found
-    [ -f /container/service/slapd/assets/certs/dhparam.pem ] || certtool --generate-dh-param --sec-param=high --outfile=/container/service/slapd/assets/certs/dhparam.pem
+    [ -f /container/service/slapd/assets/certs/dhparam.pem ] || openssl dhparam -out /container/service/slapd/assets/certs/dhparam.pem 2048
     chmod 600 /container/service/slapd/assets/certs/dhparam.pem
 
     # fix file permissions

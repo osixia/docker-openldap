@@ -13,7 +13,7 @@ RUN groupadd -r openldap && useradd -r -g openldap openldap
 RUN apt-get -y update \
     && /container/tool/install-service-available cfssl \
 	  && LC_ALL=C DEBIAN_FRONTEND=noninteractive apt-get install -y --force-yes --no-install-recommends \
-	     slapd ldap-utils \
+       slapd ldap-utils openssl\
 	  && rm -rf /var/lib/ldap /etc/ldap/slapd.d
 
 # Add service directory to /container/service
@@ -26,7 +26,7 @@ RUN /container/tool/install-service \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 # Add default env variables
-ADD env.* /container/environment/99-default/
+ADD environment /container/environment/99-default
 
 # Set OpenLDAP data and config directories in a data volume
 VOLUME ["/var/lib/ldap", "/etc/ldap/slapd.d"]
