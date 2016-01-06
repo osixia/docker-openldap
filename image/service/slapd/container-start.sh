@@ -1,6 +1,6 @@
 #!/bin/bash -e
 
-FIRST_START_DONE="/container/run/state/slapd-first-start-done"
+FIRST_START_SETUP_DONE="/container/run/state/slapd-first-start-setup-done"
 WAS_STARTED_WITH_TLS="/etc/ldap/slapd.d/docker-openldap-was-started-with-tls"
 WAS_STARTED_WITH_REPLICATION="/etc/ldap/slapd.d/docker-openldap-was-started-with-replication"
 
@@ -15,7 +15,7 @@ chown -R openldap:openldap /etc/ldap
 chown -R openldap:openldap /container/service/slapd
 
 # container first start
-if [ ! -e "$FIRST_START_DONE" ]; then
+if [ ! -e "$FIRST_START_SETUP_DONE" ]; then
 
   function get_ldap_base_dn() {
     LDAP_BASE_DN=""
@@ -292,7 +292,7 @@ EOF
   while [ -e /proc/$SLAPD_PID ]; do sleep 0.1; done
   echo "[ok]"
 
-  touch $FIRST_START_DONE
+  touch $FIRST_START_SETUP_DONE
 fi
 
 exit 0
