@@ -299,6 +299,9 @@ EOF
   while [ -e /proc/$SLAPD_PID ]; do sleep 0.1; done
   echo "[ok]"
 
+  echo "First start setup is done, remove setup files"
+  rm -rf ${SERVICE_DIR}/slapd/assets/config
+
   touch $FIRST_START_SETUP_DONE
 fi
 
