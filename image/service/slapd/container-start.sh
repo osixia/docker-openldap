@@ -12,7 +12,7 @@ ulimit -n 1024
 # fix file permissions
 chown -R openldap:openldap /var/lib/ldap
 chown -R openldap:openldap /etc/ldap
-chown -R openldap:openldap /container/service/slapd
+chown -R openldap:openldap ${SERVICE_DIR}/slapd
 
 # container first start
 if [ ! -e "$FIRST_START_SETUP_DONE" ]; then
@@ -42,17 +42,17 @@ if [ ! -e "$FIRST_START_SETUP_DONE" ]; then
     local CA_CRT=$1
     local LDAP_CRT=$2
     local LDAP_KEY=$3
+    local DH_PARAM=$4
 
-    cfssl-helper ldap "/container/service/slapd/assets/certs/$LDAP_CRT" "/container/service/slapd/assets/certs/$LDAP_KEY" "/container/service/slapd/assets/certs/$CA_CRT"
+    cfssl-helper ldap $LDAP_CRT $LDAP_KEY $CA_CRT
 
     # create DHParamFile if not found
-    [ -f /container/service/slapd/assets/certs/dhparam.pem ] || openssl dhparam -out /container/service/slapd/assets/certs/dhparam.pem 2048
-    chmod 600 /container/service/slapd/assets/certs/dhparam.pem
+    [ -f ${DH_PARAM} ] || openssl dhparam -out ${DH_PARAM} 2048
+    chmod 600 ${DH_PARAM}
 
     # fix file permissions
-    chown -R openldap:openldap /container/service/slapd
+    chown -R openldap:openldap ${SERVICE_DIR}/slapd
   }
-
 
   BOOTSTRAP=false
 
@@ -97,7 +97,7 @@ EOF
 
       . $WAS_STARTED_WITH_TLS
 
-      check_tls_files $PREVIOUS_LDAP_TLS_CA_CRT_FILENAME $PREVIOUS_LDAP_TLS_CRT_FILENAME $PREVIOUS_LDAP_TLS_KEY_FILENAME
+      check_tls_files $PREVIOUS_LDAP_TLS_CA_CRT_PATH $PREVIOUS_LDAP_TLS_CRT_PATH $PREVIOUS_LDAP_TLS_KEY_PATH $PREVIOUS_LDAP_TLS_DH_PARAM_PATH
     fi
   fi
 
@@ -138,13 +138,13 @@ EOF
 
     # convert schemas to ldif
     SCHEMAS=""
-    for f in $(find /container/service/slapd/assets/config/bootstrap/schema -name \*.schema -type f); do
+    for f in $(find ${SERVICE_DIR}/slapd/assets/config/bootstrap/schema -name \*.schema -type f); do
       SCHEMAS="$SCHEMAS ${f}"
     done
-    /container/service/slapd/assets/schema-to-ldif.sh "$SCHEMAS"
+    ${SERVICE_DIR}/slapd/assets/schema-to-ldif.sh "$SCHEMAS"
 
     # add schemas
-    for f in $(find /container/service/slapd/assets/config/bootstrap/schema -name \*.ldif -type f); do
+    for f in $(find ${SERVICE_DIR}/slapd/assets/config/bootstrap/schema -name \*.ldif -type f); do
       echo "Processing file ${f}"
       # add schema if not already exists
       SCHEMA=$(basename "${f}" .ldif)
@@ -159,14 +159,14 @@ EOF
 
     # set config password
     LDAP_CONFIG_PASSWORD_ENCRYPTED=$(slappasswd -s $LDAP_CONFIG_PASSWORD)
-    sed -i --follow-symlinks "s|{{ LDAP_CONFIG_PASSWORD_ENCRYPTED }}|${LDAP_CONFIG_PASSWORD_ENCRYPTED}|g" /container/service/slapd/assets/config/bootstrap/ldif/01-config-password.ldif
+    sed -i --follow-symlinks "s|{{ LDAP_CONFIG_PASSWORD_ENCRYPTED }}|${LDAP_CONFIG_PASSWORD_ENCRYPTED}|g" ${SERVICE_DIR}/slapd/assets/config/bootstrap/ldif/01-config-password.ldif
 
     # adapt security config file
     get_ldap_base_dn
-    sed -i --follow-symlinks "s|{{ LDAP_BASE_DN }}|${LDAP_BASE_DN}|g" /container/service/slapd/assets/config/bootstrap/ldif/02-security.ldif
+    sed -i --follow-symlinks "s|{{ LDAP_BASE_DN }}|${LDAP_BASE_DN}|g" ${SERVICE_DIR}/slapd/assets/config/bootstrap/ldif/02-security.ldif
 
     # process config files in bootstrap directory (do no process files in subdirectories)
-    for f in $(find /container/service/slapd/assets/config/bootstrap/ldif -mindepth 1 -maxdepth 1 -type f -name \*.ldif  | sort); do
+    for f in $(find ${SERVICE_DIR}/slapd/assets/config/bootstrap/ldif -mindepth 1 -maxdepth 1 -type f -name \*.ldif  | sort); do
       echo "Processing file ${f}"
       ldapmodify -Y EXTERNAL -Q -H ldapi:/// -f $f
     done
@@ -177,18 +177,18 @@ EOF
       echo "Add read only user"
 
       LDAP_READONLY_USER_PASSWORD_ENCRYPTED=$(slappasswd -s $LDAP_READONLY_USER_PASSWORD)
-      sed -i --follow-symlinks "s|{{ LDAP_READONLY_USER_USERNAME }}|${LDAP_READONLY_USER_USERNAME}|g" /container/service/slapd/assets/config/bootstrap/ldif/readonly-user/readonly-user.ldif
-      sed -i --follow-symlinks "s|{{ LDAP_READONLY_USER_PASSWORD_ENCRYPTED }}|${LDAP_READONLY_USER_PASSWORD_ENCRYPTED}|g" /container/service/slapd/assets/config/bootstrap/ldif/readonly-user/readonly-user.ldif
-      sed -i --follow-symlinks "s|{{ LDAP_BASE_DN }}|${LDAP_BASE_DN}|g" /container/service/slapd/assets/config/bootstrap/ldif/readonly-user/readonly-user.ldif
+      sed -i --follow-symlinks "s|{{ LDAP_READONLY_USER_USERNAME }}|${LDAP_READONLY_USER_USERNAME}|g" ${SERVICE_DIR}/slapd/assets/config/bootstrap/ldif/readonly-user/readonly-user.ldif
+      sed -i --follow-symlinks "s|{{ LDAP_READONLY_USER_PASSWORD_ENCRYPTED }}|${LDAP_READONLY_USER_PASSWORD_ENCRYPTED}|g" ${SERVICE_DIR}/slapd/assets/config/bootstrap/ldif/readonly-user/readonly-user.ldif
+      sed -i --follow-symlinks "s|{{ LDAP_BASE_DN }}|${LDAP_BASE_DN}|g" ${SERVICE_DIR}/slapd/assets/config/bootstrap/ldif/readonly-user/readonly-user.ldif
 
-      sed -i --follow-symlinks "s|{{ LDAP_READONLY_USER_USERNAME }}|${LDAP_READONLY_USER_USERNAME}|g" /container/service/slapd/assets/config/bootstrap/ldif/readonly-user/readonly-user-acl.ldif
-      sed -i --follow-symlinks "s|{{ LDAP_BASE_DN }}|${LDAP_BASE_DN}|g" /container/service/slapd/assets/config/bootstrap/ldif/readonly-user/readonly-user-acl.ldif
+      sed -i --follow-symlinks "s|{{ LDAP_READONLY_USER_USERNAME }}|${LDAP_READONLY_USER_USERNAME}|g" ${SERVICE_DIR}/slapd/assets/config/bootstrap/ldif/readonly-user/readonly-user-acl.ldif
+      sed -i --follow-symlinks "s|{{ LDAP_BASE_DN }}|${LDAP_BASE_DN}|g" ${SERVICE_DIR}/slapd/assets/config/bootstrap/ldif/readonly-user/readonly-user-acl.ldif
 
-      echo "Processing file /container/service/slapd/assets/config/bootstrap/ldif/readonly-user/readonly-user.ldif"
-      ldapmodify -h localhost -p 389 -D cn=admin,$LDAP_BASE_DN -w $LDAP_ADMIN_PASSWORD -f /container/service/slapd/assets/config/bootstrap/ldif/readonly-user/readonly-user.ldif
+      echo "Processing file ${SERVICE_DIR}/slapd/assets/config/bootstrap/ldif/readonly-user/readonly-user.ldif"
+      ldapmodify -h localhost -p 389 -D cn=admin,$LDAP_BASE_DN -w $LDAP_ADMIN_PASSWORD -f ${SERVICE_DIR}/slapd/assets/config/bootstrap/ldif/readonly-user/readonly-user.ldif
 
-      echo "Processing file /container/service/slapd/assets/config/bootstrap/ldif/readonly-user/readonly-user-acl.ldif"
-      ldapmodify -Y EXTERNAL -Q -H ldapi:/// -f /container/service/slapd/assets/config/bootstrap/ldif/readonly-user/readonly-user-acl.ldif
+      echo "Processing file ${SERVICE_DIR}/slapd/assets/config/bootstrap/ldif/readonly-user/readonly-user-acl.ldif"
+      ldapmodify -Y EXTERNAL -Q -H ldapi:/// -f ${SERVICE_DIR}/slapd/assets/config/bootstrap/ldif/readonly-user/readonly-user-acl.ldif
 
     fi
 
@@ -199,40 +199,47 @@ EOF
 
     echo "Use TLS"
 
-    check_tls_files $LDAP_TLS_CA_CRT_FILENAME $LDAP_TLS_CRT_FILENAME $LDAP_TLS_KEY_FILENAME
+    LDAP_TLS_CA_CRT_PATH="${SERVICE_DIR}/slapd/assets/certs/$LDAP_TLS_CA_CRT_FILENAME"
+    LDAP_TLS_CRT_PATH="${SERVICE_DIR}/slapd/assets/certs/$LDAP_TLS_CRT_FILENAME"
+    LDAP_TLS_KEY_PATH="${SERVICE_DIR}/slapd/assets/certs/$LDAP_TLS_KEY_FILENAME"
+    LDAP_TLS_DH_PARAM_PATH="${SERVICE_DIR}/slapd/assets/certs/dhparam.pem"
+
+    check_tls_files $LDAP_TLS_CA_CRT_PATH $LDAP_TLS_CRT_PATH $LDAP_TLS_KEY_PATH $LDAP_TLS_DH_PARAM_PATH
 
     # adapt tls ldif
-    sed -i --follow-symlinks "s|{{ LDAP_TLS_CA_CRT_FILENAME }}|${LDAP_TLS_CA_CRT_FILENAME}|g" /container/service/slapd/assets/config/tls/tls-enable.ldif
-    sed -i --follow-symlinks "s|{{ LDAP_TLS_CRT_FILENAME }}|${LDAP_TLS_CRT_FILENAME}|g" /container/service/slapd/assets/config/tls/tls-enable.ldif
-    sed -i --follow-symlinks "s|{{ LDAP_TLS_KEY_FILENAME }}|${LDAP_TLS_KEY_FILENAME}|g" /container/service/slapd/assets/config/tls/tls-enable.ldif
+    sed -i --follow-symlinks "s|{{ LDAP_TLS_CA_CRT_PATH }}|${LDAP_TLS_CA_CRT_PATH}|g" ${SERVICE_DIR}/slapd/assets/config/tls/tls-enable.ldif
+    sed -i --follow-symlinks "s|{{ LDAP_TLS_CRT_PATH }}|${LDAP_TLS_CRT_PATH}|g" ${SERVICE_DIR}/slapd/assets/config/tls/tls-enable.ldif
+    sed -i --follow-symlinks "s|{{ LDAP_TLS_KEY_PATH }}|${LDAP_TLS_KEY_PATH}|g" ${SERVICE_DIR}/slapd/assets/config/tls/tls-enable.ldif
+    sed -i --follow-symlinks "s|{{ LDAP_TLS_DH_PARAM_PATH }}|${LDAP_TLS_DH_PARAM_PATH}|g" ${SERVICE_DIR}/slapd/assets/config/tls/tls-enable.ldif
 
-    sed -i --follow-symlinks "s|{{ LDAP_TLS_CIPHER_SUITE }}|${LDAP_TLS_CIPHER_SUITE}|g" /container/service/slapd/assets/config/tls/tls-enable.ldif
-    sed -i --follow-symlinks "s|{{ LDAP_TLS_PROTOCOL_MIN }}|${LDAP_TLS_PROTOCOL_MIN}|g" /container/service/slapd/assets/config/tls/tls-enable.ldif
-    sed -i --follow-symlinks "s|{{ LDAP_TLS_VERIFY_CLIENT }}|${LDAP_TLS_VERIFY_CLIENT}|g" /container/service/slapd/assets/config/tls/tls-enable.ldif
+    sed -i --follow-symlinks "s|{{ LDAP_TLS_CIPHER_SUITE }}|${LDAP_TLS_CIPHER_SUITE}|g" ${SERVICE_DIR}/slapd/assets/config/tls/tls-enable.ldif
+    sed -i --follow-symlinks "s|{{ LDAP_TLS_PROTOCOL_MIN }}|${LDAP_TLS_PROTOCOL_MIN}|g" ${SERVICE_DIR}/slapd/assets/config/tls/tls-enable.ldif
+    sed -i --follow-symlinks "s|{{ LDAP_TLS_VERIFY_CLIENT }}|${LDAP_TLS_VERIFY_CLIENT}|g" ${SERVICE_DIR}/slapd/assets/config/tls/tls-enable.ldif
 
-    ldapmodify -Y EXTERNAL -Q -H ldapi:/// -f /container/service/slapd/assets/config/tls/tls-enable.ldif
+    ldapmodify -Y EXTERNAL -Q -H ldapi:/// -f ${SERVICE_DIR}/slapd/assets/config/tls/tls-enable.ldif
 
     [[ -f "$WAS_STARTED_WITH_TLS" ]] && rm -f "$WAS_STARTED_WITH_TLS"
     touch $WAS_STARTED_WITH_TLS
-    echo "export PREVIOUS_LDAP_TLS_CA_CRT_FILENAME=${LDAP_TLS_CA_CRT_FILENAME}" >> $WAS_STARTED_WITH_TLS
-    echo "export PREVIOUS_LDAP_TLS_CRT_FILENAME=${LDAP_TLS_CRT_FILENAME}" >> $WAS_STARTED_WITH_TLS
-    echo "export PREVIOUS_LDAP_TLS_KEY_FILENAME=${LDAP_TLS_KEY_FILENAME}" >> $WAS_STARTED_WITH_TLS
+    echo "export PREVIOUS_LDAP_TLS_CA_CRT_PATH=${LDAP_TLS_CA_CRT_PATH}" >> $WAS_STARTED_WITH_TLS
+    echo "export PREVIOUS_LDAP_TLS_CRT_PATH=${LDAP_TLS_CRT_PATH}" >> $WAS_STARTED_WITH_TLS
+    echo "export PREVIOUS_LDAP_TLS_KEY_PATH=${LDAP_TLS_KEY_PATH}" >> $WAS_STARTED_WITH_TLS
+    echo "export PREVIOUS_LDAP_TLS_DH_PARAM_PATH=${LDAP_TLS_DH_PARAM_PATH}" >> $WAS_STARTED_WITH_TLS
     chmod +x $WAS_STARTED_WITH_TLS
 
     # ldap client config
-    sed -i --follow-symlinks "s,TLS_CACERT.*,TLS_CACERT /container/service/slapd/assets/certs/${LDAP_TLS_CA_CRT_FILENAME},g" /etc/ldap/ldap.conf
-    echo "TLS_REQCERT demand" >> /etc/ldap/ldap.conf
+    sed -i --follow-symlinks "s,TLS_CACERT.*,TLS_CACERT ${LDAP_TLS_CA_CRT_PATH},g" /etc/ldap/ldap.conf
+    echo "TLS_REQCERT ${LDAP_TLS_VERIFY_CLIENT}" >> /etc/ldap/ldap.conf
 
     [[ -f "$HOME/.ldaprc" ]] && rm -f $HOME/.ldaprc
     touch $HOME/.ldaprc
-    echo "TLS_CERT /container/service/slapd/assets/certs/${LDAP_TLS_CRT_FILENAME}" >> $HOME/.ldaprc
-    echo "TLS_KEY /container/service/slapd/assets/certs/${LDAP_TLS_KEY_FILENAME}" >> $HOME/.ldaprc
+    echo "TLS_CERT ${LDAP_TLS_CRT_PATH}" >> $HOME/.ldaprc
+    echo "TLS_KEY ${LDAP_TLS_KEY_PATH}" >> $HOME/.ldaprc
 
   else
 
     echo "Don't use TLS"
 
-    ldapmodify -c -Y EXTERNAL -Q -H ldapi:/// -f /container/service/slapd/assets/config/tls/tls-disable.ldif || true
+    ldapmodify -c -Y EXTERNAL -Q -H ldapi:/// -f ${SERVICE_DIR}/slapd/assets/config/tls/tls-disable.ldif || true
     [[ -f "$WAS_STARTED_WITH_TLS" ]] && rm -f "$WAS_STARTED_WITH_TLS"
 
   fi
@@ -240,7 +247,7 @@ EOF
 
   function disableReplication() {
     echo "Try to disable replication"
-    ldapmodify -c -Y EXTERNAL -Q -H ldapi:/// -f /container/service/slapd/assets/config/replication/replication-disable.ldif || true
+    ldapmodify -c -Y EXTERNAL -Q -H ldapi:/// -f ${SERVICE_DIR}/slapd/assets/config/replication/replication-disable.ldif || true
     [[ -f "$WAS_STARTED_WITH_REPLICATION" ]] && rm -f "$WAS_STARTED_WITH_REPLICATION"
   }
 
@@ -253,24 +260,24 @@ EOF
     i=1
     for host in $(complex-bash-env iterate "${LDAP_REPLICATION_HOSTS}")
     do
-      sed -i --follow-symlinks "s|{{ LDAP_REPLICATION_HOSTS }}|olcServerID: $i ${host}\n{{ LDAP_REPLICATION_HOSTS }}|g" /container/service/slapd/assets/config/replication/replication-enable.ldif
-      sed -i --follow-symlinks "s|{{ LDAP_REPLICATION_HOSTS_CONFIG_SYNC_REPL }}|olcSyncRepl: rid=00$i provider=${host} ${LDAP_REPLICATION_CONFIG_SYNCPROV}\n{{ LDAP_REPLICATION_HOSTS_CONFIG_SYNC_REPL }}|g" /container/service/slapd/assets/config/replication/replication-enable.ldif
-      sed -i --follow-symlinks "s|{{ LDAP_REPLICATION_HOSTS_HDB_SYNC_REPL }}|olcSyncRepl: rid=10$i provider=${host} ${LDAP_REPLICATION_HDB_SYNCPROV}\n{{ LDAP_REPLICATION_HOSTS_HDB_SYNC_REPL }}|g" /container/service/slapd/assets/config/replication/replication-enable.ldif
+      sed -i --follow-symlinks "s|{{ LDAP_REPLICATION_HOSTS }}|olcServerID: $i ${host}\n{{ LDAP_REPLICATION_HOSTS }}|g" ${SERVICE_DIR}/slapd/assets/config/replication/replication-enable.ldif
+      sed -i --follow-symlinks "s|{{ LDAP_REPLICATION_HOSTS_CONFIG_SYNC_REPL }}|olcSyncRepl: rid=00$i provider=${host} ${LDAP_REPLICATION_CONFIG_SYNCPROV}\n{{ LDAP_REPLICATION_HOSTS_CONFIG_SYNC_REPL }}|g" ${SERVICE_DIR}/slapd/assets/config/replication/replication-enable.ldif
+      sed -i --follow-symlinks "s|{{ LDAP_REPLICATION_HOSTS_HDB_SYNC_REPL }}|olcSyncRepl: rid=10$i provider=${host} ${LDAP_REPLICATION_HDB_SYNCPROV}\n{{ LDAP_REPLICATION_HOSTS_HDB_SYNC_REPL }}|g" ${SERVICE_DIR}/slapd/assets/config/replication/replication-enable.ldif
 
       ((i++))
     done
 
     get_ldap_base_dn
-    sed -i --follow-symlinks "s|\$LDAP_BASE_DN|$LDAP_BASE_DN|g" /container/service/slapd/assets/config/replication/replication-enable.ldif
-    sed -i --follow-symlinks "s|\$LDAP_ADMIN_PASSWORD|$LDAP_ADMIN_PASSWORD|g" /container/service/slapd/assets/config/replication/replication-enable.ldif
-    sed -i --follow-symlinks "s|\$LDAP_CONFIG_PASSWORD|$LDAP_CONFIG_PASSWORD|g" /container/service/slapd/assets/config/replication/replication-enable.ldif
+    sed -i --follow-symlinks "s|\$LDAP_BASE_DN|$LDAP_BASE_DN|g" ${SERVICE_DIR}/slapd/assets/config/replication/replication-enable.ldif
+    sed -i --follow-symlinks "s|\$LDAP_ADMIN_PASSWORD|$LDAP_ADMIN_PASSWORD|g" ${SERVICE_DIR}/slapd/assets/config/replication/replication-enable.ldif
+    sed -i --follow-symlinks "s|\$LDAP_CONFIG_PASSWORD|$LDAP_CONFIG_PASSWORD|g" ${SERVICE_DIR}/slapd/assets/config/replication/replication-enable.ldif
 
-    sed -i --follow-symlinks "/{{ LDAP_REPLICATION_HOSTS }}/d" /container/service/slapd/assets/config/replication/replication-enable.ldif
-    sed -i --follow-symlinks "/{{ LDAP_REPLICATION_HOSTS_CONFIG_SYNC_REPL }}/d" /container/service/slapd/assets/config/replication/replication-enable.ldif
-    sed -i --follow-symlinks "/{{ LDAP_REPLICATION_HOSTS_HDB_SYNC_REPL }}/d" /container/service/slapd/assets/config/replication/replication-enable.ldif
+    sed -i --follow-symlinks "/{{ LDAP_REPLICATION_HOSTS }}/d" ${SERVICE_DIR}/slapd/assets/config/replication/replication-enable.ldif
+    sed -i --follow-symlinks "/{{ LDAP_REPLICATION_HOSTS_CONFIG_SYNC_REPL }}/d" ${SERVICE_DIR}/slapd/assets/config/replication/replication-enable.ldif
+    sed -i --follow-symlinks "/{{ LDAP_REPLICATION_HOSTS_HDB_SYNC_REPL }}/d" ${SERVICE_DIR}/slapd/assets/config/replication/replication-enable.ldif
 
     echo "Enable replication"
-    ldapmodify -c -Y EXTERNAL -Q -H ldapi:/// -f /container/service/slapd/assets/config/replication/replication-enable.ldif || true
+    ldapmodify -c -Y EXTERNAL -Q -H ldapi:/// -f ${SERVICE_DIR}/slapd/assets/config/replication/replication-enable.ldif || true
 
     [[ -f "$WAS_STARTED_WITH_REPLICATION" ]] && rm -f "$WAS_STARTED_WITH_REPLICATION"
     touch $WAS_STARTED_WITH_REPLICATION
