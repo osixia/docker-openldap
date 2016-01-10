@@ -10,6 +10,7 @@ RUN groupadd -r openldap && useradd -r -g openldap openldap
 
 # Install OpenLDAP, ldap-utils and cfssl from baseimage and remove default ldap db
 # https://github.com/osixia/docker-light-baseimage/blob/stable/image/tool/install-service-available
+# https://github.com/osixia/docker-light-baseimage/blob/stable/image/service-available/.cfssl
 RUN apt-get -y update \
     && /container/tool/install-service-available cfssl \
 	  && LC_ALL=C DEBIAN_FRONTEND=noninteractive apt-get install -y --force-yes --no-install-recommends \
@@ -19,10 +20,8 @@ RUN apt-get -y update \
 # Add service directory to /container/service
 ADD service /container/service
 
-# Use baseimage install-service script and clean all
-# https://github.com/osixia/docker-light-baseimage/blob/stable/image/tool/install-service
-RUN /container/tool/install-service \
-    && apt-get clean \
+# Clean tmp and apt-get files
+RUN apt-get clean \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 # Add default env variables
