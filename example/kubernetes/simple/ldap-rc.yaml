@@ -28,7 +28,7 @@ spec:
               name: openldap
           env:
             - name: LDAP_LOG_LEVEL
-              value: "0"
+              value: "256"
             - name: LDAP_ORGANISATION
               value: "Example Inc."
             - name: LDAP_DOMAIN

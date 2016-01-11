@@ -143,17 +143,19 @@ A simple solution to backup your ldap server, our openldap-backup docker image :
 > [osixia/openldap-backup](https://github.com/osixia/docker-openldap-backup)
 
 ## Default Environment Variables
-Environement variables defaults are set in **image/environment/default.yaml** and **image/environment/default.yaml.setup**.
+Environement variables defaults are set in **image/environment/default.yaml** and **image/environment/default.yaml.startup**.
+
+See how to [set your own environment variables](#set-your-own-environment-variables)
 
 ### default.yaml
-Variables defined in this file are available at any time, anywhere in the container environment.
+Variables defined in this file are available at any time in the container environment.
 
 General container configuration :
 - **LDAP_LOG_LEVEL**: Slap log level. defaults to  `256`. See table 5.1 in http://www.openldap.org/doc/admin24/slapdconf2.html for the available log levels.
 
-### default.yaml.setup
-Variables defined in this file are only available during the container **first start** in **startup scripts**.
-This file is deleted right after startup scripts are processed for the first time,
+### default.yaml.startup
+Variables defined in this file are only available during the container **first start** in **startup files**.
+This file is deleted right after startup files are processed for the first time,
 after that all these values will not be available in the container environment.
 
 That helps to keep your container configuration secret. If you don't care all environment variables can be defined in **default.yaml** and everything will work fine :)
@@ -217,12 +219,12 @@ he will be able to read the admin password in clear text from environment variab
 #### Link environment file
 
 	docker run --volume /data/my-env.yaml:/container/environment/01-custom/env.yaml \
-	--volume /data/my-env.yaml.setup:/container/environment/01-custom/env.yaml.setup \
+	--volume /data/my-env.yaml.startup:/container/environment/01-custom/env.yaml.startup \
 	--detach osixia/openldap:1.1.0
 
-Note: the container will try to delete the ***.yaml.setup** file after the first start so the file will also be deleted on the docker host.
+Note: the container will try to delete the ** *.yaml.startup** file after the end of startup files so the file will also be deleted on the docker host.
 
-Use --volume /data/my-env.yaml.setup:/container/environment/01-custom/env.yaml.setup**:ro** to prevent that or set all variables in ***.yaml** file and don't mount ***.yaml.setup** file but all sensitive data will persists in container environment.
+Use --volume /data/my-env.yaml.startup:/container/environment/01-custom/env.yaml.startup**:ro** to prevent that or set all variables in** *.yaml** file and don't mount ** *.yaml.startup** file but all sensitive data will persists in container environment.
 
 #### Make your own image or extend this one
 
@@ -232,7 +234,7 @@ This is the best solution if you have a private registry. Please refer to the [A
 
 ### Extend osixia/openldap:1.1.0 image
 
-If you need to add your custom TLS certificate,   bootstrap config or environment files the easyest way is too extends this image.
+If you need to add your custom TLS certificate, bootstrap config or environment files the easyest way is to extends this image.
 
 Dockerfile example:
 
@@ -281,28 +283,6 @@ More information:
 
 osixia-openldap kubernetes examples are available in **example/kubernetes**
 
-### Debug
-
-The container default log level is **info**.
-Available levels: `none`, `error`, `warning`, `info`, `debug` and `trace`.
-
-Example command to run the container in `debug` mode :
-
-	docker run --detach osixia/openldap:1.1.0 /container/tool/run --loglevel debug
-
-The tool `/container/tool/run` is provided by this image baseimage : osixia/light-baseimage
-
-### osixia/light-baseimage
-
-This image is base on osixia/light-baseimage.
-It uses the following features :
-
-- **cfssl** service to generate tls certificates
-- **log-helper** tool to print log messages based on the log level
-- **run** tool to init the container environment
-
-More info : https://github.com/osixia/docker-light-baseimage
-
 ## Contributing
 
 If you find this image useful here's how you can help:
@@ -311,6 +291,14 @@ If you find this image useful here's how you can help:
 - Help new users with [issues](https://github.com/osixia/docker-openldap/issues) they may encounter
 - Support the development of this image and star this repo ! ;)
 
+## Debug
+
+The container default log level is **info**.
+Available levels: `none`, `error`, `warning`, `info`, `debug` and `trace`.
+
+Example command to run the container in `debug` mode :
+
+	docker run --detach osixia/openldap:1.1.0 --loglevel debug
 
 ## Tests
 
@@ -321,3 +309,15 @@ We use **Bats** (Bash Automated Testing System) to test this image:
 Install Bats, and in this project directory run :
 
 	make test
+
+### Under the hood : osixia/light-baseimage
+
+This image is base on osixia/light-baseimage.
+It uses the following features :
+
+- **cfssl** service to generate tls certificates
+- **log-helper** tool to print log messages based on the log level
+- **run** tool as entrypoint to init the container environment
+
+To fully understand how this image works take a look at :
+https://github.com/osixia/docker-light-baseimage

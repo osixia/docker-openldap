@@ -14,12 +14,13 @@ ulimit -n 1024
 chown -R openldap:openldap /var/lib/ldap
 chown -R openldap:openldap /etc/ldap
 chown -R openldap:openldap ${CONTAINER_SERVICE_DIR}/slapd
-# the SERVICE_DIR variable is set by /container/tool/run
-# more info: https://github.com/osixia/docker-light-baseimage
 
 FIRST_START_DONE="${CONTAINER_STATE_DIR}/slapd-first-start-setup-done"
 WAS_STARTED_WITH_TLS="/etc/ldap/slapd.d/docker-openldap-was-started-with-tls"
 WAS_STARTED_WITH_REPLICATION="/etc/ldap/slapd.d/docker-openldap-was-started-with-replication"
+
+# CONTAINER_SERVICE_DIR and CONTAINER_STATE_DIR variables are set by
+# the baseimage run tool more info : https://github.com/osixia/docker-light-baseimage
 
 # container first start
 if [ ! -e "$FIRST_START_DONE" ]; then
@@ -165,7 +166,7 @@ EOF
     done
     ${CONTAINER_SERVICE_DIR}/slapd/assets/schema-to-ldif.sh "$SCHEMAS"
 
-    # add schemas
+    # add converted schemas
     for f in $(find ${CONTAINER_SERVICE_DIR}/slapd/assets/config/bootstrap/schema -name \*.ldif -type f); do
       log-helper debug "Processing file ${f}"
       # add schema if not already exists
@@ -186,7 +187,7 @@ EOF
     get_ldap_base_dn
     sed -i --follow-symlinks "s|{{ LDAP_BASE_DN }}|${LDAP_BASE_DN}|g" ${CONTAINER_SERVICE_DIR}/slapd/assets/config/bootstrap/ldif/02-security.ldif
 
-    # process config files in bootstrap directory (do no process files in subdirectories)
+    # process config files (*.ldif) in bootstrap directory (do no process files in subdirectories)
     log-helper info "Add bootstrap ldif..."
     for f in $(find ${CONTAINER_SERVICE_DIR}/slapd/assets/config/bootstrap/ldif -mindepth 1 -maxdepth 1 -type f -name \*.ldif  | sort); do
       log-helper debug "Processing file ${f}"
@@ -247,7 +248,6 @@ EOF
     echo "export PREVIOUS_LDAP_TLS_CRT_PATH=${LDAP_TLS_CRT_PATH}" >> $WAS_STARTED_WITH_TLS
     echo "export PREVIOUS_LDAP_TLS_KEY_PATH=${LDAP_TLS_KEY_PATH}" >> $WAS_STARTED_WITH_TLS
     echo "export PREVIOUS_LDAP_TLS_DH_PARAM_PATH=${LDAP_TLS_DH_PARAM_PATH}" >> $WAS_STARTED_WITH_TLS
-    chmod +x $WAS_STARTED_WITH_TLS
 
     # ldap client config
     sed -i --follow-symlinks "s,TLS_CACERT.*,TLS_CACERT ${LDAP_TLS_CA_CRT_PATH},g" /etc/ldap/ldap.conf
@@ -305,7 +305,6 @@ EOF
     [[ -f "$WAS_STARTED_WITH_REPLICATION" ]] && rm -f "$WAS_STARTED_WITH_REPLICATION"
     touch $WAS_STARTED_WITH_REPLICATION
     echo "export PREVIOUS_HOSTNAME=${HOSTNAME}" >> $WAS_STARTED_WITH_REPLICATION
-    chmod +x $WAS_STARTED_WITH_REPLICATION
 
   else
 
