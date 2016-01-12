@@ -279,6 +279,8 @@ For example if your environment files **my-env.yaml** and **my-env.yaml.startup*
 	docker run --volume /data/ldap/environment:/container/environment/01-custom \
 	--detach osixia/openldap:1.1.0
 
+Take care to link your environment files folder to `/container/environment/XX-somedir` (with XX < 99 so they will be processed before default environment files) and not  directly to `/container/environment` because this directory contains predefined baseimage environment files to fix container environment (INITRD, LANG, LANGUAGE and LC_CTYPE).
+
 Note: the container will try to delete the **\*.yaml.startup** file after the end of startup files so the file will also be deleted on the docker host. To prevent that : use --volume /data/ldap/environment:/container/environment/01-custom**:ro** or set all variables in **\*.yaml** file and don't use **\*.yaml.startup**.
 
 #### Make your own image or extend this image
