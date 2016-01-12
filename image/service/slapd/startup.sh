@@ -79,7 +79,8 @@ if [ ! -e "$FIRST_START_DONE" ]; then
   if [ -z "$(ls -A /var/lib/ldap)" ] && [ -z "$(ls -A /etc/ldap/slapd.d)" ]; then
 
     BOOTSTRAP=true
-    log-helper info "Database and config directory are empty"
+    log-helper info "Database and config directory are empty..."
+    log-helper info "Init new ldap server..."
 
     cat <<EOF | debconf-set-selections
 slapd slapd/internal/generated_adminpw password ${LDAP_ADMIN_PASSWORD}
@@ -164,7 +165,7 @@ EOF
     for f in $(find ${CONTAINER_SERVICE_DIR}/slapd/assets/config/bootstrap/schema -name \*.schema -type f); do
       SCHEMAS="$SCHEMAS ${f}"
     done
-    ${CONTAINER_SERVICE_DIR}/slapd/assets/schema-to-ldif.sh "$SCHEMAS"
+    ${CONTAINER_SERVICE_DIR}/slapd/assets/schema-to-ldif.sh "$SCHEMAS" | log-helper debug
 
     # add converted schemas
     for f in $(find ${CONTAINER_SERVICE_DIR}/slapd/assets/config/bootstrap/schema -name \*.ldif -type f); do

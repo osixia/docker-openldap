@@ -1,6 +1,5 @@
 dn: uid=billy,dc=example,dc=org
 changetype: add
-
 uid: billy
 cn: billy
 sn: 3

@@ -51,6 +51,8 @@ spec:
               value: "ldap.key"
             - name: LDAP_TLS_CA_CRT_FILENAME
               value: "ca.crt"
+            - name: LDAP_TLS_ENFORCE
+              value: "false"
             - name: LDAP_TLS_CIPHER_SUITE
               value: "SECURE256:-VERS-SSL3.0"
             - name: LDAP_TLS_PROTOCOL_MIN
