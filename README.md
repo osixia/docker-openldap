@@ -33,9 +33,9 @@ A docker image to run OpenLDAP.
 - [Advanced User Guide](#advanced-user-guide)
 	- [Extend osixia/openldap:1.1.0 image](#extend-osixiaopenldap110-image)
 	- [Make your own openldap image](#make-your-own-openldap-image)
+	- [Tests](#tests)
 	- [Kubernetes](#kubernetes)
 	- [Under the hood: osixia/light-baseimage](#under-the-hood-osixialight-baseimage)
-	- [Tests](#tests)
 - [Changelog](#changelog)
 
 ## Contributing
@@ -330,6 +330,16 @@ Run your image:
 
 	docker run --detach cool-guy/openldap:0.1.0
 
+### Tests
+
+We use **Bats** (Bash Automated Testing System) to test this image:
+
+> [https://github.com/sstephenson/bats](https://github.com/sstephenson/bats)
+
+Install Bats, and in this project directory run:
+
+	make test
+
 ### Kubernetes
 
 Kubernetes is an open source system for managing containerized applications across multiple hosts, providing basic mechanisms for deployment, maintenance, and scaling of applications.
@@ -351,16 +361,6 @@ It uses the following features:
 
 To fully understand how this image works take a look at:
 https://github.com/osixia/docker-light-baseimage
-
-### Tests
-
-We use **Bats** (Bash Automated Testing System) to test this image:
-
-> [https://github.com/sstephenson/bats](https://github.com/sstephenson/bats)
-
-Install Bats, and in this project directory run:
-
-	make test
 
 ## Changelog
 
