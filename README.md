@@ -8,6 +8,7 @@ A docker image to run OpenLDAP. Latest release: 1.1.0 / OpenLDAP 2.4.40 - [Chang
 
 Support TLS, multi-master replication and quick bootstrap.
 
+- [Contributing](#contributing)
 - [Quick Start](#quick-start)
 - [Beginner Guide](#beginner-guide)
 	- [Create new ldap server](#create-new-ldap-server)
@@ -36,9 +37,16 @@ Support TLS, multi-master replication and quick bootstrap.
 	- [Make your own openldap image](#make-your-own-openldap-image)
 	- [Kubernetes](#kubernetes)
 	- [Under the hood: osixia/light-baseimage](#under-the-hood-osixialight-baseimage)
-- [Contributing](#contributing)
 - [Tests](#tests)
 - [Changelog](#changelog)
+
+## Contributing
+
+If you find this image useful here's how you can help:
+
+- Send a pull request with your kickass new features and bug fixes
+- Help new users with [issues](https://github.com/osixia/docker-openldap/issues) they may encounter
+- Support the development of this image and star this repo ! ;)
 
 ## Quick Start
 Run OpenLDAP docker image:
@@ -337,14 +345,6 @@ It uses the following features:
 
 To fully understand how this image works take a look at:
 https://github.com/osixia/docker-light-baseimage
-
-## Contributing
-
-If you find this image useful here's how you can help:
-
-- Send a pull request with your kickass new features and bug fixes
-- Help new users with [issues](https://github.com/osixia/docker-openldap/issues) they may encounter
-- Support the development of this image and star this repo ! ;)
 
 ## Tests
 
