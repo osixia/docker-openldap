@@ -37,7 +37,7 @@ Support TLS, multi-master replication and quick bootstrap.
 	- [Make your own openldap image](#make-your-own-openldap-image)
 	- [Kubernetes](#kubernetes)
 	- [Under the hood: osixia/light-baseimage](#under-the-hood-osixialight-baseimage)
-- [Tests](#tests)
+	- [Tests](#tests)
 - [Changelog](#changelog)
 
 ## Contributing
@@ -346,7 +346,7 @@ It uses the following features:
 To fully understand how this image works take a look at:
 https://github.com/osixia/docker-light-baseimage
 
-## Tests
+### Tests
 
 We use **Bats** (Bash Automated Testing System) to test this image:
 
