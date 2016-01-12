@@ -276,11 +276,12 @@ he will be able to read the admin password in clear text from environment variab
 
 #### Link environment file
 
-	docker run --volume /data/my-env.yaml:/container/environment/01-custom/env.yaml \
-	--volume /data/my-env.yaml.startup:/container/environment/01-custom/env.yaml.startup \
+For example if your environment files **my-env.yaml** and **my-env.yaml.startup** are in /data/ldap/environment
+
+	docker run --volume /data/ldap/environment:/container/environment/01-custom \
 	--detach osixia/openldap:1.1.0
 
-Note: the container will try to delete the **\*.yaml.startup** file after the end of startup files so the file will also be deleted on the docker host. To prevent that : use --volume /data/my-env.yaml.startup:/container/environment/01-custom/env.yaml.startup**:ro** or set all variables in **\*.yaml** file and don't mount **\*.yaml.startup**.
+Note: the container will try to delete the **\*.yaml.startup** file after the end of startup files so the file will also be deleted on the docker host. To prevent that : use --volume /data/ldap/environment:/container/environment/01-custom**:ro** or set all variables in **\*.yaml** file and don't use **\*.yaml.startup**.
 
 #### Make your own image or extend this image
 
