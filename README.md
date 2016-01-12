@@ -195,6 +195,10 @@ Example command to run the container in `debug` mode:
 
 	docker run --detach osixia/openldap:1.1.0 --loglevel debug
 
+See all command line options:
+
+	docker run --detach osixia/openldap:1.1.0 --help
+
 
 ## Environment Variables
 Environment variables defaults are set in **image/environment/default.yaml** and **image/environment/default.yaml.startup**.
@@ -229,6 +233,7 @@ TLS options:
 - **LDAP_TLS_CRT_FILENAME**: Ldap ssl certificate filename. Defaults to `ldap.crt`
 - **LDAP_TLS_KEY_FILENAME**: Ldap ssl certificate private key filename. Defaults to `ldap.key`
 - **LDAP_TLS_CA_CRT_FILENAME**: Ldap ssl CA certificate  filename. Defaults to `ca.crt`
+- **LDAP_TLS_ENFORCE**: Enforce TLS. Defaults to `false`
 - **LDAP_TLS_CIPHER_SUITE**: TLS cipher suite. Defaults to `SECURE256:-VERS-SSL3.0`
 - **LDAP_TLS_PROTOCOL_MIN**: TLS min protocol. Defaults to `3.1`
 - **LDAP_TLS_VERIFY_CLIENT**: TLS verify client. Defaults to `demand`
@@ -275,7 +280,7 @@ he will be able to read the admin password in clear text from environment variab
 	--volume /data/my-env.yaml.startup:/container/environment/01-custom/env.yaml.startup \
 	--detach osixia/openldap:1.1.0
 
-Note: the container will try to delete the **\*.yaml.startup** file after the end of startup files so the file will also be deleted on the docker host. Use --volume /data/my-env.yaml.startup:/container/environment/01-custom/env.yaml.startup**:ro** to prevent that or set all variables in **\*.yaml** file and don't mount **\*.yaml.startup**.
+Note: the container will try to delete the **\*.yaml.startup** file after the end of startup files so the file will also be deleted on the docker host. To prevent that : use --volume /data/my-env.yaml.startup:/container/environment/01-custom/env.yaml.startup**:ro** or set all variables in **\*.yaml** file and don't mount **\*.yaml.startup**.
 
 #### Make your own image or extend this image
 

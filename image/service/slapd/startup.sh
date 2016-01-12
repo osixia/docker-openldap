@@ -15,7 +15,7 @@ chown -R openldap:openldap /var/lib/ldap
 chown -R openldap:openldap /etc/ldap
 chown -R openldap:openldap ${CONTAINER_SERVICE_DIR}/slapd
 
-FIRST_START_DONE="${CONTAINER_STATE_DIR}/slapd-first-start-setup-done"
+FIRST_START_DONE="${CONTAINER_STATE_DIR}/slapd-first-start-done"
 WAS_STARTED_WITH_TLS="/etc/ldap/slapd.d/docker-openldap-was-started-with-tls"
 WAS_STARTED_WITH_REPLICATION="/etc/ldap/slapd.d/docker-openldap-was-started-with-replication"
 
@@ -258,6 +258,17 @@ EOF
     echo "TLS_CERT ${LDAP_TLS_CRT_PATH}" >> $HOME/.ldaprc
     echo "TLS_KEY ${LDAP_TLS_KEY_PATH}" >> $HOME/.ldaprc
 
+    # enforce TLS
+    if [ "${LDAP_TLS_ENFORCE,,}" == "true" ]; then
+      log-helper info "Add enforce TLS..."
+      ldapmodify -Y EXTERNAL -Q -H ldapi:/// -f ${CONTAINER_SERVICE_DIR}/slapd/assets/config/tls/tls-enforce-enable.ldif 2>&1 | log-helper debug
+
+    # disable tls enforcing
+    else
+      log-helper info "Disable enforce TLS..."
+      ldapmodify -Y EXTERNAL -Q -H ldapi:/// -f ${CONTAINER_SERVICE_DIR}/slapd/assets/config/tls/tls-enforce-disable.ldif 2>&1 | log-helper debug || true
+    fi
+
   else
     log-helper info "Disable TLS config..."
 
@@ -333,7 +344,7 @@ EOF
   #
   # setup done :)
   #
-  log-helper info "First start setup is done :)"
+  log-helper info "First start is done..."
   touch $FIRST_START_DONE
 fi
 

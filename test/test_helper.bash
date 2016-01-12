@@ -91,7 +91,7 @@ wait_service_by_cid() {
   cid=$1
 
   # first wait image init end
-  while ! is_file_exists_by_cid $cid /container/run/state/start-done
+  while ! is_file_exists_by_cid $cid /container/run/state/startup-done
   do
     sleep 0.5
   done
