@@ -37,8 +37,8 @@ Support TLS, multi-master replication and quick bootstrap.
 	- [Kubernetes](#kubernetes)
 	- [Under the hood: osixia/light-baseimage](#under-the-hood-osixialight-baseimage)
 - [Tests](#tests)
-- [Changelog](#changelog)
 - [Contributing](#contributing)
+- [Changelog](#changelog)
 
 ## Quick Start
 Run OpenLDAP docker image:
@@ -239,12 +239,11 @@ Replication options:
 	- ldap://ldap.example.org
 	- ldap://ldap2.example.org
 ```
-	If you want to set this variable at docker run command add the tag `#PYTHON2BASH:` and convert the yaml in python:
+If you want to set this variable at docker run command add the tag `#PYTHON2BASH:` and convert the yaml in python:
 
-		docker run --env LDAP_REPLICATION_HOSTS="#PYTHON2BASH:['ldap://ldap.example.org','ldap://ldap2.example.org']" --detach osixia/openldap:1.1.0
+	docker run --env LDAP_REPLICATION_HOSTS="#PYTHON2BASH:['ldap://ldap.example.org','ldap://ldap2.example.org']" --detach osixia/openldap:1.1.0
 
-	To convert yaml to python online:
-	http://yaml-online-parser.appspot.com/
+To convert yaml to python online: http://yaml-online-parser.appspot.com/
 
 Other environment variables:
 - **LDAP_REMOVE_CONFIG_AFTER_SETUP**: delete config folder after setup. Defaults to `true`
@@ -349,11 +348,6 @@ Install Bats, and in this project directory run:
 
 	make test
 
-## Changelog
-
-Please refer to: [CHANGELOG.md](CHANGELOG.md)
-
-
 ## Contributing
 
 If you find this image useful here's how you can help:
@@ -361,3 +355,7 @@ If you find this image useful here's how you can help:
 - Send a pull request with your kickass new features and bug fixes
 - Help new users with [issues](https://github.com/osixia/docker-openldap/issues) they may encounter
 - Support the development of this image and star this repo ! ;)
+
+## Changelog
+
+Please refer to: [CHANGELOG.md](CHANGELOG.md)
