@@ -16,7 +16,7 @@ Support TLS, multi-master replication and quick bootstrap.
 		- [Edit your server configuration](#)
 	- [Use an existing ldap database](#use-an-existing-ldap-database)
 	- [Backup](#backup)
-	- [Administrate Your Ldap Server](#administrate-your-ldap-server)
+	- [Administrate your ldap server](#administrate-your-ldap-server)
 	- [TLS](#tls)
 		- [Use auto-generated certificate](#use-auto-generated-certificate)
 		- [Use your own certificate](#use-your-own-certificate)
@@ -120,7 +120,7 @@ You can also use data volume containers. Please refer to:
 A simple solution to backup your ldap server, is our openldap-backup docker image:
 > [osixia/openldap-backup](https://github.com/osixia/docker-openldap-backup)
 
-### Administrate Your Ldap Server
+### Administrate your ldap server
 If you are looking for a simple solution to administrate your ldap server you can take a look at our phpLDAPadmin docker image:
 > [osixia/phpldapadmin](https://github.com/osixia/docker-phpLDAPadmin)
 
