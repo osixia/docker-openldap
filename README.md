@@ -1,11 +1,10 @@
 # osixia/openldap:1.1.0
 
-[![](https://badge.imagelayers.io/osixia/openldap:latest.svg)](https://imagelayers.io/?images=osixia/openldap:latest 'Get your own badge on imagelayers.io') | [Docker Hub](https://hub.docker.com/r/osixia/openldap/) 
+[![](https://badge.imagelayers.io/osixia/openldap:latest.svg)](https://imagelayers.io/?images=osixia/openldap:latest 'Get your own badge on imagelayers.io') | Latest release: 1.1.0 - OpenLDAP 2.4.40 -  [Changelog](CHANGELOG.md) | [Docker Hub](https://hub.docker.com/r/osixia/openldap/) 
 
 A docker image to run OpenLDAP.
-> [www.openldap.org](http://www.openldap.org/)
 
-Latest release: 1.1.0 - OpenLDAP 2.4.40 -  [Changelog](CHANGELOG.md)
+> Official website : [www.openldap.org](http://www.openldap.org/)
 
 - [Contributing](#contributing)
 - [Quick Start](#quick-start)
@@ -24,8 +23,8 @@ Latest release: 1.1.0 - OpenLDAP 2.4.40 -  [Changelog](CHANGELOG.md)
 	- [Debug](#debug)
 
 - [Environment Variables](#environment-variables)
-	- [default.yaml](#defaultyaml)
-	- [default.yaml.startup](#defaultyamlstartup)
+	- [Default.yaml](#defaultyaml)
+	- [Default.yaml.startup](#defaultyamlstartup)
 	- [Set your own environment variables](#set-your-own-environment-variables)
 		- [Use command line argument](#use-command-line-argument)
 		- [Link environment file](#link-environment-file)
@@ -204,13 +203,13 @@ Environment variables defaults are set in **image/environment/default.yaml** and
 
 See how to [set your own environment variables](#set-your-own-environment-variables)
 
-### default.yaml
+### Default.yaml
 Variables defined in this file are available at anytime in the container environment.
 
 General container configuration:
 - **LDAP_LOG_LEVEL**: Slap log level. defaults to  `256`. See table 5.1 in http://www.openldap.org/doc/admin24/slapdconf2.html for the available log levels.
 
-### default.yaml.startup
+### Default.yaml.startup
 Variables defined in this file are only available during the container **first start** in **startup files**.
 This file is deleted right after startup files are processed for the first time,
 then all of these values will not be available in the container environment.
