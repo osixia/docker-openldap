@@ -4,7 +4,7 @@
 
 A docker image to run OpenLDAP.
 
-> Official website : [www.openldap.org](http://www.openldap.org/)
+> OpenLDAP website : [www.openldap.org](http://www.openldap.org/)
 
 - [Contributing](#contributing)
 - [Quick Start](#quick-start)
@@ -44,7 +44,7 @@ If you find this image useful here's how you can help:
 
 - Send a pull request with your kickass new features and bug fixes
 - Help new users with [issues](https://github.com/osixia/docker-openldap/issues) they may encounter
-- Support the development of this image and star this repo ! ;)
+- Support the development of this image and star this repo !
 
 ## Quick Start
 Run OpenLDAP docker image:
@@ -70,7 +70,7 @@ This should output:
 	# numResponses: 3
 	# numEntries: 2
 
-If you have the following error, OpenLDAP is not started yet, you are too fast ;) ... wait some time.
+If you have the following error, OpenLDAP is not started yet, maybe you are too fast or maybe your computer is to slow, as you want... but wait some time before retrying.
 
 		ldap_sasl_bind(SIMPLE): Can't contact LDAP server (-1)
 
@@ -214,7 +214,7 @@ Variables defined in this file are only available during the container **first s
 This file is deleted right after startup files are processed for the first time,
 then all of these values will not be available in the container environment.
 
-This helps to keep your container configuration secret. If you don't care all environment variables can be defined in **default.yaml** and everything will work fine :)
+This helps to keep your container configuration secret. If you don't care all environment variables can be defined in **default.yaml** and everything will work fine.
 
 Required and used for new ldap server only:
 - **LDAP_ORGANISATION**: Organisation name. Defaults to `Example Inc.`
@@ -281,7 +281,10 @@ For example if your environment files **my-env.yaml** and **my-env.yaml.startup*
 
 Take care to link your environment files folder to `/container/environment/XX-somedir` (with XX < 99 so they will be processed before default environment files) and not  directly to `/container/environment` because this directory contains predefined baseimage environment files to fix container environment (INITRD, LANG, LANGUAGE and LC_CTYPE).
 
-Note: the container will try to delete the **\*.yaml.startup** file after the end of startup files so the file will also be deleted on the docker host. To prevent that : use --volume /data/ldap/environment:/container/environment/01-custom**:ro** or set all variables in **\*.yaml** file and don't use **\*.yaml.startup**.
+Note: the container will try to delete the **\*.yaml.startup** file after the end of startup files so the file will also be deleted on the docker host. To prevent that : use --volume /data/ldap/environment:/container/environment/01-custom**:ro** or set all variables in **\*.yaml** file and don't use **\*.yaml.startup**:
+
+	docker run --volume /data/ldap/environment/my-env.yaml:/container/environment/01-custom/env.yaml \
+	--detach osixia/openldap:1.1.0
 
 #### Make your own image or extend this image
 
