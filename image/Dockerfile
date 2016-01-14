@@ -7,10 +7,10 @@ MAINTAINER Bertrand Gouny <bertrand.gouny@osixia.net>
 RUN groupadd -r openldap && useradd -r -g openldap openldap
 
 # Install OpenLDAP, ldap-utils and cfssl from baseimage and remove default ldap db
-# sources: https://github.com/osixia/docker-light-baseimage/blob/stable/image/tool/install-service-available
-#          https://github.com/osixia/docker-light-baseimage/blob/stable/image/service-available/.cfssl/install.sh
+# sources: https://github.com/osixia/docker-light-baseimage/blob/stable/image/tool/add-service-available
+#          https://github.com/osixia/docker-light-baseimage/blob/stable/image/service-available/.cfssl/download.sh
 RUN apt-get -y update \
-    && /container/tool/install-service-available cfssl \
+    && /container/tool/add-service-available .cfssl \
 	  && LC_ALL=C DEBIAN_FRONTEND=noninteractive apt-get install -y --force-yes --no-install-recommends \
        slapd ldap-utils openssl \
 	  && rm -rf /var/lib/ldap /etc/ldap/slapd.d
@@ -18,8 +18,10 @@ RUN apt-get -y update \
 # Add service directory to /container/service
 ADD service /container/service
 
-# Clean tmp and apt-get files
-RUN apt-get clean \
+# Use baseimage install-service script and clean all
+# https://github.com/osixia/docker-light-baseimage/blob/stable/image/tool/install-service
+RUN /container/tool/install-service \
+    && apt-get clean \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 # Add default env variables
