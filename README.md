@@ -195,7 +195,7 @@ Example command to run the container in `debug` mode:
 
 See all command line options:
 
-	docker run --detach osixia/openldap:1.1.0 --help
+	docker run osixia/openldap:1.1.0 --help
 
 
 ## Environment Variables
