@@ -1,4 +1,4 @@
-# osixia/openldap:1.1.0
+# osixia/openldap
 
 [![](https://badge.imagelayers.io/osixia/openldap:latest.svg)](https://imagelayers.io/?images=osixia/openldap:latest 'Get your own badge on imagelayers.io') | Latest release: 1.1.0 - OpenLDAP 2.4.40 -  [Changelog](CHANGELOG.md) | [Docker Hub](https://hub.docker.com/r/osixia/openldap/) 
 
