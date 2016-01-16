@@ -8,9 +8,9 @@ RUN groupadd -r openldap && useradd -r -g openldap openldap
 
 # Install OpenLDAP, ldap-utils and cfssl from baseimage
 # sources: https://github.com/osixia/docker-light-baseimage/blob/stable/image/tool/add-service-available
-#          https://github.com/osixia/docker-light-baseimage/blob/stable/image/service-available/.cfssl/download.sh
+#          https://github.com/osixia/docker-light-baseimage/blob/stable/image/service-available/:cfssl/download.sh
 RUN apt-get -y update \
-    && /container/tool/add-service-available .cfssl \
+    && /container/tool/add-service-available :cfssl \
 	  && LC_ALL=C DEBIAN_FRONTEND=noninteractive apt-get install -y --force-yes --no-install-recommends \
        ldap-utils \
        openssl \
