@@ -250,7 +250,7 @@ Replication options:
 	- ldap://ldap.example.org
   - ldap://ldap2.example.org
 	```
-	
+
 	If you want to set this variable at docker run command add the tag `#PYTHON2BASH:` and convert the yaml in python:
 
 		docker run --env LDAP_REPLICATION_HOSTS="#PYTHON2BASH:['ldap://ldap.example.org','ldap://ldap2.example.org']" --detach osixia/openldap:1.1.0
@@ -259,6 +259,7 @@ Replication options:
 
 Other environment variables:
 - **LDAP_REMOVE_CONFIG_AFTER_SETUP**: delete config folder after setup. Defaults to `true`
+- **LDAP_CFSSL_PREFIX**: cfssl environment variables prefix. Defaults to `ldap`, cfssl-helper first search config from LDAP_CFSSL_* variables, before CFSSL_* variables.
 
 
 ### Set your own environment variables

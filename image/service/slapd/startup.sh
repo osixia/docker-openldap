@@ -57,7 +57,7 @@ if [ ! -e "$FIRST_START_DONE" ]; then
 
     # generate a certificate and key with cfssl tool if LDAP_CRT and LDAP_KEY files don't exists
     # https://github.com/osixia/docker-light-baseimage/blob/stable/image/service-available/:cfssl/assets/tool/cfssl-helper
-    cfssl-helper ldap $LDAP_CRT $LDAP_KEY $CA_CRT
+    cfssl-helper $LDAP_CFSSL_PREFIX $LDAP_CRT $LDAP_KEY $CA_CRT
 
     # create DHParamFile if not found
     [ -f ${DH_PARAM} ] || openssl dhparam -out ${DH_PARAM} 2048
