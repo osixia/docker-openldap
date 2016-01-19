@@ -10,7 +10,7 @@ A docker image to run OpenLDAP.
 - [Quick Start](#quick-start)
 - [Beginner Guide](#beginner-guide)
 	- [Create new ldap server](#create-new-ldap-server)
-		- [Data persitance](#data-persitance)
+		- [Data persistence](#data-persistence)
 		- [Edit your server configuration](#)
 	- [Use an existing ldap database](#use-an-existing-ldap-database)
 	- [Backup](#backup)
@@ -21,7 +21,6 @@ A docker image to run OpenLDAP.
 		- [Disable TLS](#disable-tls)
 	- [Multi master replication](#multi-master-replication)
 	- [Debug](#debug)
-
 - [Environment Variables](#environment-variables)
 	- [Default.yaml](#defaultyaml)
 	- [Default.yaml.startup](#defaultyamlstartup)
@@ -29,7 +28,6 @@ A docker image to run OpenLDAP.
 		- [Use command line argument](#use-command-line-argument)
 		- [Link environment file](#link-environment-file)
 		- [Make your own image or extend this image](#make-your-own-image-or-extend-this-image)
-
 - [Advanced User Guide](#advanced-user-guide)
 	- [Extend osixia/openldap:1.1.0 image](#extend-osixiaopenldap110-image)
 	- [Make your own openldap image](#make-your-own-openldap-image)
@@ -87,7 +85,7 @@ By default the admin has the password **admin**. All those default settings can 
 	docker run --env LDAP_ORGANISATION="My Company" --env LDAP_DOMAIN="my-company.com" \
 	--env LDAP_ADMIN_PASSWORD="JonSn0w" --detach osixia/openldap:1.1.0
 
-#### Data persitance
+#### Data persistence
 
 The directories `/var/lib/ldap` (LDAP database files) and `/etc/ldap/slapd.d`  (LDAP config files) has been declared as volumes, so your ldap files are saved outside the container in data volumes.
 
