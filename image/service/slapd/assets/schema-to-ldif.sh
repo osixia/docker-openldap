@@ -21,7 +21,7 @@ done
 slaptest -f convert.dat -F .
 
 if [ $? -ne 0 ] ; then
-    echo "slaptest conversion failed"
+    log-helper error "slaptest conversion failed"
     exit
 fi
 
