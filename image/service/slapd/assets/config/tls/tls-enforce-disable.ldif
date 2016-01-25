@@ -1,0 +1,4 @@
+dn: cn=config
+changetype:  modify
+delete: olcSecurity
+olcSecurity: tls=1

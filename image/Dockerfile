@@ -1,20 +1,20 @@
-FROM osixia/light-baseimage:0.2.0
+# Use osixia/light-baseimage
+# sources: https://github.com/osixia/docker-light-baseimage
+FROM osixia/light-baseimage:0.2.1
 MAINTAINER Bertrand Gouny <bertrand.gouny@osixia.net>
-
-# Use baseimage's init system.
-# https://github.com/osixia/docker-light-baseimage/blob/stable/image/tool/run
-CMD ["/container/tool/run"]
 
 # Add openldap user and group first to make sure their IDs get assigned consistently, regardless of whatever dependencies get added
 RUN groupadd -r openldap && useradd -r -g openldap openldap
 
-# Install OpenLDAP, ldap-utils and ssl-helper from baseimage and remove default ldap db
-# https://github.com/osixia/docker-light-baseimage/blob/stable/image/tool/install-service-available
+# Install OpenLDAP, ldap-utils and cfssl from baseimage
+# sources: https://github.com/osixia/docker-light-baseimage/blob/stable/image/tool/add-service-available
+#          https://github.com/osixia/docker-light-baseimage/blob/stable/image/service-available/:cfssl/download.sh
 RUN apt-get -y update \
-    && /container/tool/install-service-available ssl-helper-gnutls \
+    && /container/tool/add-service-available :cfssl \
 	  && LC_ALL=C DEBIAN_FRONTEND=noninteractive apt-get install -y --force-yes --no-install-recommends \
-	     slapd ldap-utils \
-	  && rm -rf /var/lib/ldap /etc/ldap/slapd.d
+       ldap-utils \
+       openssl \
+       slapd
 
 # Add service directory to /container/service
 ADD service /container/service
@@ -26,10 +26,10 @@ RUN /container/tool/install-service \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 # Add default env variables
-ADD env.yaml /container/environment/env.yaml
+ADD environment /container/environment/99-default
 
 # Set OpenLDAP data and config directories in a data volume
 VOLUME ["/var/lib/ldap", "/etc/ldap/slapd.d"]
 
-# Expose default ports for ldap and ldaps
+# Expose default ldap and ldaps ports
 EXPOSE 389 636

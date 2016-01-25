@@ -1,6 +1,10 @@
-# General container configuration
-# see table 5.1 in http://www.openldap.org/doc/admin24/slapdconf2.html for the available log levels.
-LDAP_LOG_LEVEL: 256
+# This is the default image startup configuration file
+# this file define environment variables used during the container **first start** in **startup files**.
+
+# This file is deleted right after startup files are processed for the first time,
+# after that all these values will not be available in the container environment.
+# This helps to keep your container configuration secret.
+# more information : https://github.com/osixia/docker-light-baseimage
 
 # Required and used for new ldap server only
 LDAP_ORGANISATION: Example Inc.
@@ -18,6 +22,7 @@ LDAP_TLS_CRT_FILENAME: ldap.crt
 LDAP_TLS_KEY_FILENAME: ldap.key
 LDAP_TLS_CA_CRT_FILENAME: ca.crt
 
+LDAP_TLS_ENFORCE: false
 LDAP_TLS_CIPHER_SUITE: SECURE256:-VERS-SSL3.0
 LDAP_TLS_PROTOCOL_MIN: 3.1
 LDAP_TLS_VERIFY_CLIENT: demand
@@ -35,3 +40,10 @@ LDAP_REPLICATION_HDB_SYNCPROV: binddn="cn=admin,$LDAP_BASE_DN" bindmethod=simple
 LDAP_REPLICATION_HOSTS:
   - ldap://ldap.example.org # The order must be the same on all ldap servers
   - ldap://ldap2.example.org
+
+
+# Remove config after setup
+LDAP_REMOVE_CONFIG_AFTER_SETUP: true
+
+# cfssl environment variables prefix
+LDAP_CFSSL_PREFIX: ldap # cfssl-helper first search config from LDAP_CFSSL_* variables, before CFSSL_* variables.

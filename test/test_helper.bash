@@ -83,19 +83,17 @@ is_service_running_by_cid() {
 }
 
 is_file_exists_by_cid() {
-  docker exec $1 cat "/etc/my_init_startup_files_completed" > /dev/null 2>&1
+  docker exec $1 cat $2 > /dev/null 2>&1
 }
 
 wait_service_by_cid() {
 
   cid=$1
 
-  sleep 1
-
   # first wait image init end
-  while ! is_file_exists_by_cid $cid /etc/my_init_startup_files_completed
+  while ! is_file_exists_by_cid $cid /container/run/state/startup-done
   do
-    sleep 1
+    sleep 0.5
   done
 
   for service in "${@:2}"
@@ -103,9 +101,7 @@ wait_service_by_cid() {
     # wait service
     while ! is_service_running_by_cid $cid $service
     do
-      sleep 1
+      sleep 0.5
     done
   done
-
-  sleep 5
 }

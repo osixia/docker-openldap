@@ -7,16 +7,16 @@ replace: olcTLSProtocolMin
 olcTLSProtocolMin: {{ LDAP_TLS_PROTOCOL_MIN }}
 -
 replace: olcTLSCACertificateFile
-olcTLSCACertificateFile: /container/service/slapd/assets/certs/{{ LDAP_TLS_CA_CRT_FILENAME }}
+olcTLSCACertificateFile: {{ LDAP_TLS_CA_CRT_PATH }}
 -
 replace: olcTLSCertificateFile
-olcTLSCertificateFile: /container/service/slapd/assets/certs/{{ LDAP_TLS_CRT_FILENAME }}
+olcTLSCertificateFile: {{ LDAP_TLS_CRT_PATH }}
 -
 replace: olcTLSCertificateKeyFile
-olcTLSCertificateKeyFile: /container/service/slapd/assets/certs/{{ LDAP_TLS_KEY_FILENAME }}
+olcTLSCertificateKeyFile: {{ LDAP_TLS_KEY_PATH }}
 -
 replace: olcTLSDHParamFile
-olcTLSDHParamFile: /container/service/slapd/assets/certs/dhparam.pem
+olcTLSDHParamFile: {{ LDAP_TLS_DH_PARAM_PATH }}
 -
 replace: olcTLSVerifyClient
 olcTLSVerifyClient: {{ LDAP_TLS_VERIFY_CLIENT }}

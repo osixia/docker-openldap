@@ -1,0 +1,100 @@
+apiVersion: v1
+kind: ReplicationController
+metadata:
+  name: ldap-controller
+  labels:
+    app: ldap
+spec:
+  replicas: 1
+  selector:
+    app: ldap
+  template:
+    metadata:
+      labels:
+        app: ldap
+    spec:
+      containers:
+        - name: ldap
+          image: osixia/openldap:1.1.0
+          volumeMounts:
+            - name: ldap-data
+              mountPath: /var/lib/ldap
+            - name: ldap-config
+              mountPath: /etc/ldap/slapd.d
+            - name: ldap-certs
+              mountPath: /container/service/slapd/assets/certs
+          ports:
+            - containerPort: 389
+              name: openldap
+          env:
+            - name: LDAP_LOG_LEVEL
+              value: "256"
+            - name: LDAP_ORGANISATION
+              value: "Example Inc."
+            - name: LDAP_DOMAIN
+              value: "example.org"
+            - name: LDAP_ADMIN_PASSWORD
+              value: "admin"
+            - name: LDAP_CONFIG_PASSWORD
+              value: "config"
+            - name: LDAP_READONLY_USER
+              value: "false"
+            - name: LDAP_READONLY_USER_USERNAME
+              value: "readonly"
+            - name: LDAP_READONLY_USER_PASSWORD
+              value: "readonly"
+            - name: LDAP_TLS
+              value: "true"
+            - name: LDAP_TLS_CRT_FILENAME
+              value: "ldap.crt"
+            - name: LDAP_TLS_KEY_FILENAME
+              value: "ldap.key"
+            - name: LDAP_TLS_CA_CRT_FILENAME
+              value: "ca.crt"
+            - name: LDAP_TLS_ENFORCE
+              value: "false"
+            - name: LDAP_TLS_CIPHER_SUITE
+              value: "SECURE256:-VERS-SSL3.0"
+            - name: LDAP_TLS_PROTOCOL_MIN
+              value: "3.1"
+            - name: LDAP_TLS_VERIFY_CLIENT
+              value: "demand"
+            - name: LDAP_REPLICATION
+              value: "false"
+            - name: LDAP_REPLICATION_CONFIG_SYNCPROV
+              value: "binddn=\"cn=admin,cn=config\" bindmethod=simple credentials=$LDAP_CONFIG_PASSWORD searchbase=\"cn=config\" type=refreshAndPersist retry=\"60 +\" timeout=1 starttls=critical"
+            - name: LDAP_REPLICATION_HDB_SYNCPROV
+              value: "binddn=\"cn=admin,$LDAP_BASE_DN\" bindmethod=simple credentials=$LDAP_ADMIN_PASSWORD searchbase=\"$LDAP_BASE_DN\" type=refreshAndPersist interval=00:00:00:10 retry=\"60 +\" timeout=1 starttls=critical"
+            - name: LDAP_REPLICATION_HOSTS
+              value: "#PYTHON2BASH:['ldap://ldap-one-service', 'ldap://ldap-two-service']"
+            - name: LDAP_REMOVE_CONFIG_AFTER_SETUP
+              value: "true"
+        - name: ldap-backup
+          image: osixia/openldap-backup:0.1.7
+          volumeMounts:
+            - name: ldap-data
+              mountPath: /var/lib/ldap
+            - name: ldap-config
+              mountPath: /etc/ldap/slapd.d
+            - name: ldap-backup
+              mountPath: /data/backup
+          env:
+            - name: LDAP_BACKUP_CONFIG_CRON_EXP
+              value: "15 1 * * *"
+            - name: LDAP_BACKUP_DATA_CRON_EXP
+              value: "20 1 * * *"
+            - name: LDAP_BACKUP_TTL
+              value: "15"
+      volumes:
+        - name: ldap-data
+          hostPath:
+            path: "/data/ldap/db"
+        - name: ldap-config
+          hostPath:
+            path: "/data/ldap/config"
+        - name: ldap-backup
+          hostPath:
+            path: "/data/ldap/backup"
+        - name: ldap-certs
+          hostPath:
+            path: "/data/ldap/certs"
