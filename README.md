@@ -187,7 +187,7 @@ Search on the second ldap server, and billy should show up!
 
 You may have some problems with mounted files on some systems. The startup script try to make some file adjustment and fix files owner and permissions, this can result in multiple errors. See [Docker documentation](https://docs.docker.com/v1.4/userguide/dockervolumes/#mount-a-host-file-as-a-data-volume).
 
-To fix that run the container with --copy-service argument :
+To fix that run the container with `--copy-service` argument :
 
 		docker run [your options] osixia/openldap:1.1.1 --copy-service
 
