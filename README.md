@@ -20,6 +20,7 @@ A docker image to run OpenLDAP.
 		- [Use your own certificate](#use-your-own-certificate)
 		- [Disable TLS](#disable-tls)
 	- [Multi master replication](#multi-master-replication)
+	- [Fix docker mounted file problems](#fix-docker-mounted-file-problems)
 	- [Debug](#debug)
 - [Environment Variables](#environment-variables)
 	- [Default.yaml](#defaultyaml)
@@ -181,6 +182,14 @@ Search on the second ldap server, and billy should show up!
 	objectClass: posixAccount
 	objectClass: inetOrgPerson
 	[...]
+
+### Fix docker mounted file problems
+
+You may have some problems with mounted files on some systems. The startup script try to make some file adjustment and fix files owner and permissions, this can result in multiple errors. See [Docker documentation](https://docs.docker.com/v1.4/userguide/dockervolumes/#mount-a-host-file-as-a-data-volume).
+
+To fix that run the container with --copy-service argument :
+
+		docker run [your options] osixia/openldap:1.1.1 --copy-service
 
 ### Debug
 
