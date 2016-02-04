@@ -122,6 +122,13 @@ EOF
     # to avoid error (#6) we check tls files
     if [ -e "$WAS_STARTED_WITH_TLS" ]; then
       source $WAS_STARTED_WITH_TLS
+
+      # backward compatibility osixia/openldao <= 1.1.0
+      [[ -n "$PREVIOUS_LDAP_TLS_CA_CRT_FILENAME" ]] && PREVIOUS_LDAP_TLS_CA_CRT_PATH="/container/service/slapd/assets/certs/$PREVIOUS_LDAP_TLS_CA_CRT_FILENAME"
+      [[ -n "$PREVIOUS_LDAP_TLS_CRT_FILENAME" ]] && PREVIOUS_LDAP_TLS_CRT_PATH="/container/service/slapd/assets/certs/$PREVIOUS_LDAP_TLS_CA_CRT_FILENAME"
+      [[ -n "$PREVIOUS_LDAP_TLS_KEY_FILENAME" ]] && PREVIOUS_LDAP_TLS_KEY_PATH="/container/service/slapd/assets/certs/$PREVIOUS_LDAP_TLS_CA_CRT_FILENAME"
+      [[ -z "$PREVIOUS_LDAP_TLS_DH_PARAM_PATH" ]] && PREVIOUS_LDAP_TLS_DH_PARAM_PATH="/container/service/slapd/assets/certs/dhparam.pem"
+
       check_tls_files $PREVIOUS_LDAP_TLS_CA_CRT_PATH $PREVIOUS_LDAP_TLS_CRT_PATH $PREVIOUS_LDAP_TLS_KEY_PATH $PREVIOUS_LDAP_TLS_DH_PARAM_PATH
     fi
   fi
