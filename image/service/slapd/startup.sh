@@ -48,25 +48,6 @@ if [ ! -e "$FIRST_START_DONE" ]; then
     fi
   }
 
-  function check_tls_files() {
-
-    local CA_CRT=$1
-    local LDAP_CRT=$2
-    local LDAP_KEY=$3
-    local DH_PARAM=$4
-
-    # generate a certificate and key with cfssl tool if LDAP_CRT and LDAP_KEY files don't exists
-    # https://github.com/osixia/docker-light-baseimage/blob/stable/image/service-available/:cfssl/assets/tool/cfssl-helper
-    cfssl-helper $LDAP_CFSSL_PREFIX $LDAP_CRT $LDAP_KEY $CA_CRT
-
-    # create DHParamFile if not found
-    [ -f ${DH_PARAM} ] || openssl dhparam -out ${DH_PARAM} 2048
-    chmod 600 ${DH_PARAM}
-
-    # fix file permissions
-    chown -R openldap:openldap ${CONTAINER_SERVICE_DIR}/slapd
-  }
-
   #
   # Global variables
   #
@@ -113,17 +94,6 @@ EOF
   elif [ ! -z "$(ls -A /var/lib/ldap)" ] && [ -z "$(ls -A /etc/ldap/slapd.d)" ]; then
     log-helper error "Error: the config directory (/etc/ldap/slapd.d) is empty but not the database directory (/var/lib/ldap)"
     exit 1
-
-  #
-  # An existing database and config are provided
-  #
-  else
-    # if the config was bootstraped with TLS
-    # to avoid error (#6) we check tls files
-    if [ -e "$WAS_STARTED_WITH_TLS" ]; then
-      source $WAS_STARTED_WITH_TLS
-      check_tls_files $PREVIOUS_LDAP_TLS_CA_CRT_PATH $PREVIOUS_LDAP_TLS_CRT_PATH $PREVIOUS_LDAP_TLS_KEY_PATH $PREVIOUS_LDAP_TLS_DH_PARAM_PATH
-    fi
   fi
 
   #
@@ -143,6 +113,12 @@ EOF
       echo "127.0.0.2 $PREVIOUS_HOSTNAME" >> /etc/hosts
       PREVIOUS_HOSTNAME_PARAM="ldap://$PREVIOUS_HOSTNAME"
     fi
+  fi
+
+  # if the config was bootstraped with TLS
+  # to avoid error (#6) we hard delete TLS config
+  if [ -e "$WAS_STARTED_WITH_TLS" ]; then
+    sed -i '/olcTLS/d' /etc/ldap/slapd.d/cn\=config.ldif
   fi
 
   # start OpenLDAP
@@ -192,6 +168,7 @@ EOF
     log-helper info "Add bootstrap ldif..."
     for f in $(find ${CONTAINER_SERVICE_DIR}/slapd/assets/config/bootstrap/ldif -mindepth 1 -maxdepth 1 -type f -name \*.ldif  | sort); do
       log-helper debug "Processing file ${f}"
+      sed -i "s|{{ LDAP_BASE_DN }}|${LDAP_BASE_DN}|g" $f
       ldapmodify -Y EXTERNAL -Q -H ldapi:/// -f $f 2>&1 | log-helper debug || ldapmodify -h localhost -p 389 -D cn=admin,$LDAP_BASE_DN -w $LDAP_ADMIN_PASSWORD -f $f 2>&1 | log-helper debug
     done
 
@@ -229,7 +206,16 @@ EOF
     LDAP_TLS_KEY_PATH="${CONTAINER_SERVICE_DIR}/slapd/assets/certs/$LDAP_TLS_KEY_FILENAME"
     LDAP_TLS_DH_PARAM_PATH="${CONTAINER_SERVICE_DIR}/slapd/assets/certs/dhparam.pem"
 
-    check_tls_files $LDAP_TLS_CA_CRT_PATH $LDAP_TLS_CRT_PATH $LDAP_TLS_KEY_PATH $LDAP_TLS_DH_PARAM_PATH
+    # generate a certificate and key with cfssl tool if LDAP_CRT and LDAP_KEY files don't exists
+    # https://github.com/osixia/docker-light-baseimage/blob/stable/image/service-available/:cfssl/assets/tool/cfssl-helper
+    cfssl-helper $LDAP_CFSSL_PREFIX $LDAP_TLS_CRT_PATH $LDAP_TLS_KEY_PATH $LDAP_TLS_CA_CRT_PATH
+
+    # create DHParamFile if not found
+    [ -f ${LDAP_TLS_DH_PARAM_PATH} ] || openssl dhparam -out ${LDAP_TLS_DH_PARAM_PATH} 2048
+    chmod 600 ${LDAP_TLS_DH_PARAM_PATH}
+
+    # fix file permissions
+    chown -R openldap:openldap ${CONTAINER_SERVICE_DIR}/slapd
 
     # adapt tls ldif
     sed -i "s|{{ LDAP_TLS_CA_CRT_PATH }}|${LDAP_TLS_CA_CRT_PATH}|g" ${CONTAINER_SERVICE_DIR}/slapd/assets/config/tls/tls-enable.ldif
@@ -242,12 +228,7 @@ EOF
     sed -i "s|{{ LDAP_TLS_VERIFY_CLIENT }}|${LDAP_TLS_VERIFY_CLIENT}|g" ${CONTAINER_SERVICE_DIR}/slapd/assets/config/tls/tls-enable.ldif
 
     ldapmodify -Y EXTERNAL -Q -H ldapi:/// -f ${CONTAINER_SERVICE_DIR}/slapd/assets/config/tls/tls-enable.ldif 2>&1 | log-helper debug
-
-    [[ -f "$WAS_STARTED_WITH_TLS" ]] && rm -f "$WAS_STARTED_WITH_TLS"
-    echo "export PREVIOUS_LDAP_TLS_CA_CRT_PATH=${LDAP_TLS_CA_CRT_PATH}" > $WAS_STARTED_WITH_TLS
-    echo "export PREVIOUS_LDAP_TLS_CRT_PATH=${LDAP_TLS_CRT_PATH}" >> $WAS_STARTED_WITH_TLS
-    echo "export PREVIOUS_LDAP_TLS_KEY_PATH=${LDAP_TLS_KEY_PATH}" >> $WAS_STARTED_WITH_TLS
-    echo "export PREVIOUS_LDAP_TLS_DH_PARAM_PATH=${LDAP_TLS_DH_PARAM_PATH}" >> $WAS_STARTED_WITH_TLS
+    touch $WAS_STARTED_WITH_TLS
 
     # ldap client config
     sed -i --follow-symlinks "s,TLS_CACERT.*,TLS_CACERT ${LDAP_TLS_CA_CRT_PATH},g" /etc/ldap/ldap.conf

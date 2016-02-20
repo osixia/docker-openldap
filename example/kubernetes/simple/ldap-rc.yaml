@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: ldap
-          image: osixia/openldap:1.1.0
+          image: osixia/openldap:1.1.1
           volumeMounts:
             - name: ldap-data
               mountPath: /var/lib/ldap
@@ -70,7 +70,7 @@ spec:
             - name: LDAP_REMOVE_CONFIG_AFTER_SETUP
               value: "true"
         - name: ldap-backup
-          image: osixia/openldap-backup:0.1.7
+          image: osixia/openldap-backup:0.1.8
           volumeMounts:
             - name: ldap-data
               mountPath: /var/lib/ldap
