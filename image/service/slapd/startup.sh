@@ -123,7 +123,7 @@ EOF
 
   # start OpenLDAP
   log-helper info "Start OpenLDAP..."
-  slapd -h "ldap://$HOSTNAME $PREVIOUS_HOSTNAME_PARAM ldap://localhost ldapi:///" -u openldap -g openldap
+  slapd -h "ldap://$HOSTNAME $PREVIOUS_HOSTNAME_PARAM ldap://localhost ldapi:///" -u openldap -g openldap -d $LDAP_LOG_LEVEL
 
 
   #
