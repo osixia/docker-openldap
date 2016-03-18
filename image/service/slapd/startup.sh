@@ -29,14 +29,17 @@ if [ ! -e "$FIRST_START_DONE" ]; then
   # Helpers
   #
   function get_ldap_base_dn() {
-    LDAP_BASE_DN=""
-    IFS='.' read -ra LDAP_BASE_DN_TABLE <<< "$LDAP_DOMAIN"
-    for i in "${LDAP_BASE_DN_TABLE[@]}"; do
-      EXT="dc=$i,"
-      LDAP_BASE_DN=$LDAP_BASE_DN$EXT
-    done
+    # if LDAP_BASE_DN is empty set value from LDAP_DOMAIN
+    if [ -z "$LDAP_BASE_DN" ]; then
+      IFS='.' read -ra LDAP_BASE_DN_TABLE <<< "$LDAP_DOMAIN"
+      for i in "${LDAP_BASE_DN_TABLE[@]}"; do
+        EXT="dc=$i,"
+        LDAP_BASE_DN=$LDAP_BASE_DN$EXT
+      done
 
-    LDAP_BASE_DN=${LDAP_BASE_DN::-1}
+      LDAP_BASE_DN=${LDAP_BASE_DN::-1}
+    fi
+
   }
 
   function is_new_schema() {

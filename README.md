@@ -233,6 +233,7 @@ This helps to keep your container configuration secret. If you don't care all en
 Required and used for new ldap server only:
 - **LDAP_ORGANISATION**: Organisation name. Defaults to `Example Inc.`
 - **LDAP_DOMAIN**: Ldap domain. Defaults to `example.org`
+- **LDAP_BASE_DN**: Ldap base DN. If empty automatically set from LDAP_DOMAIN value. Defaults to `(empty)`
 - **LDAP_ADMIN_PASSWORD** Ldap Admin password. Defaults to `admin`
 - **LDAP_CONFIG_PASSWORD** Ldap Config password. Defaults to `config`
 
