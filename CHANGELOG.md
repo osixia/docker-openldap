@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.1.2
+Merge pull request Honor LDAP_LOG_LEVEL on startup #39
+
 ## 1.1.1
 Update to light-baseimage:0.2.2
 
