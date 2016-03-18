@@ -337,4 +337,9 @@ fi
 ln -sf ${CONTAINER_SERVICE_DIR}/slapd/assets/.ldaprc $HOME/.ldaprc
 ln -sf ${CONTAINER_SERVICE_DIR}/slapd/assets/ldap.conf /etc/ldap/ldap.conf
 
+# force OpenLDAP to listen on all interfaces
+ETC_HOSTS=$(cat /etc/hosts | sed "/$HOSTNAME/d")
+echo "0.0.0.0 $HOSTNAME" > /etc/hosts
+echo "$ETC_HOSTS" >> /etc/hosts
+
 exit 0
