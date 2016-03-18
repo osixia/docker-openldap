@@ -123,10 +123,10 @@ EOF
 
   # start OpenLDAP
   log-helper info "Start OpenLDAP..."
-  slapd -h "ldap://$HOSTNAME $PREVIOUS_HOSTNAME_PARAM ldap://localhost ldapi:///" -u openldap -g openldap -d $LDAP_LOG_LEVEL &
+  slapd -h "ldap://$HOSTNAME $PREVIOUS_HOSTNAME_PARAM ldap://localhost ldapi:///" -u openldap -g openldap -d $LDAP_LOG_LEVEL 2>&1 &
 
   log-helper info "Waiting for OpenLDAP to start..."
-  sleep 5
+  while [ ! -e /run/slapd/slapd.pid ]; do sleep 0.1; done
 
   #
   # setup bootstrap config - Part 2
