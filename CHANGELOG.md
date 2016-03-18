@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.1.2
+Merge pull request :
+  - Honor LDAP_LOG_LEVEL on startup #39
+  
+Fix :
+  - slapd tcp bind is network not interface, and so does not respond on overlay networks #35
+  - specify base_dn without domain #37
+
 ## 1.1.1
 Update to light-baseimage:0.2.2
 

@@ -9,6 +9,8 @@
 # Required and used for new ldap server only
 LDAP_ORGANISATION: Example Inc.
 LDAP_DOMAIN: example.org
+LDAP_BASE_DN: #if empty automatically set from LDAP_DOMAIN
+
 LDAP_ADMIN_PASSWORD: admin
 LDAP_CONFIG_PASSWORD: config
 

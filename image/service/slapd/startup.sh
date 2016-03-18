@@ -29,14 +29,17 @@ if [ ! -e "$FIRST_START_DONE" ]; then
   # Helpers
   #
   function get_ldap_base_dn() {
-    LDAP_BASE_DN=""
-    IFS='.' read -ra LDAP_BASE_DN_TABLE <<< "$LDAP_DOMAIN"
-    for i in "${LDAP_BASE_DN_TABLE[@]}"; do
-      EXT="dc=$i,"
-      LDAP_BASE_DN=$LDAP_BASE_DN$EXT
-    done
+    # if LDAP_BASE_DN is empty set value from LDAP_DOMAIN
+    if [ -z "$LDAP_BASE_DN" ]; then
+      IFS='.' read -ra LDAP_BASE_DN_TABLE <<< "$LDAP_DOMAIN"
+      for i in "${LDAP_BASE_DN_TABLE[@]}"; do
+        EXT="dc=$i,"
+        LDAP_BASE_DN=$LDAP_BASE_DN$EXT
+      done
 
-    LDAP_BASE_DN=${LDAP_BASE_DN::-1}
+      LDAP_BASE_DN=${LDAP_BASE_DN::-1}
+    fi
+
   }
 
   function is_new_schema() {
@@ -123,8 +126,17 @@ EOF
 
   # start OpenLDAP
   log-helper info "Start OpenLDAP..."
-  slapd -h "ldap://$HOSTNAME $PREVIOUS_HOSTNAME_PARAM ldap://localhost ldapi:///" -u openldap -g openldap
 
+  if log-helper level eq debug; then
+    # debug
+    slapd -h "ldap://$HOSTNAME $PREVIOUS_HOSTNAME_PARAM ldap://localhost ldapi:///" -u openldap -g openldap -d $LDAP_LOG_LEVEL 2>&1 &
+  else
+    slapd -h "ldap://$HOSTNAME $PREVIOUS_HOSTNAME_PARAM ldap://localhost ldapi:///" -u openldap -g openldap
+  fi
+
+
+  log-helper info "Waiting for OpenLDAP to start..."
+  while [ ! -e /run/slapd/slapd.pid ]; do sleep 0.1; done
 
   #
   # setup bootstrap config - Part 2
@@ -331,5 +343,10 @@ fi
 
 ln -sf ${CONTAINER_SERVICE_DIR}/slapd/assets/.ldaprc $HOME/.ldaprc
 ln -sf ${CONTAINER_SERVICE_DIR}/slapd/assets/ldap.conf /etc/ldap/ldap.conf
+
+# force OpenLDAP to listen on all interfaces
+ETC_HOSTS=$(cat /etc/hosts | sed "/$HOSTNAME/d")
+echo "0.0.0.0 $HOSTNAME" > /etc/hosts
+echo "$ETC_HOSTS" >> /etc/hosts
 
 exit 0
