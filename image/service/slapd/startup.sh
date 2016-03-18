@@ -126,7 +126,14 @@ EOF
 
   # start OpenLDAP
   log-helper info "Start OpenLDAP..."
-  slapd -h "ldap://$HOSTNAME $PREVIOUS_HOSTNAME_PARAM ldap://localhost ldapi:///" -u openldap -g openldap -d $LDAP_LOG_LEVEL 2>&1 &
+
+  if log-helper level eq debug; then
+    # debug
+    slapd -h "ldap://$HOSTNAME $PREVIOUS_HOSTNAME_PARAM ldap://localhost ldapi:///" -u openldap -g openldap -d $LDAP_LOG_LEVEL 2>&1 &
+  else
+    slapd -h "ldap://$HOSTNAME $PREVIOUS_HOSTNAME_PARAM ldap://localhost ldapi:///" -u openldap -g openldap
+  fi
+
 
   log-helper info "Waiting for OpenLDAP to start..."
   while [ ! -e /run/slapd/slapd.pid ]; do sleep 0.1; done
