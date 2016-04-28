@@ -5,7 +5,7 @@ add: olcModuleLoad
 olcModuleLoad: memberof
 
 # Backend memberOf overlay
-dn: olcOverlay={0}memberof,olcDatabase={1}hdb,cn=config
+dn: olcOverlay={0}memberof,olcDatabase={1}mdb,cn=config
 changetype: add
 objectClass: olcOverlayConfig
 objectClass: olcMemberOf

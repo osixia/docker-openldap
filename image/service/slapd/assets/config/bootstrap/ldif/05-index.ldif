@@ -1,5 +1,5 @@
 # Add indexes
-dn: olcDatabase={1}hdb,cn=config
+dn: olcDatabase={1}mdb,cn=config
 changetype:  modify
 replace: olcDbIndex
 olcDbIndex: uid eq
