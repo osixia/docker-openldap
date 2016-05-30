@@ -28,8 +28,5 @@ RUN /container/tool/install-service
 # Add default env variables
 ADD environment /container/environment/99-default
 
-# Set OpenLDAP data and config directories in a data volume
-VOLUME ["/var/lib/ldap", "/etc/ldap/slapd.d"]
-
 # Expose default ldap and ldaps ports
 EXPOSE 389 636

@@ -95,7 +95,8 @@ By default the admin has the password **admin**. All those default settings can 
 
 #### Data persistence
 
-The directories `/var/lib/ldap` (LDAP database files) and `/etc/ldap/slapd.d`  (LDAP config files) has been declared as volumes, so your ldap files are saved outside the container in data volumes.
+The directories `/var/lib/ldap` (LDAP database files) and `/etc/ldap/slapd.d`  (LDAP config files) are used to persist the schema and data information, and should be mapped as volumes, so your ldap files are saved outside the container (see [Use an existing ldap database](#use-an-existing-ldap-database)). However it can be useful to not use volumes,
+in case the image should be delivered complete with test data - this is especially useful when deriving other images from this one.
 
 For more information about docker data volume, please refer to:
 
