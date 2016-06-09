@@ -1,6 +1,6 @@
 # Use osixia/light-baseimage
 # sources: https://github.com/osixia/docker-light-baseimage
-FROM osixia/light-baseimage:0.2.2
+FROM osixia/light-baseimage:0.2.4
 MAINTAINER Bertrand Gouny <bertrand.gouny@osixia.net>
 
 # Add openldap user and group first to make sure their IDs get assigned consistently, regardless of whatever dependencies get added
@@ -27,9 +27,6 @@ RUN /container/tool/install-service
 
 # Add default env variables
 ADD environment /container/environment/99-default
-
-# Set OpenLDAP data and config directories in a data volume
-VOLUME ["/var/lib/ldap", "/etc/ldap/slapd.d"]
 
 # Expose default ldap and ldaps ports
 EXPOSE 389 636

@@ -1,9 +1,23 @@
 # Changelog
 
+## 1.1.3
+Merge pull request :
+  - Use mdb over hdb #50
+  - Ignore lost+found directories #53
+  - Remove Volume command from Dockerfile #56
+
+Update to light-baseimage:0.2.4
+
+Release Note:
+  In this version the new environment variable LDAP_BACKEND let you set the the backend used by your ldap database.
+  By default it's hdb. In comming versions 1.2.x the default will be changed to mdb.
+
+  Environment variable LDAP_REPLICATION_HDB_SYNCPROV changed to LDAP_REPLICATION_DB_SYNCPROV
+
 ## 1.1.2
 Merge pull request :
   - Honor LDAP_LOG_LEVEL on startup #39
-  
+
 Fix :
   - slapd tcp bind is network not interface, and so does not respond on overlay networks #35
   - specify base_dn without domain #37

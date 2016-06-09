@@ -1,12 +1,12 @@
-# Delete sync replication on hdb
-dn: olcDatabase={1}hdb,cn=config
+# Delete sync replication on backend
+dn: olcDatabase={1}{{ LDAP_BACKEND }},cn=config
 changetype: modify
 delete: olcSyncRepl
 -
 delete: olcMirrorMode
 
-# Delete syncprov on hdb
-dn: olcOverlay=syncprov,olcDatabase={1}hdb,cn=config
+# Delete syncprov on backend
+dn: olcOverlay=syncprov,olcDatabase={1}{{ LDAP_BACKEND }},cn=config
 changetype: delete
 
 # Delete sync replication on config

@@ -26,18 +26,18 @@ add: olcSyncRepl
 add: olcMirrorMode
 olcMirrorMode: TRUE
 
-# Add syncprov on hdb
-dn: olcOverlay=syncprov,olcDatabase={1}hdb,cn=config
+# Add syncprov on backend
+dn: olcOverlay=syncprov,olcDatabase={1}{{ LDAP_BACKEND }},cn=config
 changetype: add
 objectClass: olcOverlayConfig
 objectClass: olcSyncProvConfig
 olcOverlay: syncprov
 
-# Add sync replication on hdb
-dn: olcDatabase={1}hdb,cn=config
+# Add sync replication on backend
+dn: olcDatabase={1}{{ LDAP_BACKEND }},cn=config
 changetype: modify
 add: olcSyncRepl
-{{ LDAP_REPLICATION_HOSTS_HDB_SYNC_REPL }}
+{{ LDAP_REPLICATION_HOSTS_DB_SYNC_REPL }}
 -
 add: olcMirrorMode
 olcMirrorMode: TRUE
