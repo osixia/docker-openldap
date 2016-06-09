@@ -10,6 +10,10 @@ log-helper level eq trace && set -x
 # see https://github.com/docker/docker/issues/8231
 ulimit -n 1024
 
+# create dir if they not already exists
+[ -d /var/lib/ldap ] || mkdir -p /var/lib/ldap
+[ -d /etc/ldap/slapd.d ] || mkdir -p /etc/ldap/slapd.d
+
 # fix file permissions
 chown -R openldap:openldap /var/lib/ldap
 chown -R openldap:openldap /etc/ldap
