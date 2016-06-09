@@ -330,6 +330,9 @@ Dockerfile example:
 
 See complete example in **example/extend-osixia-openldap**
 
+Warning: if you want to install new packages from debian repositories, this image has a configuration to prevent documentation and locales to be installed. If you need the doc and locales remove the following files :
+**/etc/dpkg/dpkg.cfg.d/01_nodoc** and **/etc/dpkg/dpkg.cfg.d/01_nolocales**
+
 ### Make your own openldap image
 
 Clone this project:
