@@ -1,9 +1,17 @@
 # Changelog
 
+## 1.1.3
+Merge pull request :
+  - Use mdb over hdb #50
+  - Ignore lost+found directories #53
+  - Remove Volume command from Dockerfile #56
+
+Update to light-baseimage:0.2.4
+
 ## 1.1.2
 Merge pull request :
   - Honor LDAP_LOG_LEVEL on startup #39
-  
+
 Fix :
   - slapd tcp bind is network not interface, and so does not respond on overlay networks #35
   - specify base_dn without domain #37
