@@ -119,6 +119,8 @@ simply mount this directories as a volume to `/var/lib/ldap` and `/etc/ldap/slap
 You can also use data volume containers. Please refer to:
 > [https://docs.docker.com/userguide/dockervolumes/](https://docs.docker.com/userguide/dockervolumes/)
 
+Note: By default this image is waiting an **hdb**  database backend, if you want to use any other database backend set backend type via the LDAP_BACKEND environement variable.
+
 ### Backup
 A simple solution to backup your ldap server, is our openldap-backup docker image:
 > [osixia/openldap-backup](https://github.com/osixia/docker-openldap-backup)
