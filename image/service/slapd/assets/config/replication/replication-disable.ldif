@@ -1,12 +1,12 @@
-# Delete sync replication on hdb
-dn: olcDatabase={1}hdb,cn=config
+# Delete sync replication on mdb
+dn: olcDatabase={1}mdb,cn=config
 changetype: modify
 delete: olcSyncRepl
 -
 delete: olcMirrorMode
 
-# Delete syncprov on hdb
-dn: olcOverlay=syncprov,olcDatabase={1}hdb,cn=config
+# Delete syncprov on mdb
+dn: olcOverlay=syncprov,olcDatabase={1}mdb,cn=config
 changetype: delete
 
 # Delete sync replication on config
