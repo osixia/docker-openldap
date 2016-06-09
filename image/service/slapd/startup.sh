@@ -66,7 +66,7 @@ if [ ! -e "$FIRST_START_DONE" ]; then
     log-helper info "Database and config directory are empty..."
     log-helper info "Init new ldap server..."
 
-    # Use mdb : http://www.openldap.org/doc/admin24/backends.html
+
     cat <<EOF | debconf-set-selections
 slapd slapd/internal/generated_adminpw password ${LDAP_ADMIN_PASSWORD}
 slapd slapd/internal/adminpw password ${LDAP_ADMIN_PASSWORD}
@@ -75,7 +75,7 @@ slapd slapd/password1 password ${LDAP_ADMIN_PASSWORD}
 slapd slapd/dump_database_destdir string /var/backups/slapd-VERSION
 slapd slapd/domain string ${LDAP_DOMAIN}
 slapd shared/organization string ${LDAP_ORGANISATION}
-slapd slapd/backend string MDB
+slapd slapd/backend string ${LDAP_BACKEND^^}
 slapd slapd/purge_database boolean true
 slapd slapd/move_old_database boolean true
 slapd slapd/allow_ldap_v2 boolean false
@@ -292,7 +292,7 @@ EOF
     do
       sed -i "s|{{ LDAP_REPLICATION_HOSTS }}|olcServerID: $i ${!host}\n{{ LDAP_REPLICATION_HOSTS }}|g" ${CONTAINER_SERVICE_DIR}/slapd/assets/config/replication/replication-enable.ldif
       sed -i "s|{{ LDAP_REPLICATION_HOSTS_CONFIG_SYNC_REPL }}|olcSyncRepl: rid=00$i provider=${!host} ${LDAP_REPLICATION_CONFIG_SYNCPROV}\n{{ LDAP_REPLICATION_HOSTS_CONFIG_SYNC_REPL }}|g" ${CONTAINER_SERVICE_DIR}/slapd/assets/config/replication/replication-enable.ldif
-      sed -i "s|{{ LDAP_REPLICATION_HOSTS_HDB_SYNC_REPL }}|olcSyncRepl: rid=10$i provider=${!host} ${LDAP_REPLICATION_HDB_SYNCPROV}\n{{ LDAP_REPLICATION_HOSTS_HDB_SYNC_REPL }}|g" ${CONTAINER_SERVICE_DIR}/slapd/assets/config/replication/replication-enable.ldif
+      sed -i "s|{{ LDAP_REPLICATION_HOSTS_DB_SYNC_REPL }}|olcSyncRepl: rid=10$i provider=${!host} ${LDAP_REPLICATION_DB_SYNCPROV}\n{{ LDAP_REPLICATION_HOSTS_DB_SYNC_REPL }}|g" ${CONTAINER_SERVICE_DIR}/slapd/assets/config/replication/replication-enable.ldif
 
       ((i++))
     done
@@ -304,7 +304,7 @@ EOF
 
     sed -i "/{{ LDAP_REPLICATION_HOSTS }}/d" ${CONTAINER_SERVICE_DIR}/slapd/assets/config/replication/replication-enable.ldif
     sed -i "/{{ LDAP_REPLICATION_HOSTS_CONFIG_SYNC_REPL }}/d" ${CONTAINER_SERVICE_DIR}/slapd/assets/config/replication/replication-enable.ldif
-    sed -i "/{{ LDAP_REPLICATION_HOSTS_HDB_SYNC_REPL }}/d" ${CONTAINER_SERVICE_DIR}/slapd/assets/config/replication/replication-enable.ldif
+    sed -i "/{{ LDAP_REPLICATION_HOSTS_DB_SYNC_REPL }}/d" ${CONTAINER_SERVICE_DIR}/slapd/assets/config/replication/replication-enable.ldif
 
     ldapmodify -c -Y EXTERNAL -Q -H ldapi:/// -f ${CONTAINER_SERVICE_DIR}/slapd/assets/config/replication/replication-enable.ldif 2>&1 | log-helper debug || true
 

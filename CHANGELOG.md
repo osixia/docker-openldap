@@ -8,6 +8,12 @@ Merge pull request :
 
 Update to light-baseimage:0.2.4
 
+Release Note:
+  In this version the new environment variable LDAP_BACKEND let you set the the backend used by your ldap database.
+  By default it's hdb. In comming versions 1.2.x the default will be changed to mdb.
+
+  Environment variable LDAP_REPLICATION_HDB_SYNCPROV changed to LDAP_REPLICATION_DB_SYNCPROV
+
 ## 1.1.2
 Merge pull request :
   - Honor LDAP_LOG_LEVEL on startup #39

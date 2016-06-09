@@ -240,6 +240,11 @@ Required and used for new ldap server only:
 - **LDAP_READONLY_USER_USERNAME** Read only user username. Defaults to `readonly`
 - **LDAP_READONLY_USER_PASSWORD** Read only user password. Defaults to `readonly`
 
+Backend:
+- **LDAP_BACKEND**: Ldap backend. Defaults to `hdb` (In comming versions v1.2.x default will be mdb)
+
+	Help: http://www.openldap.org/doc/admin24/backends.html
+
 TLS options:
 - **LDAP_TLS**: Add openldap TLS capabilities. Defaults to `true`
 - **LDAP_TLS_CRT_FILENAME**: Ldap ssl certificate filename. Defaults to `ldap.crt`
@@ -257,7 +262,7 @@ Replication options:
 
 - **LDAP_REPLICATION_CONFIG_SYNCPROV**: olcSyncRepl options used for the config database. Without **rid** and **provider** which are automatically added based on LDAP_REPLICATION_HOSTS.  Defaults to `binddn="cn=admin,cn=config" bindmethod=simple credentials=$LDAP_CONFIG_PASSWORD searchbase="cn=config" type=refreshAndPersist retry="60 +" timeout=1 starttls=critical`
 
-- **LDAP_REPLICATION_HDB_SYNCPROV**: olcSyncRepl options used for the HDB database. Without **rid** and **provider** which are automatically added based on LDAP_REPLICATION_HOSTS.  Defaults to `binddn="cn=admin,$LDAP_BASE_DN" bindmethod=simple credentials=$LDAP_ADMIN_PASSWORD searchbase="$LDAP_BASE_DN" type=refreshAndPersist interval=00:00:00:10 retry="60 +" timeout=1 starttls=critical`
+- **LDAP_REPLICATION_DB_SYNCPROV**: olcSyncRepl options used for the database. Without **rid** and **provider** which are automatically added based on LDAP_REPLICATION_HOSTS.  Defaults to `binddn="cn=admin,$LDAP_BASE_DN" bindmethod=simple credentials=$LDAP_ADMIN_PASSWORD searchbase="$LDAP_BASE_DN" type=refreshAndPersist interval=00:00:00:10 retry="60 +" timeout=1 starttls=critical`
 
 - **LDAP_REPLICATION_HOSTS**: list of replication hosts, must contain the current container hostname set by --hostname on docker run command. Defaults to :
 	```yaml
