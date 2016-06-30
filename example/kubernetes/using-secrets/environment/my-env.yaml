@@ -7,4 +7,4 @@
 
 # General container configuration
 # see table 5.1 in http://www.openldap.org/doc/admin24/slapdconf2.html for the available log levels.
-LDAP_LOG_LEVEL: 0
+LDAP_LOG_LEVEL: 256

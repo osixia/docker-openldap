@@ -43,6 +43,8 @@ spec:
               value: "readonly"
             - name: LDAP_READONLY_USER_PASSWORD
               value: "readonly"
+            - name: LDAP_BACKEND
+              value: "hdb"
             - name: LDAP_TLS
               value: "true"
             - name: LDAP_TLS_CRT_FILENAME
@@ -69,6 +71,8 @@ spec:
               value: "#PYTHON2BASH:['ldap://ldap-one-service', 'ldap://ldap-two-service']"
             - name: LDAP_REMOVE_CONFIG_AFTER_SETUP
               value: "true"
+            - name: LDAP_CFSSL_PREFIX
+              value: "ldap"
         - name: ldap-backup
           image: osixia/openldap-backup:0.1.8
           volumeMounts:

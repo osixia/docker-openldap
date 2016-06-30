@@ -9,23 +9,28 @@
 # Required and used for new ldap server only
 LDAP_ORGANISATION: Example Inc.
 LDAP_DOMAIN: example.org
-LDAP_ADMIN_PASSWORD: Adm1n!
-LDAP_CONFIG_PASSWORD: c0nfig
+LDAP_BASE_DN: #if empty automatically set from LDAP_DOMAIN
 
-LDAP_READONLY_USER: true
+LDAP_ADMIN_PASSWORD: admin
+LDAP_CONFIG_PASSWORD: config
+
+LDAP_READONLY_USER: false
 LDAP_READONLY_USER_USERNAME: readonly
-LDAP_READONLY_USER_PASSWORD: passwr0rd!
+LDAP_READONLY_USER_PASSWORD: readonly
+
+# Backend
+LDAP_BACKEND: hdb
 
 # Tls
 LDAP_TLS: true
-LDAP_TLS_CRT_FILENAME: cert.crt
-LDAP_TLS_KEY_FILENAME: cert.key
+LDAP_TLS_CRT_FILENAME: ldap.crt
+LDAP_TLS_KEY_FILENAME: ldap.key
 LDAP_TLS_CA_CRT_FILENAME: ca.crt
 
 LDAP_TLS_ENFORCE: false
 LDAP_TLS_CIPHER_SUITE: SECURE256:-VERS-SSL3.0
 LDAP_TLS_PROTOCOL_MIN: 3.1
-LDAP_TLS_VERIFY_CLIENT: never
+LDAP_TLS_VERIFY_CLIENT: demand
 
 # Replication
 LDAP_REPLICATION: false
@@ -43,4 +48,7 @@ LDAP_REPLICATION_HOSTS:
 
 
 # Remove config after setup
-LDAP_REMOVE_CONFIG_AFTER_SETUP: false
+LDAP_REMOVE_CONFIG_AFTER_SETUP: true
+
+# cfssl environment variables prefix
+LDAP_CFSSL_PREFIX: ldap # cfssl-helper first search config from LDAP_CFSSL_* variables, before CFSSL_* variables.
