@@ -54,7 +54,7 @@ spec:
             - name: LDAP_TLS_ENFORCE
               value: "false"
             - name: LDAP_TLS_CIPHER_SUITE
-              value: "SECURE256:-VERS-SSL3.0"
+              value: "SECURE256:+SECURE128:-VERS-TLS-ALL:+VERS-TLS1.2:-RSA:-DHE-DSS:-CAMELLIA-128-CBC:-CAMELLIA-256-CBC"
             - name: LDAP_TLS_VERIFY_CLIENT
               value: "demand"
             - name: LDAP_REPLICATION
