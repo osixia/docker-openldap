@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.1.4
+- Remove environment variable LDAP_TLS_PROTOCOL_MIN as it takes no effect, see #69.
+- Adjust default GnuTLS cipher string according to Red Hat's TLS hardening guide.
+  This by default also restricts the TLS protocol version to 1.2. For reference,
+  see #69.
+
 ## 1.1.3
 Merge pull request :
   - Use mdb over hdb #50
