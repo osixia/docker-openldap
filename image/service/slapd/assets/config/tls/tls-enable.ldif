@@ -3,9 +3,6 @@ changetype: modify
 replace: olcTLSCipherSuite
 olcTLSCipherSuite: {{ LDAP_TLS_CIPHER_SUITE }}
 -
-replace: olcTLSProtocolMin
-olcTLSProtocolMin: {{ LDAP_TLS_PROTOCOL_MIN }}
--
 replace: olcTLSCACertificateFile
 olcTLSCACertificateFile: {{ LDAP_TLS_CA_CRT_PATH }}
 -

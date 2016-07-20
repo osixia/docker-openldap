@@ -254,7 +254,6 @@ TLS options:
 - **LDAP_TLS_CA_CRT_FILENAME**: Ldap ssl CA certificate  filename. Defaults to `ca.crt`
 - **LDAP_TLS_ENFORCE**: Enforce TLS. Defaults to `false`
 - **LDAP_TLS_CIPHER_SUITE**: TLS cipher suite. Defaults to `SECURE256:-VERS-SSL3.0`
-- **LDAP_TLS_PROTOCOL_MIN**: TLS min protocol. Defaults to `3.1`
 - **LDAP_TLS_VERIFY_CLIENT**: TLS verify client. Defaults to `demand`
 
 	Help: http://www.openldap.org/doc/admin24/tls.html

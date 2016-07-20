@@ -55,8 +55,6 @@ spec:
               value: "false"
             - name: LDAP_TLS_CIPHER_SUITE
               value: "SECURE256:-VERS-SSL3.0"
-            - name: LDAP_TLS_PROTOCOL_MIN
-              value: "3.1"
             - name: LDAP_TLS_VERIFY_CLIENT
               value: "demand"
             - name: LDAP_REPLICATION

@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.1.4
+Remove TLS environment variable LDAP_TLS_PROTOCOL_MIN, see #69
+
+
 ## 1.1.3
 Merge pull request :
   - Use mdb over hdb #50
