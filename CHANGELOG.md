@@ -6,6 +6,7 @@
   This by default also restricts the TLS protocol version to 1.2. For reference,
   see #69
 - Fix Error in Adding "Billy" #71
+- Add docker-compose.yml example and update kubernetes examples #52
 
 Merge pull request :
   - Update LDAP_TLS_CIPHER_SUITE, remove LDAP_TLS_PROTOCOL_MIN #70
