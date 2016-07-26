@@ -4,7 +4,5 @@
 
 FILE=$1
 
-FILE_ENCODED=$(cat $FILE | base64)
-FILE_ENCODED=`echo ${FILE_ENCODED} | tr -d '\n'`
-FILE_ENCODED=`echo ${FILE_ENCODED} | tr -d ' '`
+FILE_ENCODED=$(cat $FILE | base64 --wrap=0)
 echo  $FILE_ENCODED
