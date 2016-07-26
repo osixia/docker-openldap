@@ -1,10 +1,15 @@
 # Changelog
 
 ## 1.1.4
-- Remove environment variable LDAP_TLS_PROTOCOL_MIN as it takes no effect, see #69.
+- Remove environment variable LDAP_TLS_PROTOCOL_MIN as it takes no effect, see #69
 - Adjust default GnuTLS cipher string according to Red Hat's TLS hardening guide.
   This by default also restricts the TLS protocol version to 1.2. For reference,
-  see #69.
+  see #69
+- Fix Error in Adding "Billy" #71
+
+Merge pull request :
+  - Update LDAP_TLS_CIPHER_SUITE, remove LDAP_TLS_PROTOCOL_MIN #70
+  - fixed LDAP_BACKEND for readonly user #62
 
 ## 1.1.3
 Merge pull request :

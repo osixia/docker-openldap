@@ -173,7 +173,7 @@ That's it! But a little test to be sure:
 
 Add a new user "billy" on the first ldap server
 
-	docker exec $LDAP_CID ldapadd -x -D "cn=admin,dc=example,dc=org" -w admin -f /container/service/slapd/assets/test/new-user.ldif --hostname ldap.example.org -ZZ
+	docker exec $LDAP_CID ldapadd -x -D "cn=admin,dc=example,dc=org" -w admin -f /container/service/slapd/assets/test/new-user.ldif -h ldap.example.org -ZZ
 
 Search on the second ldap server, and billy should show up!
 
