@@ -248,11 +248,11 @@ Backend:
 	Help: http://www.openldap.org/doc/admin24/backends.html
 
 TLS options:
-- **LDAP_TLS**: Add openldap TLS capabilities. Defaults to `true`
+- **LDAP_TLS**: Add openldap TLS capabilities. Can't be removed once set to true. Defaults to `true`. 
 - **LDAP_TLS_CRT_FILENAME**: Ldap ssl certificate filename. Defaults to `ldap.crt`
 - **LDAP_TLS_KEY_FILENAME**: Ldap ssl certificate private key filename. Defaults to `ldap.key`
 - **LDAP_TLS_CA_CRT_FILENAME**: Ldap ssl CA certificate  filename. Defaults to `ca.crt`
-- **LDAP_TLS_ENFORCE**: Enforce TLS. Defaults to `false`
+- **LDAP_TLS_ENFORCE**: Enforce TLS. Can't be disabled once set to true. Defaults to `false`. 
 - **LDAP_TLS_CIPHER_SUITE**: TLS cipher suite. Defaults to `SECURE256:+SECURE128:-VERS-TLS-ALL:+VERS-TLS1.2:-RSA:-DHE-DSS:-CAMELLIA-128-CBC:-CAMELLIA-256-CBC`, based on Red Hat's [TLS hardening guide](https://access.redhat.com/documentation/en-US/Red_Hat_Enterprise_Linux/7/html/Security_Guide/sec-Hardening_TLS_Configuration.html)
 - **LDAP_TLS_VERIFY_CLIENT**: TLS verify client. Defaults to `demand`
 
