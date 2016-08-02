@@ -1,5 +1,7 @@
 # Changelog
 
+## 1.1.5
+
 ## 1.1.4
 - Remove environment variable LDAP_TLS_PROTOCOL_MIN as it takes no effect, see #69
 - Adjust default GnuTLS cipher string according to Red Hat's TLS hardening guide.
