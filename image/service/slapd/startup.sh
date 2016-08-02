@@ -21,6 +21,7 @@ chown -R openldap:openldap ${CONTAINER_SERVICE_DIR}/slapd
 
 FIRST_START_DONE="${CONTAINER_STATE_DIR}/slapd-first-start-done"
 WAS_STARTED_WITH_TLS="/etc/ldap/slapd.d/docker-openldap-was-started-with-tls"
+WAS_STARTED_WITH_TLS_ENFORCE="/etc/ldap/slapd.d/docker-openldap-was-started-with-tls-enforce"
 WAS_STARTED_WITH_REPLICATION="/etc/ldap/slapd.d/docker-openldap-was-started-with-replication"
 
 # CONTAINER_SERVICE_DIR and CONTAINER_STATE_DIR variables are set by
@@ -129,6 +130,8 @@ EOF
   if [ -e "$WAS_STARTED_WITH_TLS" ]; then
     source $WAS_STARTED_WITH_TLS
 
+    log-helper debug "Check previous TLS certificates..."
+
     cfssl-helper $LDAP_CFSSL_PREFIX $PREVIOUS_LDAP_TLS_CRT_PATH $PREVIOUS_LDAP_TLS_KEY_PATH $PREVIOUS_LDAP_TLS_CA_CRT_PATH
     [ -f ${PREVIOUS_LDAP_TLS_DH_PARAM_PATH} ] || openssl dhparam -out ${LDAP_TLS_DH_PARAM_PATH} 2048
 
@@ -224,6 +227,18 @@ EOF
   #
   # TLS config
   #
+  if [ -e "$WAS_STARTED_WITH_TLS" ] && [ "${LDAP_TLS,,}" != "true" ]; then
+    log-helper error "/!\ WARNING: LDAP_TLS=false but the container was previously started with LDAP_TLS=true"
+    log-helper error "TLS can't be disabled once added. Ignoring LDAP_TLS=false."
+    LDAP_TLS=true
+  fi
+
+  if [ -e "$WAS_STARTED_WITH_TLS_ENFORCE" ] && [ "${LDAP_TLS_ENFORCE,,}" != "true" ]; then
+    log-helper error "/!\ WARNING: LDAP_TLS_ENFORCE=false but the container was previously started with LDAP_TLS_ENFORCE=true"
+    log-helper error "TLS enforcing can't be disabled once added. Ignoring LDAP_TLS_ENFORCE=false."
+    LDAP_TLS_ENFORCE=true
+  fi
+
   if [ "${LDAP_TLS,,}" == "true" ]; then
 
     log-helper info "Add TLS config..."
@@ -275,18 +290,20 @@ EOF
     if [ "${LDAP_TLS_ENFORCE,,}" == "true" ]; then
       log-helper info "Add enforce TLS..."
       ldapmodify -Y EXTERNAL -Q -H ldapi:/// -f ${CONTAINER_SERVICE_DIR}/slapd/assets/config/tls/tls-enforce-enable.ldif 2>&1 | log-helper debug
+      touch $WAS_STARTED_WITH_TLS_ENFORCE
 
-    # disable tls enforcing
-    else
-      log-helper info "Disable enforce TLS..."
-      ldapmodify -Y EXTERNAL -Q -H ldapi:/// -f ${CONTAINER_SERVICE_DIR}/slapd/assets/config/tls/tls-enforce-disable.ldif 2>&1 | log-helper debug || true
+    # disable tls enforcing (not possible for now)
+    #else
+      #log-helper info "Disable enforce TLS..."
+      #ldapmodify -Y EXTERNAL -Q -H ldapi:/// -f ${CONTAINER_SERVICE_DIR}/slapd/assets/config/tls/tls-enforce-disable.ldif 2>&1 | log-helper debug || true
+      #[[ -f "$WAS_STARTED_WITH_TLS_ENFORCE" ]] && rm -f "$WAS_STARTED_WITH_TLS_ENFORCE"
     fi
 
-  else
-    log-helper info "Disable TLS config..."
-
-    ldapmodify -c -Y EXTERNAL -Q -H ldapi:/// -f ${CONTAINER_SERVICE_DIR}/slapd/assets/config/tls/tls-disable.ldif 2>&1 | log-helper debug || true
-    [[ -f "$WAS_STARTED_WITH_TLS" ]] && rm -f "$WAS_STARTED_WITH_TLS"
+  # disable tls (not possible for now)
+  #else
+    #log-helper info "Disable TLS config..."
+    #ldapmodify -c -Y EXTERNAL -Q -H ldapi:/// -f ${CONTAINER_SERVICE_DIR}/slapd/assets/config/tls/tls-disable.ldif 2>&1 | log-helper debug || true
+    #[[ -f "$WAS_STARTED_WITH_TLS" ]] && rm -f "$WAS_STARTED_WITH_TLS"
   fi
 
 
