@@ -1,6 +1,8 @@
 # Changelog
 
 ## 1.1.6
+Fix :
+  - Upgrade to 1.1.5 startup issues with cfssl-helper #73
 
 Update to light-baseimage:0.2.5
 
