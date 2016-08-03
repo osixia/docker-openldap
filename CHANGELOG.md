@@ -2,6 +2,8 @@
 
 ## 1.1.6
 
+Update to light-baseimage:0.2.5
+
 ## 1.1.5
 Fix :
   - Restarting container with new environment #44

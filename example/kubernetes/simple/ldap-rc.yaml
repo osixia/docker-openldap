@@ -69,7 +69,7 @@ spec:
               value: "#PYTHON2BASH:['ldap://ldap-one-service', 'ldap://ldap-two-service']"
             - name: LDAP_REMOVE_CONFIG_AFTER_SETUP
               value: "true"
-            - name: LDAP_CFSSL_PREFIX
+            - name: LDAP_SSL_HELPER_PREFIX
               value: "ldap"
         - name: ldap-backup
           image: osixia/openldap-backup:0.1.11

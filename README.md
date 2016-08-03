@@ -279,7 +279,7 @@ Replication options:
 
 Other environment variables:
 - **LDAP_REMOVE_CONFIG_AFTER_SETUP**: delete config folder after setup. Defaults to `true`
-- **LDAP_CFSSL_PREFIX**: cfssl environment variables prefix. Defaults to `ldap`, cfssl-helper first search config from LDAP_CFSSL_* variables, before CFSSL_* variables.
+- **LDAP_SSL_HELPER_PREFIX**: ssl-helper environment variables prefix. Defaults to `ldap`, ssl-helper first search config from LDAP_SSL_HELPER_* variables, before SSL_HELPER_* variables.
 
 
 ### Set your own environment variables
@@ -383,7 +383,7 @@ osixia-openldap kubernetes examples are available in **example/kubernetes**
 This image is based on osixia/light-baseimage.
 It uses the following features:
 
-- **cfssl** service to generate tls certificates
+- **ssl-tools** service to generate tls certificates
 - **log-helper** tool to print log messages based on the log level
 - **run** tool as entrypoint to init the container environment
 
