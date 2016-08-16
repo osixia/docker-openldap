@@ -100,7 +100,7 @@ EOF
   #
   # Error: the config directory (/etc/ldap/slapd.d) is empty but not the database directory (/var/lib/ldap)
   #
-  elif [ ! -z "$(ls -A /var/lib/ldap)" ] && [ -z "$(ls -A /etc/ldap/slapd.d)" ]; then
+  elif [ ! -z "$(ls -A -I lost+found /var/lib/ldap)" ] && [ -z "$(ls -A -I lost+found /etc/ldap/slapd.d)" ]; then
     log-helper error "Error: the config directory (/etc/ldap/slapd.d) is empty but not the database directory (/var/lib/ldap)"
     exit 1
   fi
