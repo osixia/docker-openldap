@@ -51,7 +51,7 @@ Update to light-baseimage:0.2.2
 
 ## 1.1.0
 Update to light-baseimage:0.2.1 :
-  - Use \*.yaml.startup environment files to keep configuration secrets
+  - Use \*.startup.yaml environment files to keep configuration secrets
   - Use cfssl tool to generate tls certs
   - Use log-helper to write leveled log messages
   - Allow copy of /container/service and mounted files to /container/run/service dir usefull for write only filesystems and avoid file permissions problems
