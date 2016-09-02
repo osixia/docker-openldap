@@ -1,7 +1,7 @@
 version: '2'
 services:
   openldap:
-    image: osixia/openldap:1.1.5
+    image: osixia/openldap:1.1.6
     container_name: openldap
     environment:
       LDAP_LOG_LEVEL: "256"
@@ -27,7 +27,7 @@ services:
       #LDAP_REPLICATION_DB_SYNCPROV: "binddn="cn=admin,$LDAP_BASE_DN" bindmethod=simple credentials=$LDAP_ADMIN_PASSWORD searchbase="$LDAP_BASE_DN" type=refreshAndPersist interval=00:00:00:10 retry="60 +" timeout=1 starttls=critical"
       #LDAP_REPLICATION_HOSTS: "#PYTHON2BASH:['ldap://ldap.example.org','ldap://ldap2.example.org']"
       LDAP_REMOVE_CONFIG_AFTER_SETUP: "true"
-      LDAP_CFSSL_PREFIX: "ldap"
+      LDAP_SSL_HELPER_PREFIX: "ldap"
     tty: true
     stdin_open: true
     volumes:

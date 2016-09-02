@@ -11,7 +11,7 @@ load test_helper
 @test "ldapsearch new database" {
 
   run_image -h ldap.example.org -e LDAP_TLS=false
-  wait_service slapd
+  wait_process slapd
   run docker exec $CONTAINER_ID ldapsearch -x -h ldap.example.org -b dc=example,dc=org -D "cn=admin,dc=example,dc=org" -w admin
   clear_container
 
@@ -22,7 +22,7 @@ load test_helper
 @test "ldapsearch new database with strict TLS" {
 
   run_image -h ldap.example.org
-  wait_service slapd
+  wait_process slapd
   run docker exec $CONTAINER_ID ldapsearch -x -h ldap.example.org -b dc=example,dc=org -ZZ -D "cn=admin,dc=example,dc=org" -w admin
   clear_container
 
@@ -33,7 +33,7 @@ load test_helper
 @test "ldapsearch new database with strict TLS and custom ca/crt" {
 
   run_image -h ldap.osixia.net -v $BATS_TEST_DIRNAME/ssl:/container/service/slapd/assets/certs -e LDAP_TLS_CRT_FILENAME=ldap-test.crt -e LDAP_TLS_KEY_FILENAME=ldap-test.key -e LDAP_TLS_CA_CRT_FILENAME=ca-test.crt
-  wait_service slapd
+  wait_process slapd
   run docker exec $CONTAINER_ID ldapsearch -x -h ldap.osixia.net -b dc=example,dc=org -ZZ -D "cn=admin,dc=example,dc=org" -w admin
   clear_container
 
@@ -46,7 +46,7 @@ load test_helper
 @test "ldapsearch existing database and config" {
 
   run_image -h ldap.example.org -e LDAP_TLS=false -v $BATS_TEST_DIRNAME/database:/var/lib/ldap -v $BATS_TEST_DIRNAME/config:/etc/ldap/slapd.d
-  wait_service slapd
+  wait_process slapd
   run docker exec $CONTAINER_ID ldapsearch -x -h ldap.example.org -b dc=osixia,dc=net -D "cn=admin,dc=osixia,dc=net" -w admin
   clear_container
 
@@ -75,8 +75,8 @@ load test_helper
 	docker exec $LDAP_REPL_CID bash -c "echo $CONTAINER_IP ldap.example.org >> /etc/hosts"
 
   # wait services on both servers
-  wait_service slapd
-  wait_service_by_cid $LDAP_REPL_CID slapd
+  wait_process slapd
+  wait_process_by_cid $LDAP_REPL_CID slapd
 
   # add user on ldap2.example.org
   docker exec $LDAP_REPL_CID ldapadd -x -D "cn=admin,dc=example,dc=org" -w admin -f /container/service/slapd/assets/test/new-user.ldif -h ldap2.example.org -ZZ

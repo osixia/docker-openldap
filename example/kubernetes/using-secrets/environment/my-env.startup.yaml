@@ -49,5 +49,5 @@ LDAP_REPLICATION_HOSTS:
 # Remove config after setup
 LDAP_REMOVE_CONFIG_AFTER_SETUP: true
 
-# cfssl environment variables prefix
-LDAP_CFSSL_PREFIX: ldap # cfssl-helper first search config from LDAP_CFSSL_* variables, before CFSSL_* variables.
+# ssl-helper environment variables prefix
+LDAP_SSL_HELPER_PREFIX: ldap # ssl-helper first search config from LDAP_SSL_HELPER_* variables, before SSL_HELPER_* variables.
