@@ -5,9 +5,9 @@
 [![](https://images.microbadger.com/badges/image/osixia/openldap.svg)](http://microbadger.com/images/osixia/openldap "Get your own image badge on microbadger.com")
 [hub]: https://hub.docker.com/r/osixia/openldap/
 
-**A docker image to run OpenLDAP.**
-
 Latest release: 1.1.6 - OpenLDAP 2.4.40 -  [Changelog](CHANGELOG.md) | [Docker Hub](https://hub.docker.com/r/osixia/openldap/) 
+
+**A docker image to run OpenLDAP.**
 
 **Note: in the latest release 1.1.6 files `*.yaml.startup` have been renamed to `*.startup.yaml`**
 
