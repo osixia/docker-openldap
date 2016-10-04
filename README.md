@@ -11,7 +11,7 @@ Latest release: 1.1.6 - OpenLDAP 2.4.40 -  [Changelog](CHANGELOG.md) | [Docker H
 
 Note: 
  - In the latest release 1.1.6 files `*.yaml.startup` have been renamed to `*.startup.yaml`
- - Due to issues #6 #36 and #44 versions before 1.1.6 are not considered as stable and tags will be removed from docker hub.
+ - Due to issues #44 and #73 versions before 1.1.6 are not considered as stable and tags will be removed from docker hub.
 
 > OpenLDAP website : [www.openldap.org](http://www.openldap.org/)
 
