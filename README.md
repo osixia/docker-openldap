@@ -2,14 +2,16 @@
 
 [![Docker Pulls](https://img.shields.io/docker/pulls/osixia/openldap.svg)][hub]
 [![Docker Stars](https://img.shields.io/docker/stars/osixia/openldap.svg)][hub]
-
+[![](https://images.microbadger.com/badges/image/osixia/openldap.svg)](http://microbadger.com/images/osixia/openldap "Get your own image badge on microbadger.com")
 [hub]: https://hub.docker.com/r/osixia/openldap/
 
 Latest release: 1.1.6 - OpenLDAP 2.4.40 -  [Changelog](CHANGELOG.md) | [Docker Hub](https://hub.docker.com/r/osixia/openldap/) 
 
 **A docker image to run OpenLDAP.**
 
-**Note: in the latest release 1.1.6 files `*.yaml.startup` have been renamed to `*.startup.yaml`**
+Note: 
+ - In the latest release 1.1.6 files `*.yaml.startup` have been renamed to `*.startup.yaml`
+ - Due to issues #44 and #73 versions before 1.1.6 are not considered as stable and tags will be removed from docker hub.
 
 > OpenLDAP website : [www.openldap.org](http://www.openldap.org/)
 
