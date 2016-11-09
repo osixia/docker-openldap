@@ -78,6 +78,8 @@ load test_helper
   wait_process slapd
   wait_process_by_cid $LDAP_REPL_CID slapd
 
+  sleep 2
+
   # add user on ldap2.example.org
   docker exec $LDAP_REPL_CID ldapadd -x -D "cn=admin,dc=example,dc=org" -w admin -f /container/service/slapd/assets/test/new-user.ldif -h ldap2.example.org -ZZ
 
