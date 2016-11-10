@@ -102,7 +102,7 @@ in case the image should be delivered complete with test data - this is especial
 
 For more information about docker data volume, please refer to:
 
-> [https://docs.docker.com/userguide/dockervolumes/](https://docs.docker.com/userguide/dockervolumes/)
+> [https://docs.docker.com/engine/tutorials/dockervolumes/](https://docs.docker.com/engine/tutorials/dockervolumes/)
 
 
 #### Edit your server configuration
