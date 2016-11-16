@@ -9,7 +9,7 @@ build_image() {
 }
 
 run_image() {
-  CONTAINER_ID=$(docker run $@ -d $IMAGE_NAME)
+  CONTAINER_ID=$(docker run $@ -d $IMAGE_NAME --copy-service)
   CONTAINER_IP=$(get_container_ip_by_cid $CONTAINER_ID)
 }
 
