@@ -1,13 +1,11 @@
-apiVersion: v1
-kind: ReplicationController
+apiVersion: extensions/v1beta1
+kind: Deployment
 metadata:
-  name: ldap-controller
+  name: ldap
   labels:
     app: ldap
 spec:
   replicas: 1
-  selector:
-    app: ldap
   template:
     metadata:
       labels:
@@ -71,22 +69,6 @@ spec:
               value: "true"
             - name: LDAP_SSL_HELPER_PREFIX
               value: "ldap"
-        - name: ldap-backup
-          image: osixia/openldap-backup:0.1.11
-          volumeMounts:
-            - name: ldap-data
-              mountPath: /var/lib/ldap
-            - name: ldap-config
-              mountPath: /etc/ldap/slapd.d
-            - name: ldap-backup
-              mountPath: /data/backup
-          env:
-            - name: LDAP_BACKUP_CONFIG_CRON_EXP
-              value: "15 1 * * *"
-            - name: LDAP_BACKUP_DATA_CRON_EXP
-              value: "20 1 * * *"
-            - name: LDAP_BACKUP_TTL
-              value: "15"
       volumes:
         - name: ldap-data
           hostPath:
@@ -94,9 +76,6 @@ spec:
         - name: ldap-config
           hostPath:
             path: "/data/ldap/config"
-        - name: ldap-backup
-          hostPath:
-            path: "/data/ldap/backup"
         - name: ldap-certs
           hostPath:
             path: "/data/ldap/certs"
