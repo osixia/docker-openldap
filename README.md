@@ -102,7 +102,7 @@ in case the image should be delivered complete with test data - this is especial
 
 For more information about docker data volume, please refer to:
 
-> [https://docs.docker.com/userguide/dockervolumes/](https://docs.docker.com/userguide/dockervolumes/)
+> [https://docs.docker.com/engine/tutorials/dockervolumes/](https://docs.docker.com/engine/tutorials/dockervolumes/)
 
 
 #### Edit your server configuration
@@ -121,7 +121,7 @@ simply mount this directories as a volume to `/var/lib/ldap` and `/etc/ldap/slap
 	--detach osixia/openldap:1.1.7
 
 You can also use data volume containers. Please refer to:
-> [https://docs.docker.com/userguide/dockervolumes/](https://docs.docker.com/userguide/dockervolumes/)
+> [https://docs.docker.com/engine/tutorials/dockervolumes/](https://docs.docker.com/engine/tutorials/dockervolumes/)
 
 Note: By default this image is waiting an **hdb**  database backend, if you want to use any other database backend set backend type via the LDAP_BACKEND environement variable.
 
