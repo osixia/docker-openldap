@@ -2,3 +2,6 @@ dn: cn=config
 changetype:  modify
 add: olcSecurity
 olcSecurity: tls=1
+-
+add: olcLocalSSF
+olcLocalSSF: 0
