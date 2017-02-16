@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.1.8
+Fix :
+  - LDAP_ENFORCE_TLS is not working correctly #107
+  - Unable to reuse volumes after LDAP_TLS_ENFORCE is true #92
+
 ## 1.1.7
 Update to light-baseimage:0.2.6
 
