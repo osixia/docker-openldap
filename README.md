@@ -144,7 +144,7 @@ By default TLS is enable, a certificate is created with the container hostname (
 
 You can set your custom certificate at run time, by mounting a directory containing those files to **/container/service/slapd/assets/certs** and adjust their name with the following environment variables:
 
-	docker run --hostname ldap.example.org --volume /path/to/certifates:/container/service/slapd/assets/certs \
+	docker run --hostname ldap.example.org --volume /path/to/certificates:/container/service/slapd/assets/certs \
 	--env LDAP_TLS_CRT_FILENAME=my-ldap.crt \
 	--env LDAP_TLS_KEY_FILENAME=my-ldap.key \
 	--env LDAP_TLS_CA_CRT_FILENAME=the-ca.crt \
