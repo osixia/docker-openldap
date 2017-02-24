@@ -136,7 +136,7 @@ If you are looking for a simple solution to administrate your ldap server you ca
 ### TLS
 
 #### Use auto-generated certificate
-By default TLS is enable, a certificate is created with the container hostname (it can be set by docker run --hostname option eg: ldap.example.org).
+By default, TLS is already configured and enabled, certificate is created using container hostname (it can be set by docker run --hostname option eg: ldap.example.org).
 
 	docker run --hostname ldap.my-company.com --detach osixia/openldap:1.1.8
 
