@@ -61,7 +61,7 @@ Run OpenLDAP docker image:
 
 This start a new container with OpenLDAP running inside. Let's make the first search in our LDAP container:
 
-	docker exec my-openldap-container ldapsearch -x -h localhost -b dc=example,dc=org -D "cn=admin,dc=example,dc=org" -w admin
+	docker exec my-openldap-container ldapsearch -x -H ldap://localhost -b dc=example,dc=org -D "cn=admin,dc=example,dc=org" -w admin
 
 This should output:
 
@@ -177,11 +177,11 @@ That's it! But a little test to be sure:
 
 Add a new user "billy" on the first ldap server
 
-	docker exec $LDAP_CID ldapadd -x -D "cn=admin,dc=example,dc=org" -w admin -f /container/service/slapd/assets/test/new-user.ldif -h ldap.example.org -ZZ
+	docker exec $LDAP_CID ldapadd -x -D "cn=admin,dc=example,dc=org" -w admin -f /container/service/slapd/assets/test/new-user.ldif -H ldap://ldap.example.org -ZZ
 
 Search on the second ldap server, and billy should show up!
 
-	docker exec $LDAP2_CID ldapsearch -x -h ldap2.example.org -b dc=example,dc=org -D "cn=admin,dc=example,dc=org" -w admin -ZZ
+	docker exec $LDAP2_CID ldapsearch -x -H ldap://ldap2.example.org -b dc=example,dc=org -D "cn=admin,dc=example,dc=org" -w admin -ZZ
 
 	[...]
 
