@@ -1,11 +1,10 @@
 # osixia/openldap
 
-[![Docker Pulls](https://img.shields.io/docker/pulls/osixia/openldap.svg)][hub]
-[![Docker Stars](https://img.shields.io/docker/stars/osixia/openldap.svg)][hub]
-[![](https://images.microbadger.com/badges/image/osixia/openldap.svg)](http://microbadger.com/images/osixia/openldap "Get your own image badge on microbadger.com")
-[hub]: https://hub.docker.com/r/osixia/openldap/
+![Docker Pulls](https://img.shields.io/docker/pulls/osixia/openldap.svg)
+![Docker Stars](https://img.shields.io/docker/stars/osixia/openldap.svg)
+![](https://images.microbadger.com/badges/image/osixia/openldap.svg)
 
-Latest release: 1.1.8 - OpenLDAP 2.4.40 -  [Changelog](CHANGELOG.md) | [Docker Hub](https://hub.docker.com/r/osixia/openldap/) 
+Latest release: 1.1.8 - OpenLDAP 2.4.40 -  [Changelog](CHANGELOG.md) | [Docker Hub](https://hub.docker.com/r/osixia/openldap/) 
 
 **A docker image to run OpenLDAP.**
 
