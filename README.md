@@ -3,7 +3,6 @@
 [![Docker Pulls](https://img.shields.io/docker/pulls/osixia/openldap.svg)][hub]
 [![Docker Stars](https://img.shields.io/docker/stars/osixia/openldap.svg)][hub]
 [![](https://images.microbadger.com/badges/image/osixia/openldap.svg)](http://microbadger.com/images/osixia/openldap "Get your own image badge on microbadger.com")
-[hub]: https://hub.docker.com/r/osixia/openldap/
 
 Latest release: 1.1.9 - OpenLDAP 2.4.40 -  [Changelog](CHANGELOG.md) | [Docker Hub](https://hub.docker.com/r/osixia/openldap/) 
 
@@ -61,7 +60,7 @@ Run OpenLDAP docker image:
 
 This start a new container with OpenLDAP running inside. Let's make the first search in our LDAP container:
 
-	docker exec my-openldap-container ldapsearch -x -h localhost -b dc=example,dc=org -D "cn=admin,dc=example,dc=org" -w admin
+	docker exec my-openldap-container ldapsearch -x -H ldap://localhost -b dc=example,dc=org -D "cn=admin,dc=example,dc=org" -w admin
 
 This should output:
 
@@ -136,7 +135,7 @@ If you are looking for a simple solution to administrate your ldap server you ca
 ### TLS
 
 #### Use auto-generated certificate
-By default TLS is enable, a certificate is created with the container hostname (it can be set by docker run --hostname option eg: ldap.example.org).
+By default, TLS is already configured and enabled, certificate is created using container hostname (it can be set by docker run --hostname option eg: ldap.example.org).
 
 	docker run --hostname ldap.my-company.com --detach osixia/openldap:1.1.9
 
@@ -144,7 +143,7 @@ By default TLS is enable, a certificate is created with the container hostname (
 
 You can set your custom certificate at run time, by mounting a directory containing those files to **/container/service/slapd/assets/certs** and adjust their name with the following environment variables:
 
-	docker run --hostname ldap.example.org --volume /path/to/certifates:/container/service/slapd/assets/certs \
+	docker run --hostname ldap.example.org --volume /path/to/certificates:/container/service/slapd/assets/certs \
 	--env LDAP_TLS_CRT_FILENAME=my-ldap.crt \
 	--env LDAP_TLS_KEY_FILENAME=my-ldap.key \
 	--env LDAP_TLS_CA_CRT_FILENAME=the-ca.crt \
@@ -177,11 +176,11 @@ That's it! But a little test to be sure:
 
 Add a new user "billy" on the first ldap server
 
-	docker exec $LDAP_CID ldapadd -x -D "cn=admin,dc=example,dc=org" -w admin -f /container/service/slapd/assets/test/new-user.ldif -h ldap.example.org -ZZ
+	docker exec $LDAP_CID ldapadd -x -D "cn=admin,dc=example,dc=org" -w admin -f /container/service/slapd/assets/test/new-user.ldif -H ldap://ldap.example.org -ZZ
 
 Search on the second ldap server, and billy should show up!
 
-	docker exec $LDAP2_CID ldapsearch -x -h ldap2.example.org -b dc=example,dc=org -D "cn=admin,dc=example,dc=org" -w admin -ZZ
+	docker exec $LDAP2_CID ldapsearch -x -H ldap://ldap2.example.org -b dc=example,dc=org -D "cn=admin,dc=example,dc=org" -w admin -ZZ
 
 	[...]
 

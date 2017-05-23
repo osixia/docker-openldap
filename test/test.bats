@@ -37,7 +37,7 @@ load test_helper
   run docker exec $CONTAINER_ID ldapsearch -x -h ldap.osixia.net -b dc=example,dc=org -ZZ -D "cn=admin,dc=example,dc=org" -w admin
   clear_container
 
-  chmod 777 -R test/config/ test/database/ test/ssl/
+  chmod -R 777 test/config/ test/database/ test/ssl/
 
   [ "$status" -eq 0 ]
 
@@ -50,7 +50,7 @@ load test_helper
   run docker exec $CONTAINER_ID ldapsearch -x -h ldap.example.org -b dc=osixia,dc=net -D "cn=admin,dc=osixia,dc=net" -w admin
   clear_container
 
-  chmod 777 -R test/config/ test/database/ test/ssl/
+  chmod -R 777 test/config/ test/database/ test/ssl/
 
   [ "$status" -eq 0 ]
 
