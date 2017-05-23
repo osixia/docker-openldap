@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.1.9
+
+Update to light-baseimage:0.2.7
+
 ## 1.1.8
 Fix :
   - LDAP_ENFORCE_TLS is not working correctly #107
