@@ -2,7 +2,7 @@
 
 ## 1.1.9
 
-Update to light-baseimage:0.2.7
+Update to light-baseimage:1.1.0 (debian stretch)
 
 ## 1.1.8
 Fix :
