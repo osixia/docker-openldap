@@ -1,9 +1,7 @@
 NAME = osixia/openldap
-VERSION = 1.1.9-dev
+VERSION = 1.1.9
 
-.PHONY: all build build-nocache test tag_latest release
-
-all: build
+.PHONY: build build-nocache test tag-latest push push-latest release git-tag-version
 
 build:
 	docker build -t $(NAME):$(VERSION) --rm image
@@ -14,10 +12,17 @@ build-nocache:
 test:
 	env NAME=$(NAME) VERSION=$(VERSION) bats test/test.bats
 
-tag_latest:
+tag-latest:
 	docker tag $(NAME):$(VERSION) $(NAME):latest
 
-release: build test tag_latest
-	@if ! docker images $(NAME) | awk '{ print $$2 }' | grep -q -F $(VERSION); then echo "$(NAME) version $(VERSION) is not yet built. Please run 'make build'"; false; fi
-	docker push $(NAME)
-	@echo "*** Don't forget to run 'twgit release/hotfix finish' :)"
+push:
+	docker push $(NAME):$(VERSION)
+
+push-latest:
+	docker push $(NAME):latest
+
+release: build test tag_latest push push_latest
+
+git-tag-version: release
+	git tag -a v$(VERSION) -m "v$(VERSION)"
+	git push origin v$(VERSION)
