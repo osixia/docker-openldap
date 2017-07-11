@@ -71,7 +71,6 @@ if [ ! -e "$FIRST_START_DONE" ]; then
     log-helper info "Database and config directory are empty..."
     log-helper info "Init new ldap server..."
 
-
     cat <<EOF | debconf-set-selections
 slapd slapd/internal/generated_adminpw password ${LDAP_ADMIN_PASSWORD}
 slapd slapd/internal/adminpw password ${LDAP_ADMIN_PASSWORD}
@@ -89,6 +88,28 @@ slapd slapd/dump_database select when needed
 EOF
 
     dpkg-reconfigure -f noninteractive slapd
+
+    ls -alh /etc/ldap/slapd.d/cn=config/cn=schema
+
+    # RFC2307bis schema
+    if [ "${LDAP_RFC2307BIS_SCHEMA,,}" == "true" ]; then
+
+      log-helper info "Switching schema to RFC2307bis..."
+      cp ${CONTAINER_SERVICE_DIR}/slapd/assets/config/bootstrap/schema/rfc2307bis.* /etc/ldap/schema/
+
+      rm -f /etc/ldap/slapd.d/cn=config/cn=schema/*
+
+      mkdir -p /tmp/schema
+      slaptest -f ${CONTAINER_SERVICE_DIR}/slapd/assets/config/bootstrap/schema/rfc2307bis.conf -F /tmp/schema
+      mv /tmp/schema/cn=config/cn=schema/* /etc/ldap/slapd.d/cn=config/cn=schema
+      rm -r /tmp/schema
+
+      chown -R openldap:openldap /etc/ldap/slapd.d/cn=config/cn=schema
+    fi
+
+    rm ${CONTAINER_SERVICE_DIR}/slapd/assets/config/bootstrap/schema/rfc2307bis.*
+
+    ls -alh /etc/ldap/slapd.d/cn=config/cn=schema
 
   #
   # Error: the database directory (/var/lib/ldap) is empty but not the config directory (/etc/ldap/slapd.d)

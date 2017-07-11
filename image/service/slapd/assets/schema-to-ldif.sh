@@ -11,8 +11,14 @@ pushd ${tmpd} >>/dev/null
 
 echo "include /etc/ldap/schema/core.schema" >> convert.dat
 echo "include /etc/ldap/schema/cosine.schema" >> convert.dat
-echo "include /etc/ldap/schema/nis.schema" >> convert.dat
 echo "include /etc/ldap/schema/inetorgperson.schema" >> convert.dat
+
+if [ -e "/etc/ldap/schema/rfc2307bis.schema" ]; then
+  echo "include /etc/ldap/schema/rfc2307bis.schema" >> convert.dat
+else
+  echo "include /etc/ldap/schema/nis.schema" >> convert.dat
+fi
+
 
 for schema in ${SCHEMAS} ; do
     echo "include ${schema}" >> convert.dat
@@ -30,6 +36,11 @@ for schema in ${SCHEMAS} ; do
     schema_name=`basename ${fullpath} .schema`
     schema_dir=`dirname ${fullpath}`
     ldif_file=${schema_name}.ldif
+
+    if [ -e "${schema_dir}/${ldif_file}" ]; then
+      log-helper warning "${schema} ldif file ${schema_dir}/${ldif_file} already exists skipping conversion"
+      continue
+    fi
 
     find . -name *\}${schema_name}.ldif -exec mv '{}' ./${ldif_file} \;
 

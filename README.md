@@ -241,6 +241,8 @@ Required and used for new ldap server only:
 - **LDAP_READONLY_USER_USERNAME** Read only user username. Defaults to `readonly`
 - **LDAP_READONLY_USER_PASSWORD** Read only user password. Defaults to `readonly`
 
+- **LDAP_RFC2307BIS_SCHEMA** Use rfc2307bis schema instead of nis schema. Defaults to `false`
+
 Backend:
 - **LDAP_BACKEND**: Ldap backend. Defaults to `hdb` (In comming versions v1.2.x default will be mdb)
 
