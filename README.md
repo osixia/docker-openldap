@@ -279,6 +279,10 @@ Replication options:
 	To convert yaml to python online: http://yaml-online-parser.appspot.com/
 
 Other environment variables:
+- **KEEP_EXISTING_CONFIG**: Do not change the ldap config. Defaults to `false`
+	- if set to *true* with an existing database, config will remain unchanged. Image tls and replication config will not be run. The container can be started with LDAP_ADMIN_PASSWORD and LDAP_CONFIG_PASSWORD empty or filled with fake data.
+	- if set to *true* when bootstrapping a new database, bootstap ldif and schema will not be added and tls and replication config will not be run.
+
 - **LDAP_REMOVE_CONFIG_AFTER_SETUP**: delete config folder after setup. Defaults to `true`
 - **LDAP_SSL_HELPER_PREFIX**: ssl-helper environment variables prefix. Defaults to `ldap`, ssl-helper first search config from LDAP_SSL_HELPER_* variables, before SSL_HELPER_* variables.
 

@@ -47,6 +47,11 @@ LDAP_REPLICATION_HOSTS:
   - ldap://ldap.example.org # The order must be the same on all ldap servers
   - ldap://ldap2.example.org
 
+# Do not change the ldap config
+# - If set to true with an existing database, config will remain unchanged. Image tls and replication config will not be run.
+#   The container can be started with LDAP_ADMIN_PASSWORD and LDAP_CONFIG_PASSWORD empty or filled with fake data.
+# - If set to true when bootstrapping a new database, bootstap ldif and schema will not be added and tls and replication config will not be run.
+KEEP_EXISTING_CONFIG: false
 
 # Remove config after setup
 LDAP_REMOVE_CONFIG_AFTER_SETUP: true
