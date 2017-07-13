@@ -13,6 +13,12 @@ RUN apt-get -y update \
     && /container/tool/add-service-available :ssl-tools \
 	  && LC_ALL=C DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
        ldap-utils \
+       libsasl2-modules \
+       libsasl2-modules-db \
+       libsasl2-modules-gssapi-mit \
+       libsasl2-modules-ldap \
+       libsasl2-modules-otp \
+       libsasl2-modules-sql \
        openssl \
        slapd \
     && apt-get clean \
