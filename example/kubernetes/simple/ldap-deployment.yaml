@@ -41,6 +41,8 @@ spec:
               value: "readonly"
             - name: LDAP_READONLY_USER_PASSWORD
               value: "readonly"
+            - name: LDAP_RFC2307BIS_SCHEMA
+              value: "false"
             - name: LDAP_BACKEND
               value: "hdb"
             - name: LDAP_TLS
@@ -65,6 +67,8 @@ spec:
               value: "binddn=\"cn=admin,$LDAP_BASE_DN\" bindmethod=simple credentials=$LDAP_ADMIN_PASSWORD searchbase=\"$LDAP_BASE_DN\" type=refreshAndPersist interval=00:00:00:10 retry=\"60 +\" timeout=1 starttls=critical"
             - name: LDAP_REPLICATION_HOSTS
               value: "#PYTHON2BASH:['ldap://ldap-one-service', 'ldap://ldap-two-service']"
+            - name: KEEP_EXISTING_CONFIG
+              value: "false"
             - name: LDAP_REMOVE_CONFIG_AFTER_SETUP
               value: "true"
             - name: LDAP_SSL_HELPER_PREFIX
