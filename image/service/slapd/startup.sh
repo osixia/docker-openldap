@@ -89,8 +89,6 @@ EOF
 
     dpkg-reconfigure -f noninteractive slapd
 
-    ls -alh /etc/ldap/slapd.d/cn=config/cn=schema
-
     # RFC2307bis schema
     if [ "${LDAP_RFC2307BIS_SCHEMA,,}" == "true" ]; then
 
@@ -108,8 +106,6 @@ EOF
     fi
 
     rm ${CONTAINER_SERVICE_DIR}/slapd/assets/config/bootstrap/schema/rfc2307bis.*
-
-    ls -alh /etc/ldap/slapd.d/cn=config/cn=schema
 
   #
   # Error: the database directory (/var/lib/ldap) is empty but not the config directory (/etc/ldap/slapd.d)
