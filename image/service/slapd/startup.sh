@@ -169,8 +169,7 @@ EOF
     # start OpenLDAP
     log-helper info "Start OpenLDAP..."
 
-    if log-helper level eq debug; then
-      # debug
+    if log-helper level ge debug; then
       slapd -h "ldap://$HOSTNAME $PREVIOUS_HOSTNAME_PARAM ldap://localhost ldapi:///" -u openldap -g openldap -d $LDAP_LOG_LEVEL 2>&1 &
     else
       slapd -h "ldap://$HOSTNAME $PREVIOUS_HOSTNAME_PARAM ldap://localhost ldapi:///" -u openldap -g openldap
