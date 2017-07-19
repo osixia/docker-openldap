@@ -104,6 +104,23 @@ For more information about docker data volume, please refer to:
 
 Do not edit slapd.conf it's not used. To modify your server configuration use ldap utils: **ldapmodify / ldapadd / ldapdelete**
 
+#### Seed ldap database with ldif
+
+This image can load ldif files at startup with either `ldapadd` or `ldapmodify`.
+Mount `.ldif` in `/container/service/slapd/assets/config/bootstrap/ldif/`
+directory. Files containing `changeType:` attributes will be loaded with `ldapmodify`.
+
+The startup script provide some substitution in bootstrap ldif files: `{{
+LDAP_BASE_DN }}` and `{{ LDAP_BACKEND }}` values are supported. Other `{{ * }}`
+substitution are left as is.
+
+Since startup script modifies `ldif` files, you **must** add `--copy-service`
+argument to entrypoint.
+
+    docker run \
+      --volume ./bootstrap.ldif:/container/service/slapd/assets/config/bootstrap/ldif/50-bootstrap.ldif \
+      osixia/openldap:1.1.9 --copy-service
+
 ### Use an existing ldap database
 
 This can be achieved by mounting host directories as volume.
