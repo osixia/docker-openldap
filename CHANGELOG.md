@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.1.9
+Add :
+  - LDAP_RFC2307BIS_SCHEMA option to use rfc2307bis schema instead of nis default schema
+  - KEEP_EXISTING_CONFIG option to not change the ldap config
+
+Update to light-baseimage:1.1.0 (debian stretch)
+
 ## 1.1.8
 Fix :
   - LDAP_ENFORCE_TLS is not working correctly #107
