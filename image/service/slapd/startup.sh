@@ -62,6 +62,17 @@ if [ ! -e "$FIRST_START_DONE" ]; then
     fi
   }
 
+  function ldap_add_or_modify (){
+    local LDIF_FILE=$1
+    sed -i "s|{{ LDAP_BASE_DN }}|${LDAP_BASE_DN}|g" $LDIF_FILE
+    sed -i "s|{{ LDAP_BACKEND }}|${LDAP_BACKEND}|g" $LDIF_FILE
+    if grep -iq changetype $LDIF_FILE ; then
+        ldapmodify -Y EXTERNAL -Q -H ldapi:/// -f $LDIF_FILE 2>&1 | log-helper debug || ldapmodify -h localhost -p 389 -D cn=admin,$LDAP_BASE_DN -w $LDAP_ADMIN_PASSWORD -f $LDIF_FILE 2>&1 | log-helper debug
+    else
+        ldapadd -Y EXTERNAL -Q -H ldapi:/// -f $LDIF_FILE |& log-helper debug
+    fi
+  }
+
   #
   # Global variables
   #
@@ -224,16 +235,16 @@ EOF
       sed -i "s|{{ LDAP_BASE_DN }}|${LDAP_BASE_DN}|g" ${CONTAINER_SERVICE_DIR}/slapd/assets/config/bootstrap/ldif/02-security.ldif
 
       # process config files (*.ldif) in bootstrap directory (do no process files in subdirectories)
-      log-helper info "Add bootstrap ldif..."
+      log-helper info "Add image bootstrap ldif..."
       for f in $(find ${CONTAINER_SERVICE_DIR}/slapd/assets/config/bootstrap/ldif -mindepth 1 -maxdepth 1 -type f -name \*.ldif  | sort); do
         log-helper debug "Processing file ${f}"
-        sed -i "s|{{ LDAP_BASE_DN }}|${LDAP_BASE_DN}|g" $f
-        sed -i "s|{{ LDAP_BACKEND }}|${LDAP_BACKEND}|g" $f
-        if grep -iq changetype $f ; then
-            ldapmodify -Y EXTERNAL -Q -H ldapi:/// -f $f 2>&1 | log-helper debug || ldapmodify -h localhost -p 389 -D cn=admin,$LDAP_BASE_DN -w $LDAP_ADMIN_PASSWORD -f $f 2>&1 | log-helper debug
-        else
-            ldapadd -Y EXTERNAL -Q -H ldapi:/// -f $f |& log-helper debug
-        fi
+        ldap_add_or_modify "$f"
+      done
+
+      log-helper info "Add custom bootstrap ldif..."
+      for f in $(find ${CONTAINER_SERVICE_DIR}/slapd/assets/config/bootstrap/ldif/custom -type f -name \*.ldif  | sort); do
+        log-helper debug "Processing file ${f}"
+        ldap_add_or_modify "$f"
       done
 
       # read only user

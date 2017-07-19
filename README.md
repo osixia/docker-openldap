@@ -107,19 +107,27 @@ Do not edit slapd.conf it's not used. To modify your server configuration use ld
 #### Seed ldap database with ldif
 
 This image can load ldif files at startup with either `ldapadd` or `ldapmodify`.
-Mount `.ldif` in `/container/service/slapd/assets/config/bootstrap/ldif/`
-directory. Files containing `changeType:` attributes will be loaded with `ldapmodify`.
+Mount `.ldif` in `/container/service/slapd/assets/config/bootstrap/ldif` directory if you want to overwrite image default boostrap ldif files or in `/container/service/slapd/assets/config/bootstrap/ldif/custom` (recommended) to extend image config.
 
-The startup script provide some substitution in bootstrap ldif files: `{{
-LDAP_BASE_DN }}` and `{{ LDAP_BACKEND }}` values are supported. Other `{{ * }}`
+Files containing `changeType:` attributes will be loaded with `ldapmodify`.
+
+The startup script provide some substitution in bootstrap ldif files:
+`{{LDAP_BASE_DN }}` and `{{ LDAP_BACKEND }}` values are supported. Other `{{ * }}`
 substitution are left as is.
 
 Since startup script modifies `ldif` files, you **must** add `--copy-service`
-argument to entrypoint.
+argument to entrypoint if you don't want to overwrite them.
 
-    docker run \
+
+		# single file example:
+		docker run \
       --volume ./bootstrap.ldif:/container/service/slapd/assets/config/bootstrap/ldif/50-bootstrap.ldif \
       osixia/openldap:1.1.9 --copy-service
+
+		#directory example:
+		docker run \
+	     --volume ./lidf:/container/service/slapd/assets/config/bootstrap/ldif/custom \
+	     osixia/openldap:1.1.9 --copy-service
 
 ### Use an existing ldap database
 
