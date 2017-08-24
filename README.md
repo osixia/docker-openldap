@@ -160,7 +160,7 @@ By default, TLS is already configured and enabled, certificate is created using 
 
 	docker run --hostname ldap.my-company.com --detach osixia/openldap:1.1.9
 
-#### Use your own certificate
+#### Use your own certificate
 
 You can set your custom certificate at run time, by mounting a directory containing those files to **/container/service/slapd/assets/certs** and adjust their name with the following environment variables:
 
