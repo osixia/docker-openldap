@@ -1,5 +1,7 @@
 # Changelog
 
+## 1.1.10
+
 ## 1.1.9
 Add :
   - LDAP_RFC2307BIS_SCHEMA option to use rfc2307bis schema instead of nis default schema
