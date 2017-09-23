@@ -1,13 +1,13 @@
 # Changelog
 
-## 1.1.9
+## 1.1.9
 Add :
   - LDAP_RFC2307BIS_SCHEMA option to use rfc2307bis schema instead of nis default schema
   - KEEP_EXISTING_CONFIG option to not change the ldap config
 
 Update to light-baseimage:1.1.0 (debian stretch)
 
-## 1.1.8
+## 1.1.8
 Fix :
   - LDAP_ENFORCE_TLS is not working correctly #107
   - Unable to reuse volumes after LDAP_TLS_ENFORCE is true #92
@@ -39,7 +39,7 @@ Merge pull request :
   - Update LDAP_TLS_CIPHER_SUITE, remove LDAP_TLS_PROTOCOL_MIN #70
   - fixed LDAP_BACKEND for readonly user #62
 
-## 1.1.3
+## 1.1.3
 Merge pull request :
   - Use mdb over hdb #50
   - Ignore lost+found directories #53
@@ -53,7 +53,7 @@ Release Note:
 
   Environment variable LDAP_REPLICATION_HDB_SYNCPROV changed to LDAP_REPLICATION_DB_SYNCPROV
 
-## 1.1.2
+## 1.1.2
 Merge pull request :
   - Honor LDAP_LOG_LEVEL on startup #39
 
@@ -61,10 +61,10 @@ Fix :
   - slapd tcp bind is network not interface, and so does not respond on overlay networks #35
   - specify base_dn without domain #37
 
-## 1.1.1
+## 1.1.1
 Update to light-baseimage:0.2.2
 
-## 1.1.0
+## 1.1.0
 Update to light-baseimage:0.2.1 :
   - Use \*.startup.yaml environment files to keep configuration secrets
   - Use cfssl tool to generate tls certs
@@ -82,24 +82,24 @@ Update to light-baseimage:0.2.0
 
 Makefile with build no cache
 
-## 1.0.8
+## 1.0.8
 Fix an other startup bug ! whuhu
 
-## 1.0.7
+## 1.0.7
 Fix startup bug
 
-## 1.0.6
+## 1.0.6
 Use light-baseimage:0.1.5
 
-## 1.0.5
+## 1.0.5
 Use light-baseimage:0.1.4
 
 Fix replication bug when the hostname was changed
 
-## 1.0.4
+## 1.0.4
 Use light-baseimage:0.1.3
 
-## 1.0.3
+## 1.0.3
 Use light-baseimage:0.1.2
 
 Fix :
