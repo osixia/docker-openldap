@@ -189,7 +189,7 @@ Quick example, with the default config.
 	LDAP2_IP=$(docker inspect -f "{{ .NetworkSettings.IPAddress }}" $LDAP2_CID)
 
 	#Add the pair "ip hostname" to /etc/hosts on each containers,
-	#beacause ldap.example.org and ldap2.example.org are fake hostnames
+	#because ldap.example.org and ldap2.example.org are fake hostnames
 	docker exec $LDAP_CID bash -c "echo $LDAP2_IP ldap2.example.org >> /etc/hosts"
 	docker exec $LDAP2_CID bash -c "echo $LDAP_IP ldap.example.org >> /etc/hosts"
 
@@ -293,7 +293,7 @@ Replication options:
 
 - **LDAP_REPLICATION_HOSTS**: list of replication hosts, must contain the current container hostname set by --hostname on docker run command. Defaults to :
 	```yaml
-	- ldap://ldap.example.org
+  - ldap://ldap.example.org
   - ldap://ldap2.example.org
 	```
 
