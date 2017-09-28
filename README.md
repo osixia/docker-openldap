@@ -293,7 +293,7 @@ Replication options:
 
 - **LDAP_REPLICATION_HOSTS**: list of replication hosts, must contain the current container hostname set by --hostname on docker run command. Defaults to :
 	```yaml
-	- ldap://ldap.example.org
+  - ldap://ldap.example.org
   - ldap://ldap2.example.org
 	```
 
