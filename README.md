@@ -311,6 +311,7 @@ Other environment variables:
 - **LDAP_REMOVE_CONFIG_AFTER_SETUP**: delete config folder after setup. Defaults to `true`
 - **LDAP_SSL_HELPER_PREFIX**: ssl-helper environment variables prefix. Defaults to `ldap`, ssl-helper first search config from LDAP_SSL_HELPER_* variables, before SSL_HELPER_* variables.
 - **MONITOR_DIR**: monitor a directory for changes and kill slapd.  Defaults to nothing.  This is useful to restart on config changes.
+- **HOSTNAME**: set the hostname of the running openldap server. Defaults to whatever docker creates.
 
 
 ### Set your own environment variables
