@@ -20,6 +20,7 @@ RUN apt-get -y update \
        libsasl2-modules-otp \
        libsasl2-modules-sql \
        openssl \
+       inotify-tools \
        slapd \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*

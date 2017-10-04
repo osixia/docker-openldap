@@ -9,4 +9,8 @@ log-helper level eq trace && set -x
 # see https://github.com/docker/docker/issues/8231
 ulimit -n 1024
 
+if [[ ${MONITOR_DIR} != "" ]]; then
+	sh -c 'inotifywait -e modify -e attrib -e move -e create -e delete -e delete_self -e unmount -r ${MONITOR_DIR}; killall slapd' &
+fi
+
 exec /usr/sbin/slapd -h "ldap://$HOSTNAME ldaps://$HOSTNAME ldapi:///" -u openldap -g openldap -d $LDAP_LOG_LEVEL
