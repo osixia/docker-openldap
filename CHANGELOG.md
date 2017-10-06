@@ -1,6 +1,11 @@
 # Changelog
 
 ## 1.1.10
+Fix:
+  - Readme #145 #148
+  - Let ldapmodify and ldapadd use the same auth #146
+
+Update to light-baseimage:1.1.1
 
 ## 1.1.9
 Add :
