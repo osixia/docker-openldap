@@ -137,7 +137,7 @@ and the corresponding LDAP config files on your docker host in the directory `/d
 simply mount this directories as a volume to `/var/lib/ldap` and `/etc/ldap/slapd.d`:
 
 	docker run --volume /data/slapd/database:/var/lib/ldap \
-	--volume /data/slapd/config:/etc/ldap/slapd.d
+	--volume /data/slapd/config:/etc/ldap/slapd.d \
 	--detach osixia/openldap:1.1.10
 
 You can also use data volume containers. Please refer to:
