@@ -3,8 +3,13 @@
 FROM osixia/light-baseimage:1.1.0
 MAINTAINER Bertrand Gouny <bertrand.gouny@osixia.net>
 
+ARG LDAP_OPENLDAP_GID
+ARG LDAP_OPENLDAP_UID
+
 # Add openldap user and group first to make sure their IDs get assigned consistently, regardless of whatever dependencies get added
-RUN groupadd -r openldap && useradd -r -g openldap openldap
+# If explicit uid or gid is given, use it.
+RUN if [ -z "${LDAP_OPENLDAP_GID}" ]; then groupadd -r openldap; else groupadd -r -g ${LDAP_OPENLDAP_GID} openldap; fi \
+    && if [ -z "${LDAP_OPENLDAP_UID}" ]; then useradd -r -g openldap openldap; else useradd -r -g openldap -u ${LDAP_OPENLDAP_UID} openldap; fi
 
 # Install OpenLDAP, ldap-utils and ssl-tools from baseimage and clean apt-get files
 # sources: https://github.com/osixia/docker-light-baseimage/blob/stable/image/tool/add-service-available

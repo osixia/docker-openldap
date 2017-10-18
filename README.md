@@ -95,6 +95,17 @@ By default the admin has the password **admin**. All those default settings can 
 The directories `/var/lib/ldap` (LDAP database files) and `/etc/ldap/slapd.d`  (LDAP config files) are used to persist the schema and data information, and should be mapped as volumes, so your ldap files are saved outside the container (see [Use an existing ldap database](#use-an-existing-ldap-database)). However it can be useful to not use volumes,
 in case the image should be delivered complete with test data - this is especially useful when deriving other images from this one.
 
+The default uid and gid used by the image may map to surprising
+counterparts in the host. If you need to match uid and gid in the
+container and in the host, you can use build parameters
+`LDAP_OPENLDAP_UID` and `LDAP_OPENLDAP_GID` to set uid and gid
+explicitly:
+
+	docker build --build-arg LDAP_OPENLDAP_GID=1234 --build-arg LDAP_OPENLDAP_UID=2345 -t my_ldap_image .
+	docker run --name my_ldap_container -d my_ldap_image
+	# this should output uid=2345(openldap) gid=1234(openldap) groups=1234(openldap)
+	docker exec my_ldap_container id openldap
+
 For more information about docker data volume, please refer to:
 
 > [https://docs.docker.com/engine/tutorials/dockervolumes/](https://docs.docker.com/engine/tutorials/dockervolumes/)
