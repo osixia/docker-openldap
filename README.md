@@ -6,11 +6,12 @@
 
 Latest release: 1.1.10 - OpenLDAP 2.4.44 -  [Changelog](CHANGELOG.md) | [Docker Hub](https://hub.docker.com/r/osixia/openldap/) 
 
+/!\ Security warning: Databases created with image version up to 1.1.10 creates two admin users with the same password, if you changed admin password after bootstrap you may be concerned by [issue #161](https://github.com/osixia/docker-openldap/issues/161).
+
 **A docker image to run OpenLDAP.**
 
 > OpenLDAP website : [www.openldap.org](http://www.openldap.org/)
 
-/!\ Security warning: Databases created with image version up to 1.1.10 creates two admin users with the same password, if you changed admin password after bootstrap you may be concerned by issue [issue #161](https://github.com/osixia/docker-openldap/issues/161).
 
 - [Contributing](#contributing)
 - [Quick Start](#quick-start)
