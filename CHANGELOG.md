@@ -4,6 +4,7 @@
 Fix:
   - Readme #145 #148
   - Let ldapmodify and ldapadd use the same auth #146
+  - Enable matching uid's and gid's in the host and container. #156
 
 Update to light-baseimage:1.1.1
 
