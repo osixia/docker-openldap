@@ -41,3 +41,6 @@ add: olcSyncRepl
 -
 add: olcMirrorMode
 olcMirrorMode: TRUE
+-
+add: olcLimits
+olcLimits: dn.exact="cn=admin,$LDAP_BASE_DN" time.soft=unlimited time.hard=unlimited size.soft=unlimited size.hard=unlimited

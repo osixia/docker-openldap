@@ -69,7 +69,7 @@ if [ ! -e "$FIRST_START_DONE" ]; then
     if grep -iq changetype $LDIF_FILE ; then
         ldapmodify -Y EXTERNAL -Q -H ldapi:/// -f $LDIF_FILE 2>&1 | log-helper debug || ldapmodify -h localhost -p 389 -D cn=admin,$LDAP_BASE_DN -w $LDAP_ADMIN_PASSWORD -f $LDIF_FILE 2>&1 | log-helper debug
     else
-        ldapadd -Y EXTERNAL -Q -H ldapi:/// -f $LDIF_FILE |& log-helper debug
+        ldapadd -Y EXTERNAL -Q -H ldapi:/// -f $LDIF_FILE |& log-helper debug || ldapadd -h localhost -p 389 -D cn=admin,$LDAP_BASE_DN -w $LDAP_ADMIN_PASSWORD -f $LDIF_FILE 2>&1 | log-helper debug
     fi
   }
 
