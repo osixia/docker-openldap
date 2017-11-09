@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.2.0
+  - Use mdb as default backend (set environment variable LDAP_BACKEND="hdb" to use previous databases)
+
 ## 1.1.10
 Fix:
   - Readme #145 #148
