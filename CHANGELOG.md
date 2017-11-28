@@ -2,6 +2,7 @@
 
 ## 1.2.0
   - Use mdb as default backend (set environment variable LDAP_BACKEND="hdb" to use previous databases)
+  - Add support of readonly user in custom bootstrap ldif #162
 
 ## 1.1.10
 Fix:
