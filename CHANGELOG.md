@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.1.11
+  - Add krb5-kdc-ldap with doc examples #171
+
 ## 1.1.10
 Fix:
   - Readme #145 #148
