@@ -214,7 +214,7 @@ EOF
       ${CONTAINER_SERVICE_DIR}/slapd/assets/schema-to-ldif.sh "$SCHEMAS"
 
       # add converted schemas
-      for f in $(find ${CONTAINER_SERVICE_DIR}/slapd/assets/config/bootstrap/schema -name \*.ldif -type f); do
+      for f in $(find ${CONTAINER_SERVICE_DIR}/slapd/assets/config/bootstrap/schema -name \*.ldif -type f|sort); do
         log-helper debug "Processing file ${f}"
         # add schema if not already exists
         SCHEMA=$(basename "${f}" .ldif)
