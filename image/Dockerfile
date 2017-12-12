@@ -14,7 +14,7 @@ RUN if [ -z "${LDAP_OPENLDAP_GID}" ]; then groupadd -r openldap; else groupadd -
 # Install OpenLDAP, ldap-utils and ssl-tools from baseimage and clean apt-get files
 # sources: https://github.com/osixia/docker-light-baseimage/blob/stable/image/tool/add-service-available
 #          https://github.com/osixia/docker-light-baseimage/blob/stable/image/service-available/:ssl-tools/download.sh
-RUN apt-get -y update \
+RUN echo "path-include /usr/share/doc/krb5*" >> /etc/dpkg/dpkg.cfg.d/docker && apt-get -y update \
     && /container/tool/add-service-available :ssl-tools \
 	  && LC_ALL=C DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
        ldap-utils \
@@ -26,6 +26,7 @@ RUN apt-get -y update \
        libsasl2-modules-sql \
        openssl \
        slapd \
+       krb5-kdc-ldap \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
