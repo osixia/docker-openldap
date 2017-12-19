@@ -6,7 +6,7 @@
 
 Latest release: 1.1.11 - OpenLDAP 2.4.44 -  [Changelog](CHANGELOG.md) | [Docker Hub](https://hub.docker.com/r/osixia/openldap/) 
 
-/!\ Security warning: Databases created with image version up to 1.1.10 creates two admin users with the same password, if you changed admin password after bootstrap you may be concerned by [issue #161](https://github.com/osixia/docker-openldap/issues/161).
+/!\ Security warning: Databases created with image version up to 1.1.11 creates two admin users with the same password, if you changed admin password after bootstrap you may be concerned by [issue #161](https://github.com/osixia/docker-openldap/issues/161).
 
 **A docker image to run OpenLDAP.**
 
@@ -42,6 +42,7 @@ Latest release: 1.1.11 - OpenLDAP 2.4.44 -  [Changelog](CHANGELOG.md) | [Docker 
 	- [Tests](#tests)
 	- [Kubernetes](#kubernetes)
 	- [Under the hood: osixia/light-baseimage](#under-the-hood-osixialight-baseimage)
+- [Security](#security)
 - [Changelog](#changelog)
 
 ## Contributing
@@ -439,6 +440,11 @@ It uses the following features:
 
 To fully understand how this image works take a look at:
 https://github.com/osixia/docker-light-baseimage
+
+## Security
+If you discover a security vulnerability within this docker image, please send an email to the Osixia! team at security@osixia.net. For minor vulnerabilities feel free to add an issue here on github.
+
+Please include as many details as possible.
 
 ## Changelog
 
