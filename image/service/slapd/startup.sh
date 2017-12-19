@@ -64,8 +64,13 @@ if [ ! -e "$FIRST_START_DONE" ]; then
 
   function ldap_add_or_modify (){
     local LDIF_FILE=$1
+    log-helper debug "Processing file ${LDIF_FILE}"
     sed -i "s|{{ LDAP_BASE_DN }}|${LDAP_BASE_DN}|g" $LDIF_FILE
     sed -i "s|{{ LDAP_BACKEND }}|${LDAP_BACKEND}|g" $LDIF_FILE
+    if [ "${LDAP_READONLY_USER,,}" == "true" ]; then
+      sed -i "s|{{ LDAP_READONLY_USER_USERNAME }}|${LDAP_READONLY_USER_USERNAME}|g" $LDIF_FILE
+      sed -i "s|{{ LDAP_READONLY_USER_PASSWORD_ENCRYPTED }}|${LDAP_READONLY_USER_PASSWORD_ENCRYPTED}|g" $LDIF_FILE
+    fi
     if grep -iq changetype $LDIF_FILE ; then
         ldapmodify -Y EXTERNAL -Q -H ldapi:/// -f $LDIF_FILE 2>&1 | log-helper debug || ldapmodify -h localhost -p 389 -D cn=admin,$LDAP_BASE_DN -w $LDAP_ADMIN_PASSWORD -f $LDIF_FILE 2>&1 | log-helper debug
     else
@@ -82,7 +87,8 @@ if [ ! -e "$FIRST_START_DONE" ]; then
   # database and config directory are empty
   # setup bootstrap config - Part 1
   #
-  if [ -z "$(ls -A -I lost+found /var/lib/ldap)" ] && [ -z "$(ls -A -I lost+found /etc/ldap/slapd.d)" ]; then
+  if [ -z "$(ls -A -I lost+found -I .rmtab -I .gitignore /var/lib/ldap)" ] && \
+    [ -z "$(ls -A -I lost+found -I .rmtab -I .gitignore /etc/ldap/slapd.d)" ]; then
 
     BOOTSTRAP=true
     log-helper info "Database and config directory are empty..."
@@ -127,14 +133,14 @@ EOF
   #
   # Error: the database directory (/var/lib/ldap) is empty but not the config directory (/etc/ldap/slapd.d)
   #
-  elif [ -z "$(ls -A -I lost+found /var/lib/ldap)" ] && [ ! -z "$(ls -A -I lost+found /etc/ldap/slapd.d)" ]; then
+  elif [ -z "$(ls -A -I lost+found -I .rmtab /var/lib/ldap)" ] && [ ! -z "$(ls -A -I lost+found -I .rmtab /etc/ldap/slapd.d)" ]; then
     log-helper error "Error: the database directory (/var/lib/ldap) is empty but not the config directory (/etc/ldap/slapd.d)"
     exit 1
 
   #
   # Error: the config directory (/etc/ldap/slapd.d) is empty but not the database directory (/var/lib/ldap)
   #
-  elif [ ! -z "$(ls -A -I lost+found /var/lib/ldap)" ] && [ -z "$(ls -A -I lost+found /etc/ldap/slapd.d)" ]; then
+  elif [ ! -z "$(ls -A -I lost+found -I .rmtab /var/lib/ldap)" ] && [ -z "$(ls -A -I lost+found -I .rmtab /etc/ldap/slapd.d)" ]; then
     log-helper error "Error: the config directory (/etc/ldap/slapd.d) is empty but not the database directory (/var/lib/ldap)"
     exit 1
   fi
@@ -214,7 +220,7 @@ EOF
       ${CONTAINER_SERVICE_DIR}/slapd/assets/schema-to-ldif.sh "$SCHEMAS"
 
       # add converted schemas
-      for f in $(find ${CONTAINER_SERVICE_DIR}/slapd/assets/config/bootstrap/schema -name \*.ldif -type f); do
+      for f in $(find ${CONTAINER_SERVICE_DIR}/slapd/assets/config/bootstrap/schema -name \*.ldif -type f|sort); do
         log-helper debug "Processing file ${f}"
         # add schema if not already exists
         SCHEMA=$(basename "${f}" .ldif)
@@ -241,34 +247,21 @@ EOF
         ldap_add_or_modify "$f"
       done
 
-      log-helper info "Add custom bootstrap ldif..."
-      for f in $(find ${CONTAINER_SERVICE_DIR}/slapd/assets/config/bootstrap/ldif/custom -type f -name \*.ldif  | sort); do
-        log-helper debug "Processing file ${f}"
-        ldap_add_or_modify "$f"
-      done
-
       # read only user
       if [ "${LDAP_READONLY_USER,,}" == "true" ]; then
-
         log-helper info "Add read only user..."
 
         LDAP_READONLY_USER_PASSWORD_ENCRYPTED=$(slappasswd -s $LDAP_READONLY_USER_PASSWORD)
-        sed -i "s|{{ LDAP_READONLY_USER_USERNAME }}|${LDAP_READONLY_USER_USERNAME}|g" ${CONTAINER_SERVICE_DIR}/slapd/assets/config/bootstrap/ldif/readonly-user/readonly-user.ldif
-        sed -i "s|{{ LDAP_READONLY_USER_PASSWORD_ENCRYPTED }}|${LDAP_READONLY_USER_PASSWORD_ENCRYPTED}|g" ${CONTAINER_SERVICE_DIR}/slapd/assets/config/bootstrap/ldif/readonly-user/readonly-user.ldif
-        sed -i "s|{{ LDAP_BASE_DN }}|${LDAP_BASE_DN}|g" ${CONTAINER_SERVICE_DIR}/slapd/assets/config/bootstrap/ldif/readonly-user/readonly-user.ldif
 
-        sed -i "s|{{ LDAP_READONLY_USER_USERNAME }}|${LDAP_READONLY_USER_USERNAME}|g" ${CONTAINER_SERVICE_DIR}/slapd/assets/config/bootstrap/ldif/readonly-user/readonly-user-acl.ldif
-        sed -i "s|{{ LDAP_BASE_DN }}|${LDAP_BASE_DN}|g" ${CONTAINER_SERVICE_DIR}/slapd/assets/config/bootstrap/ldif/readonly-user/readonly-user-acl.ldif
-
-        sed -i "s|{{ LDAP_BACKEND }}|${LDAP_BACKEND}|g" ${CONTAINER_SERVICE_DIR}/slapd/assets/config/bootstrap/ldif/readonly-user/readonly-user-acl.ldif
-
-        log-helper debug "Processing file ${CONTAINER_SERVICE_DIR}/slapd/assets/config/bootstrap/ldif/readonly-user/readonly-user.ldif"
-        ldapmodify -h localhost -p 389 -D cn=admin,$LDAP_BASE_DN -w $LDAP_ADMIN_PASSWORD -f ${CONTAINER_SERVICE_DIR}/slapd/assets/config/bootstrap/ldif/readonly-user/readonly-user.ldif 2>&1 | log-helper debug
-
-        log-helper debug "Processing file ${CONTAINER_SERVICE_DIR}/slapd/assets/config/bootstrap/ldif/readonly-user/readonly-user-acl.ldif"
-        ldapmodify -Y EXTERNAL -Q -H ldapi:/// -f ${CONTAINER_SERVICE_DIR}/slapd/assets/config/bootstrap/ldif/readonly-user/readonly-user-acl.ldif 2>&1 | log-helper debug
-
+        ldap_add_or_modify "${CONTAINER_SERVICE_DIR}/slapd/assets/config/bootstrap/ldif/readonly-user/readonly-user.ldif"
+        ldap_add_or_modify "${CONTAINER_SERVICE_DIR}/slapd/assets/config/bootstrap/ldif/readonly-user/readonly-user-acl.ldif"
       fi
+
+      log-helper info "Add custom bootstrap ldif..."
+      for f in $(find ${CONTAINER_SERVICE_DIR}/slapd/assets/config/bootstrap/ldif/custom -type f -name \*.ldif  | sort); do
+        ldap_add_or_modify "$f"
+      done
+
     fi
 
     #

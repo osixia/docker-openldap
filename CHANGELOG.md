@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.1.11
+  - Add krb5-kdc-ldap with doc examples #171
+  - Fix NFS issue #169
+  - Add support of readonly user in custom bootstrap ldif #162
+  - Create schemas in a consistent order. #174
+
 ## 1.1.10
 Fix:
   - Readme #145 #148
