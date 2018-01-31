@@ -146,7 +146,7 @@ argument to entrypoint if you don't want to overwrite them.
 
 		#directory example:
 		docker run \
-	     --volume ./lidf:/container/service/slapd/assets/config/bootstrap/ldif/custom \
+	     --volume ./ldif:/container/service/slapd/assets/config/bootstrap/ldif/custom \
 	     osixia/openldap:1.1.11 --copy-service
 
 ### Use an existing ldap database
