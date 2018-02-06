@@ -214,7 +214,7 @@ EOF
 
       # convert schemas to ldif
       SCHEMAS=""
-      for f in $(find ${CONTAINER_SERVICE_DIR}/slapd/assets/config/bootstrap/schema -name \*.schema -type f); do
+      for f in $(find ${CONTAINER_SERVICE_DIR}/slapd/assets/config/bootstrap/schema -name \*.schema -type f|sort); do
         SCHEMAS="$SCHEMAS ${f}"
       done
       ${CONTAINER_SERVICE_DIR}/slapd/assets/schema-to-ldif.sh "$SCHEMAS"
