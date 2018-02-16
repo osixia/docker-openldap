@@ -155,12 +155,10 @@ Environment variable LDAP_REPLICATION_HDB_SYNCPROV changed to LDAP_REPLICATION_D
   - LDAP_TLS_VERIFY_CLIENT
 
 ## [1.0.1] - 2015-08-18
+### Changed
+  - Upgrade baseimage to light-baseimage:0.1.1
 
-Upgrade baseimage: light-baseimage:0.1.1
-
-Rename environment variables
-
-Fix :
+### Fixed
   - OpenLdap container won't start when dhparam.pem is missing in bound volume #13
 
 ## [1.0.0] - 2015-07-24
