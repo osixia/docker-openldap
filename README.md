@@ -41,6 +41,7 @@ Latest release: 1.2.0 - OpenLDAP 2.4.44 -  [Changelog](CHANGELOG.md) | [Docker H
 	- [Kubernetes](#kubernetes)
 	- [Under the hood: osixia/light-baseimage](#under-the-hood-osixialight-baseimage)
 - [Security](#security)
+	- [Known security issues](#known-security-issues)
 - [Changelog](#changelog)
 
 ## Contributing
@@ -443,6 +444,9 @@ https://github.com/osixia/docker-light-baseimage
 If you discover a security vulnerability within this docker image, please send an email to the Osixia! team at security@osixia.net. For minor vulnerabilities feel free to add an issue here on github.
 
 Please include as many details as possible.
+
+### Known security issues
+Openldap on debian creates two admin users with the same password, if you changed admin password after bootstrap you may be concerned by issue #161.
 
 ## Changelog
 
