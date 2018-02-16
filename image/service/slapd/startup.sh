@@ -143,6 +143,23 @@ EOF
   elif [ ! -z "$(ls -A -I lost+found -I .rmtab /var/lib/ldap)" ] && [ -z "$(ls -A -I lost+found -I .rmtab /etc/ldap/slapd.d)" ]; then
     log-helper error "Error: the config directory (/etc/ldap/slapd.d) is empty but not the database directory (/var/lib/ldap)"
     exit 1
+
+  #
+  # We have a database and config directory
+  #
+  else
+
+    # try to detect if ldap backend is hdb but LDAP_BACKEND environment variable is mdb
+    # due to default switch from hdb to mdb in 1.2.x
+    if [ "${LDAP_BACKEND}" = "mdb" ]; then
+      if [ -e "/etc/ldap/slapd.d/cn=config/olcDatabase={1}hdb.ldif" ]; then
+        log-helper warning -e "\n\n\nWarning: LDAP_BACKEND environment variable is set to mdb but hdb backend is detected."
+        log-helper warning "Going to use hdb as LDAP_BACKEND. Set LDAP_BACKEND=hdb to discard this message."
+        log-helper warning -e "https://github.com/osixia/docker-openldap#set-your-own-environment-variables\n\n\n"
+        LDAP_BACKEND="hdb"
+      fi
+    fi
+
   fi
 
   if [ "${KEEP_EXISTING_CONFIG,,}" == "true" ]; then
