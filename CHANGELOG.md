@@ -1,7 +1,16 @@
 # Changelog
+All notable changes to this project will be documented in this file.
 
-## 1.2.0
-  - Use mdb as default backend (set environment variable LDAP_BACKEND="hdb" to use previous databases)
+The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
+and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
+
+## [1.2.0] - Unreleased
+### Changed
+  - Use mdb as default backend
+
+### Fixed
+  - startup.sh: Ensure SCHEMAS is sorted #193
+  - LDAP_ADMIN_PASSWORD with space breaks container setup #167
 
 ## 1.1.11
   - Add krb5-kdc-ldap with doc examples #171
