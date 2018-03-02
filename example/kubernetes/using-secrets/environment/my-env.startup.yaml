@@ -21,7 +21,7 @@ LDAP_READONLY_USER_PASSWORD: readonly
 LDAP_RFC2307BIS_SCHEMA: false
 
 # Backend
-LDAP_BACKEND: hdb
+LDAP_BACKEND: mdb
 
 # Tls
 LDAP_TLS: true

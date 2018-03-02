@@ -41,9 +41,9 @@ load test_helper
 
 }
 
-@test "ldapsearch existing database and config" {
+@test "ldapsearch existing hdb database and config" {
 
-  run_image -h ldap.example.org -e LDAP_TLS=false -v $BATS_TEST_DIRNAME/database:/container/test/database -v $BATS_TEST_DIRNAME/config:/container/test/config
+  run_image -h ldap.example.org -e LDAP_TLS=false -e LDAP_BACKEND=hdb -v $BATS_TEST_DIRNAME/database:/container/test/database -v $BATS_TEST_DIRNAME/config:/container/test/config
   wait_process slapd
   run docker exec $CONTAINER_ID ldapsearch -x -h ldap.example.org -b dc=osixia,dc=net -D "cn=admin,dc=osixia,dc=net" -w admin
   clear_container

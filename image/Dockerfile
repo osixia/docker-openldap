@@ -42,3 +42,6 @@ ADD environment /container/environment/99-default
 
 # Expose default ldap and ldaps ports
 EXPOSE 389 636
+
+# Put ldap config and database dir in a volume to persist data.
+# VOLUME /etc/ldap/slapd.d /var/lib/ldap

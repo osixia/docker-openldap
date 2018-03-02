@@ -1,7 +1,7 @@
 version: '2'
 services:
   openldap:
-    image: osixia/openldap:1.1.11
+    image: osixia/openldap:1.2.0
     container_name: openldap
     environment:
       LDAP_LOG_LEVEL: "256"
@@ -14,7 +14,7 @@ services:
       #LDAP_READONLY_USER_USERNAME: "readonly"
       #LDAP_READONLY_USER_PASSWORD: "readonly"
       LDAP_RFC2307BIS_SCHEMA: "false"
-      LDAP_BACKEND: "hdb"
+      LDAP_BACKEND: "mdb"
       LDAP_TLS: "true"
       LDAP_TLS_CRT_FILENAME: "ldap.crt"
       LDAP_TLS_KEY_FILENAME: "ldap.key"
