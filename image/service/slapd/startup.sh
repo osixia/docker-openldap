@@ -18,6 +18,10 @@ ulimit -n 1024
 chown -R openldap:openldap /var/lib/ldap
 chown -R openldap:openldap /etc/ldap
 chown -R openldap:openldap ${CONTAINER_SERVICE_DIR}/slapd
+chown openldap:openldap /etc/sasldb2
+
+# add sasldb credentials
+echo -n "$LDAP_ADMIN_PASSWORD" | saslpasswd2 -p -u example.org -c admin
 
 FIRST_START_DONE="${CONTAINER_STATE_DIR}/slapd-first-start-done"
 WAS_STARTED_WITH_TLS="/etc/ldap/slapd.d/docker-openldap-was-started-with-tls"

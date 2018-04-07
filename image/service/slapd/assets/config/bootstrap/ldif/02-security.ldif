@@ -5,3 +5,18 @@ delete: olcAccess
 add: olcAccess
 olcAccess: to attrs=userPassword,shadowLastChange by self write by dn="cn=admin,{{ LDAP_BASE_DN }}" write by anonymous auth by * none
 olcAccess: to * by self write by dn="cn=admin,{{ LDAP_BASE_DN }}" write by * none
+
+dn: cn=config
+changetype: modify
+replace: olcAuthzRegexp
+olcAuthzRegexp: uid=([^,]+),.* cn=$1,dc=example,dc=org
+-
+replace: olcSaslAuxprops
+olcSaslAuxprops: sasldb
+-
+replace: olcSaslRealm
+olcSaslRealm: example.org
+-
+replace: olcSaslHost
+olcSaslHost: example.org
+-
