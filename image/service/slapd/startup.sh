@@ -54,7 +54,7 @@ if [ ! -e "$FIRST_START_DONE" ]; then
   }
 
   function is_new_schema() {
-    local COUNT=$(ldapsearch -Q -Y EXTERNAL -H ldapi:/// -b cn=schema,cn=config cn | grep -c $1)
+    local COUNT=$(ldapsearch -Q -Y EXTERNAL -H ldapi:/// -b cn=schema,cn=config cn | grep -c "}$1,")
     if [ "$COUNT" -eq 0 ]; then
       echo 1
     else
