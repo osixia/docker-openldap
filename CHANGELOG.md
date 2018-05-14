@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [1.2.1] - 2018-05-14
+### Security
+  - The default "write" access to "*" by  "self" in the file  "config/bootstrap/ldif/02-security.ldif" allowed anyone to change all the data about himself. This includes the gid and uid numbers what could lead to serious security issues.
+
+  This has been changed to ```olcAccess: to * by self read by dn="cn=admin,{{ LDAP_BASE_DN }}" write by * none"```
+
+  Thanks to Francesc Escale for reporting this.
+
 ## [1.2.0] - 2018-03-02
 ### Changed
   - Use mdb as default backend
