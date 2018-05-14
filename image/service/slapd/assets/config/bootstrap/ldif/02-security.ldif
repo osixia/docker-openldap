@@ -4,4 +4,4 @@ delete: olcAccess
 -
 add: olcAccess
 olcAccess: to attrs=userPassword,shadowLastChange by self write by dn="cn=admin,{{ LDAP_BASE_DN }}" write by anonymous auth by * none
-olcAccess: to * by self write by dn="cn=admin,{{ LDAP_BASE_DN }}" write by * none
+olcAccess: to * by self read by dn="cn=admin,{{ LDAP_BASE_DN }}" write by * none
