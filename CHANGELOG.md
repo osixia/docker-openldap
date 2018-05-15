@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [1.2.2] - Unreleased
 ### Fixed
   - Remove schema ambiguity #204
+  - lidf typo in readme #217
 
 ## [1.2.1] - 2018-05-14
 ### Security
