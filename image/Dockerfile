@@ -25,6 +25,7 @@ RUN echo "path-include /usr/share/doc/krb5*" >> /etc/dpkg/dpkg.cfg.d/docker && a
        libsasl2-modules-otp \
        libsasl2-modules-sql \
        openssl \
+       inotify-tools \
        slapd \
        krb5-kdc-ldap \
     && apt-get clean \
