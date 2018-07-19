@@ -27,7 +27,7 @@ Latest release: 1.2.1 - OpenLDAP 2.4.44 -  [Changelog](CHANGELOG.md) | [Docker H
 	- [Multi master replication](#multi-master-replication)
 	- [Fix docker mounted file problems](#fix-docker-mounted-file-problems)
 	- [Debug](#debug)
-	- [Docker Compose](#compose)
+	- [Docker Compose](#docker-compose)
 - [Environment Variables](#environment-variables)
 	- [Default.yaml](#defaultyaml)
 	- [Default.startup.yaml](#defaultyamlstartup)
@@ -258,7 +258,7 @@ See all command line options:
 
 ### Docker Compose
 
-- Create the file *docker-compose.yml*
+- Create the file **docker-compose.yml**
 - Use the following content for the created file:
 
 ```
