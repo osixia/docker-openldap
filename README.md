@@ -27,6 +27,7 @@ Latest release: 1.2.1 - OpenLDAP 2.4.44 -  [Changelog](CHANGELOG.md) | [Docker H
 	- [Multi master replication](#multi-master-replication)
 	- [Fix docker mounted file problems](#fix-docker-mounted-file-problems)
 	- [Debug](#debug)
+	- [Docker Compose](#compose)
 - [Environment Variables](#environment-variables)
 	- [Default.yaml](#defaultyaml)
 	- [Default.startup.yaml](#defaultyamlstartup)
@@ -55,7 +56,7 @@ If you find this image useful here's how you can help:
 ## Quick Start
 Run OpenLDAP docker image:
 
-	docker run --name my-openldap-container --detach osixia/openldap:1.2.1
+	docker run --name my-openldap-container -p 389:389 -p 689:689 --detach osixia/openldap:1.2.1
 
 This start a new container with OpenLDAP running inside. Let's make the first search in our LDAP container:
 
@@ -255,6 +256,26 @@ See all command line options:
 
 	docker run osixia/openldap:1.2.1 --help
 
+### Docker Compose
+
+- Create the file *docker-compose.yml*
+- Use the following content for the created file:
+
+```
+	version: '3'
+
+	services:
+  		my-openldap-container:
+    		image: osixia/openldap:1.2.1
+    		environment:
+       			LDAP_ORGANISATION: Example Inc.
+       			LDAP_DOMAIN: example.org
+       			LDAP_ADMIN_PASSWORD: admin
+    		ports:
+      			- "389:389"
+      			- "689:689"
+```
+- Run  `docker-compose up`
 
 ## Environment Variables
 Environment variables defaults are set in **image/environment/default.yaml** and **image/environment/default.startup.yaml**.
