@@ -6,11 +6,15 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [1.2.2] - Unreleased
 ### Added
-  - Add environment variable LDAP_NOFILE to setup a custom ulimit value #237
+  - Environment variable LDAP_NOFILE to setup a custom ulimit value #237
+  
 ### Fixed
   - Remove schema ambiguity #204
   - lidf typo in readme #217
   - Ignore all the folders started with . #232
+
+### Security 
+  - Fix self-edit security issue #239
 
 ## [1.2.1] - 2018-05-14
 ### Security
