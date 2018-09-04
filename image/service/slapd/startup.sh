@@ -8,7 +8,7 @@ log-helper level eq trace && set -x
 # Reduce maximum number of number of open file descriptors to 1024
 # otherwise slapd consumes two orders of magnitude more of RAM
 # see https://github.com/docker/docker/issues/8231
-ulimit -n 1024
+ulimit -n $LDAP_NOFILE
 
 # create dir if they not already exists
 [ -d /var/lib/ldap ] || mkdir -p /var/lib/ldap
@@ -54,7 +54,7 @@ if [ ! -e "$FIRST_START_DONE" ]; then
   }
 
   function is_new_schema() {
-    local COUNT=$(ldapsearch -Q -Y EXTERNAL -H ldapi:/// -b cn=schema,cn=config cn | grep -c $1)
+    local COUNT=$(ldapsearch -Q -Y EXTERNAL -H ldapi:/// -b cn=schema,cn=config cn | grep -c "}$1,")
     if [ "$COUNT" -eq 0 ]; then
       echo 1
     else
@@ -87,8 +87,8 @@ if [ ! -e "$FIRST_START_DONE" ]; then
   # database and config directory are empty
   # setup bootstrap config - Part 1
   #
-  if [ -z "$(ls -A -I lost+found -I .rmtab -I .gitignore /var/lib/ldap)" ] && \
-    [ -z "$(ls -A -I lost+found -I .rmtab -I .gitignore /etc/ldap/slapd.d)" ]; then
+  if [ -z "$(ls -A -I lost+found --ignore=.* /var/lib/ldap)" ] && \
+    [ -z "$(ls -A -I lost+found --ignore=.* /etc/ldap/slapd.d)" ]; then
 
     BOOTSTRAP=true
     log-helper info "Database and config directory are empty..."
@@ -133,14 +133,14 @@ EOF
   #
   # Error: the database directory (/var/lib/ldap) is empty but not the config directory (/etc/ldap/slapd.d)
   #
-  elif [ -z "$(ls -A -I lost+found -I .rmtab /var/lib/ldap)" ] && [ ! -z "$(ls -A -I lost+found -I .rmtab /etc/ldap/slapd.d)" ]; then
+  elif [ -z "$(ls -A -I lost+found --ignore=.* /var/lib/ldap)" ] && [ ! -z "$(ls -A -I lost+found --ignore=.* /etc/ldap/slapd.d)" ]; then
     log-helper error "Error: the database directory (/var/lib/ldap) is empty but not the config directory (/etc/ldap/slapd.d)"
     exit 1
 
   #
   # Error: the config directory (/etc/ldap/slapd.d) is empty but not the database directory (/var/lib/ldap)
   #
-  elif [ ! -z "$(ls -A -I lost+found -I .rmtab /var/lib/ldap)" ] && [ -z "$(ls -A -I lost+found -I .rmtab /etc/ldap/slapd.d)" ]; then
+  elif [ ! -z "$(ls -A -I lost+found --ignore=.* /var/lib/ldap)" ] && [ -z "$(ls -A -I lost+found --ignore=.* /etc/ldap/slapd.d)" ]; then
     log-helper error "Error: the config directory (/etc/ldap/slapd.d) is empty but not the database directory (/var/lib/ldap)"
     exit 1
 
