@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Fixed
   - Remove schema ambiguity #204
   - lidf typo in readme #217
+  - Ignore all the folders started with . #232
 
 ## [1.2.1] - 2018-05-14
 ### Security
