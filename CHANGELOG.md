@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [1.2.2] - Unreleased
+### Added
+  - Add environment variable LDAP_NOFILE to setup a custom ulimit value #237
 ### Fixed
   - Remove schema ambiguity #204
   - lidf typo in readme #217
