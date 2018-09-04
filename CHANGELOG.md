@@ -15,6 +15,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Security 
   - Fix self-edit security issue #239
+  
+    Thanks to Yann Voumard for reporting this and @jonremy for the fix.
 
 ## [1.2.1] - 2018-05-14
 ### Security
