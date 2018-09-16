@@ -7,7 +7,7 @@ metadata:
 spec:
     type: NodePort
     ports:
-    - port: 3306
+    - port: 389
       protocol: TCP
       name: http
     selector:
