@@ -41,6 +41,17 @@ load test_helper
 
 }
 
+@test "ldapsearch new database with strict TLS and custom ca/crt and custom dhparam" {
+
+  run_image -h ldap.osixia.net -v $BATS_TEST_DIRNAME/ssl:/container/service/slapd/assets/certs -e LDAP_TLS_CRT_FILENAME=ldap-test.crt -e LDAP_TLS_KEY_FILENAME=ldap-test.key -e LDAP_TLS_DH_PARAM_FILENAME=ldap-test.dhparam -e LDAP_TLS_CA_CRT_FILENAME=ca-test.crt
+  wait_process slapd
+  run docker exec $CONTAINER_ID ldapsearch -x -h ldap.osixia.net -b dc=example,dc=org -ZZ -D "cn=admin,dc=example,dc=org" -w admin
+  clear_container
+
+  [ "$status" -eq 0 ]
+
+}
+
 @test "ldapsearch existing hdb database and config" {
 
   run_image -h ldap.example.org -e LDAP_TLS=false -e LDAP_BACKEND=hdb -v $BATS_TEST_DIRNAME/database:/container/test/database -v $BATS_TEST_DIRNAME/config:/container/test/config

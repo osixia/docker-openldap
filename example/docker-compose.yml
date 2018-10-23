@@ -18,6 +18,7 @@ services:
       LDAP_TLS: "true"
       LDAP_TLS_CRT_FILENAME: "ldap.crt"
       LDAP_TLS_KEY_FILENAME: "ldap.key"
+      LDAP_TLS_DH_PARAM_FILENAME: "dhparam.pem"
       LDAP_TLS_CA_CRT_FILENAME: "ca.crt"
       LDAP_TLS_ENFORCE: "false"
       LDAP_TLS_CIPHER_SUITE: "SECURE256:-VERS-SSL3.0"
