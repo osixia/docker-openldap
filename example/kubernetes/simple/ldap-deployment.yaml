@@ -51,6 +51,8 @@ spec:
               value: "ldap.crt"
             - name: LDAP_TLS_KEY_FILENAME
               value: "ldap.key"
+            - name: LDAP_TLS_DH_PARAM_FILENAME
+              value: "dhparam.pem"
             - name: LDAP_TLS_CA_CRT_FILENAME
               value: "ca.crt"
             - name: LDAP_TLS_ENFORCE
