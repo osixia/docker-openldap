@@ -57,7 +57,11 @@ Run OpenLDAP docker image:
 
 	docker run --name my-openldap-container --detach osixia/openldap:1.2.3-dev
 
-This start a new container with OpenLDAP running inside. Let's make the first search in our LDAP container:
+Do not forget to add the port mapping for both port 389 and 689 if you wish to access the ldap server from another machine.
+
+	docker run -p 389:389 -p 689:689 --name my-openldap-container --detach osixia/openldap:1.2.2
+
+Either command starts a new container with OpenLDAP running inside. Let's make the first search in our LDAP container:
 
 	docker exec my-openldap-container ldapsearch -x -H ldap://localhost -b dc=example,dc=org -D "cn=admin,dc=example,dc=org" -w admin
 
