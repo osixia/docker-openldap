@@ -24,6 +24,7 @@ RUN echo "path-include /usr/share/doc/krb5*" >> /etc/dpkg/dpkg.cfg.d/docker && a
        libsasl2-modules-ldap \
        libsasl2-modules-otp \
        libsasl2-modules-sql \
+       slapd-smbk5pwd \
        openssl \
        slapd \
        krb5-kdc-ldap \
