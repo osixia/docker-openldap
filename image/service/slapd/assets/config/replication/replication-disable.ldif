@@ -4,6 +4,8 @@ changetype: modify
 delete: olcSyncRepl
 -
 delete: olcMirrorMode
+-
+delete: olcLimits
 
 # Delete syncprov on backend
 dn: olcOverlay=syncprov,olcDatabase={1}{{ LDAP_BACKEND }},cn=config
