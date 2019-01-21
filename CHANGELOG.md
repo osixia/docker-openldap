@@ -4,6 +4,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [1.2.3] - 2019-01-21
++10M docker pulls 🎉🎉🎉 thanks to all contributors 💕
+
+### Added
+  - GCE statefulset #241
+  - Custom dhparam.pem via environment. #254
+
+### Changed
+  - Update openldap 2.4.44 to 2.4.47 #247
+  - Upgrade baseimage to light-baseimage:1.1.2
+
+### Fixed
+  - Ldaps port numbers in readme #281
+  - Replication after restart container #264
+
 ## [1.2.2] - 2018-09-04
 ### Added
   - Environment variable LDAP_NOFILE to setup a custom ulimit value #237
@@ -214,6 +229,8 @@ Environment variable LDAP_REPLICATION_HDB_SYNCPROV changed to LDAP_REPLICATION_D
 ## [0.10.0] - 2015-03-03
 New version initial release, no changelog before this sorry.
 
+[1.2.3]: https://github.com/osixia/docker-openldap/compare/v1.2.2...v1.2.3
+[1.2.2]: https://github.com/osixia/docker-openldap/compare/v1.2.1...v1.2.2
 [1.2.1]: https://github.com/osixia/docker-openldap/compare/v1.2.0...v1.2.1
 [1.2.0]: https://github.com/osixia/docker-openldap/compare/v1.1.11...v1.2.0
 [1.1.11]: https://github.com/osixia/docker-openldap/compare/v1.1.10...v1.1.11
