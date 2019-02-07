@@ -4,8 +4,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [1.2.4] - Unreleased
+### Fixed
+  - Excessive RAM usage on 1.2.2, increased 10x from 1.2.1 #242
+
 ## [1.2.3] - 2019-01-21
-+10M docker pulls 🎉🎉🎉 thanks to all contributors 💕
+10M+ docker pulls 🎉🎉🎉 thanks to all contributors 💕
 
 ### Added
   - GCE statefulset #241
