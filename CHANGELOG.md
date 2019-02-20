@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [1.2.4] - Unreleased
 ### Fixed
   - Excessive RAM usage on 1.2.2, increased 10x from 1.2.1 #242
+  - Startup issue with 1.2.3 #283
 
 ## [1.2.3] - 2019-01-21
 10M+ docker pulls 🎉🎉🎉 thanks to all contributors 💕

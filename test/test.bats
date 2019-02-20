@@ -30,6 +30,7 @@ load test_helper
   LDAP_CID=$(docker run -h ldap.example.org -e LDAP_TLS=false --volume $PWD/VOLUMES/database:/var/lib/ldap --volume $PWD/VOLUMES/config:/etc/ldap/slapd.d -d $NAME:$VERSION)
   wait_process_by_cid $LDAP_CID slapd
   run docker exec $LDAP_CID ldapsearch -x -h ldap.example.org -b dc=example,dc=org -D "cn=admin,dc=example,dc=org" -w admin
+  run docker exec $LDAP_CID chown -R $UID:$UID /var/lib/ldap /etc/ldap/slapd.d
   docker kill $LDAP_CID
   rm -rf VOLUMES
 
