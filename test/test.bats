@@ -19,6 +19,24 @@ load test_helper
 
 }
 
+@test "ldapsearch database from created volumes" {
+
+  rm -rf VOLUMES && mkdir -p VOLUMES/config VOLUMES/database
+  LDAP_CID=$(docker run -h ldap.example.org -e LDAP_TLS=false --volume $PWD/VOLUMES/database:/var/lib/ldap --volume $PWD/VOLUMES/config:/etc/ldap/slapd.d -d $NAME:$VERSION)
+  wait_process_by_cid $LDAP_CID slapd
+  run docker exec $LDAP_CID ldapsearch -x -h ldap.example.org -b dc=example,dc=org -D "cn=admin,dc=example,dc=org" -w admin
+  docker kill $LDAP_CID
+  [ "$status" -eq 0 ]
+  LDAP_CID=$(docker run -h ldap.example.org -e LDAP_TLS=false --volume $PWD/VOLUMES/database:/var/lib/ldap --volume $PWD/VOLUMES/config:/etc/ldap/slapd.d -d $NAME:$VERSION)
+  wait_process_by_cid $LDAP_CID slapd
+  run docker exec $LDAP_CID ldapsearch -x -h ldap.example.org -b dc=example,dc=org -D "cn=admin,dc=example,dc=org" -w admin
+  docker kill $LDAP_CID
+  rm -rf VOLUMES
+
+  [ "$status" -eq 0 ]
+
+}
+
 @test "ldapsearch new database with strict TLS" {
 
   run_image -h ldap.example.org
