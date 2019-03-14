@@ -13,7 +13,7 @@ spec:
     spec:
       containers:
         - name: ldap
-          image: osixia/openldap:1.2.4-dev
+          image: osixia/openldap:1.2.4
           volumeMounts:
             - name: ldap-data
               mountPath: /var/lib/ldap
