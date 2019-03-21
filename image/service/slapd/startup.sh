@@ -16,9 +16,10 @@ ulimit -n $LDAP_NOFILE
 
 # fix file permissions
 if [ -z "$DISABLE_CHOWN" ]; then
-    chown -R openldap:openldap /var/lib/ldap
-    chown -R openldap:openldap /etc/ldap
-    chown -R openldap:openldap ${CONTAINER_SERVICE_DIR}/slapd
+  chown -R openldap:openldap /var/lib/ldap
+  chown -R openldap:openldap /etc/ldap
+  chown -R openldap:openldap ${CONTAINER_SERVICE_DIR}/slapd
+fi
 
 FIRST_START_DONE="${CONTAINER_STATE_DIR}/slapd-first-start-done"
 WAS_STARTED_WITH_TLS="/etc/ldap/slapd.d/docker-openldap-was-started-with-tls"
