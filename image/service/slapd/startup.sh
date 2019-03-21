@@ -129,6 +129,7 @@ EOF
 
       if [ -z "$DISABLE_CHOWN" ]; then
         chown -R openldap:openldap /etc/ldap/slapd.d/cn=config/cn=schema
+      fi
     fi
 
     rm ${CONTAINER_SERVICE_DIR}/slapd/assets/config/bootstrap/schema/rfc2307bis.*
@@ -208,6 +209,7 @@ EOF
       if [ -z "$DISABLE_CHOWN" ]; then
         chmod 600 ${PREVIOUS_LDAP_TLS_DH_PARAM_PATH}
         chown openldap:openldap $PREVIOUS_LDAP_TLS_CRT_PATH $PREVIOUS_LDAP_TLS_KEY_PATH $PREVIOUS_LDAP_TLS_CA_CRT_PATH $PREVIOUS_LDAP_TLS_DH_PARAM_PATH
+      fi
     fi
 
     # start OpenLDAP
@@ -315,6 +317,7 @@ EOF
       if [ -z "$DISABLE_CHOWN" ]; then
         chmod 600 ${LDAP_TLS_DH_PARAM_PATH}
         chown -R openldap:openldap ${CONTAINER_SERVICE_DIR}/slapd
+      fi
 
       # adapt tls ldif
       sed -i "s|{{ LDAP_TLS_CA_CRT_PATH }}|${LDAP_TLS_CA_CRT_PATH}|g" ${CONTAINER_SERVICE_DIR}/slapd/assets/config/tls/tls-enable.ldif
