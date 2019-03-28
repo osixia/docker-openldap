@@ -82,7 +82,7 @@ This should output:
 	# numResponses: 3
 	# numEntries: 2
 
-If you have the following error, OpenLDAP is not started yet, maybe you are too fast or maybe your computer is to slow, as you want... but wait some time before retrying.
+If you have the following error, OpenLDAP is not started yet, maybe you are too fast or maybe your computer is too slow, as you want... but wait for some time before retrying.
 
 		ldap_sasl_bind(SIMPLE): Can't contact LDAP server (-1)
 
