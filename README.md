@@ -1,4 +1,19 @@
-# osixia/openldap
+# Fork of osixia/openldap
+
+This fork is related to [Issue 319: Integrated kerberos KDC configuration](https://github.com/osixia/docker-openldap/issues/319)
+
+Specific changes:
+
+1. Added kerberos.schema
+2. Added kerberos.ldif
+3. Added /etc/krb5.conf
+4. Added /etc/krb5kdc/kdc.conf
+
+.. create ou=users
+.. kdb5_ldap_util cache password
+.. krb5_ldap_util create db
+.. start krb5-kdc
+
 
 ![Docker Pulls](https://img.shields.io/docker/pulls/osixia/openldap.svg)
 ![Docker Stars](https://img.shields.io/docker/stars/osixia/openldap.svg)
