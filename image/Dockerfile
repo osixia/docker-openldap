@@ -28,6 +28,7 @@ RUN echo "path-include /usr/share/doc/krb5*" >> /etc/dpkg/dpkg.cfg.d/docker && a
        libsasl2-modules-sql \
        openssl \
        slapd \
+       krb5-admin-server \
        krb5-kdc-ldap \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
@@ -44,6 +45,9 @@ ADD environment /container/environment/99-default
 
 # Expose default ldap and ldaps ports
 EXPOSE 389 636
+
+# Expose default kdc and kadmin ports
+EXPOSE 88 750
 
 # Put ldap config and database dir in a volume to persist data.
 # VOLUME /etc/ldap/slapd.d /var/lib/ldap

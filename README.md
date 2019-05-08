@@ -1,20 +1,5 @@
 # Fork of osixia/openldap
 
-This fork is related to [Issue 319: Integrated kerberos KDC configuration](https://github.com/osixia/docker-openldap/issues/319)
-
-Specific changes:
-
-1. Added kerberos.schema
-2. Added kerberos.ldif
-3. Added /etc/krb5.conf
-4. Added /etc/krb5kdc/kdc.conf
-
-.. create ou=users
-.. kdb5_ldap_util cache password
-.. krb5_ldap_util create db
-.. start krb5-kdc
-
-
 ![Docker Pulls](https://img.shields.io/docker/pulls/osixia/openldap.svg)
 ![Docker Stars](https://img.shields.io/docker/stars/osixia/openldap.svg)
 ![](https://images.microbadger.com/badges/image/osixia/openldap.svg)
@@ -35,12 +20,15 @@ Latest release: 1.2.4 - OpenLDAP 2.4.47 -  [Changelog](CHANGELOG.md) | [Docker H
 			- [Edit your server configuration](#edit-your-server-configuration)
 			- [Seed ldap database with ldif](#seed-ldap-database-with-ldif)
 		- [Use an existing ldap database](#use-an-existing-ldap-database)
+                - [Enabling Kerberos KDC](#enabling-kerberos-kdc)
 		- [Backup](#backup)
 		- [Administrate your ldap server](#administrate-your-ldap-server)
 		- [TLS](#tls)
 			- [Use auto-generated certificate](#use-auto-generated-certificate)
 			- [Use your own certificate](#use-your-own-certificate)
 			- [Disable TLS](#disable-tls)
+                - [Using Kerberos authentication](#using-kerberos-authentication)
+                        - [Using Kerberos authentication with the integrated KDC](#using-kerberos-authentication-with-the-integrated-kdc)
 		- [Multi master replication](#multi-master-replication)
 		- [Fix docker mounted file problems](#fix-docker-mounted-file-problems)
 		- [Debug](#debug)
@@ -186,6 +174,31 @@ You can also use data volume containers. Please refer to:
 
 Note: By default this image is waiting an **mdb**  database backend, if you want to use any other database backend set backend type via the LDAP_BACKEND environement variable.
 
+### Enabling Kerberos KDC
+
+By default the MIT KDC is configured but the actual LDAP entries required are not created.
+That requires the user to call /usr/local/bin/01-kdc.sh. (We should find a way
+to call this automatically if 'ENABLE_KDC'? is set.)
+
+The additional environment variables are 
+
+   KRB_REALM - name of Kerberos realm, default valje LDAP_DOMAIN cast to uppercase characters.
+   KDC_ADMIN - common name of kdc account, default value admin
+   ADM_ADMIN - common name of kadmin account, default value admin
+   KDC_SERVER - name of KDC server (port 88), default value localhost
+   ADM_SERVER - name of kadmin server (port 750), default value KDC_SERVER
+
+Important: creating users is now a two-step process!
+
+1. Create new user with ldapadd.
+2. Create new KDC entry with kadmin.
+
+(Is it possible to automatically do the second? What about smbkrb5pwd?)
+
+Important: we need to bootstrap the admin principals using 'kadmin.local'
+within the docker container. Once at least one admin principal has been
+added 'kadmin' can be used from any system.
+
 ### Backup
 A simple solution to backup your ldap server, is our openldap-backup docker image:
 > [osixia/openldap-backup](https://github.com/osixia/docker-openldap-backup)
@@ -217,6 +230,32 @@ Other solutions are available please refer to the [Advanced User Guide](#advance
 Add --env LDAP_TLS=false to the run command:
 
 	docker run --env LDAP_TLS=false --detach osixia/openldap:1.2.4
+
+### Using Kerberos authentication
+
+You can configure the LDAP server to require Kerberos authentication
+by clients. This provides strong mutual authentication but you will
+still need to use TLS to provide encryption.
+
+(to clean up)
+slapd.conf
+    # Limit SASL options to only GSSAPI and not other client-favorites. Apparently there is an issue where
+    # clients will default to non-working SASL mechanisms and will make you angry.
+    sasl-secprops noanonymous,noplain,noactive
+
+    # SASL connection information. The realm should be your Kerberos realm as configured for the system. The
+    # host should be the LEGITIMATE hostname of this server
+    sasl-realm EXAMPLE.COM
+    sasl-host ldap.example.com
+(from http://www.grantcohoe.com/blog/2013/01/03/secure-openldap-server-with-kerberos-authentication/)
+
+#### Using Kerberos authentication with the integrated KDC
+
+It is possible to use Kerberos authentication with the integrated KDC.
+This seems like a chicken-and-egg problem since the KDC is backed by
+LDAP but the LDAP server is looking to the KDC to authenticate users
+however it's not actually a closed loop. Simply configure the KDC
+to use ldapi://.
 
 ### Multi master replication
 Quick example, with the default config.

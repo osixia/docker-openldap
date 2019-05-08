@@ -8,3 +8,4 @@ olcDbIndex: memberOf eq
 olcDbIndex: entryCSN eq
 olcDbIndex: entryUUID eq
 olcDbIndex: objectClass eq
+olcDbIndex: krbPrincipalName eq,pres,sub

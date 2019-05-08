@@ -1,0 +1,9 @@
+#
+# Delete temporary KDC objects now that we have ACLs set.
+# This allows us to run kdb5-ldap-admin as usual.
+#
+dn: cn={{ KRB_REALM }},cn=krbContainer,{{ LDAP_BASE_DN }}
+changetype: delete
+
+dn: cn=krbContainer,{{ LDAP_BASE_DN }}
+changetype: delete

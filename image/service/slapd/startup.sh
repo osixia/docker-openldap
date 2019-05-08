@@ -34,6 +34,26 @@ LDAP_TLS_DH_PARAM_PATH="${CONTAINER_SERVICE_DIR}/slapd/assets/certs/$LDAP_TLS_DH
 # CONTAINER_SERVICE_DIR and CONTAINER_STATE_DIR variables are set by
 # the baseimage run tool more info : https://github.com/osixia/docker-light-baseimage
 
+if [ -z "$KRB_REALM" ]; then
+  KRB_REALM=${LDAP_DOMAIN^^}
+fi
+if [ -z "$KDC_SERVER" ]; then
+  KDC_SERVER=localhost
+fi
+if [ -z "$ADM_SERVER" ]; then
+  ADM_SERVER=${KDC_SERVER}
+fi
+# not fully supported yet due to initialization issues with kdb5_ldap_util
+if [ -z "$KDC_ADMIN" ]; then
+  KDC_ADMIN=admin
+fi
+if [ -z "$ADM_ADMIN" ]; then
+  ADM_ADMIN=${KDC_ADMIN}
+fi
+if [ -z "$KRB_MASTER_PASSWORD" ]; then
+  KRB_MASTER_PASSWORD=password
+fi
+
 # container first start
 if [ ! -e "$FIRST_START_DONE" ]; then
 
@@ -69,6 +89,9 @@ if [ ! -e "$FIRST_START_DONE" ]; then
     sed -i "s|{{ LDAP_BASE_DN }}|${LDAP_BASE_DN}|g" $LDIF_FILE
     sed -i "s|{{ LDAP_BACKEND }}|${LDAP_BACKEND}|g" $LDIF_FILE
     sed -i "s|{{ LDAP_DOMAIN }}|${LDAP_DOMAIN}|g" $LDIF_FILE
+    sed -i "s|{{ KRB_REALM }}|${KRB_REALM}|g" $LDIF_FILE
+    sed -i "s|{{ KDC_ADMIN }}|${KDC_ADMIN}|g" $LDIF_FILE
+    sed -i "s|{{ ADM_ADMIN }}|${ADM_ADMIN}|g" $LDIF_FILE
     if [ "${LDAP_READONLY_USER,,}" == "true" ]; then
       sed -i "s|{{ LDAP_READONLY_USER_USERNAME }}|${LDAP_READONLY_USER_USERNAME}|g" $LDIF_FILE
       sed -i "s|{{ LDAP_READONLY_USER_PASSWORD_ENCRYPTED }}|${LDAP_READONLY_USER_PASSWORD_ENCRYPTED}|g" $LDIF_FILE
@@ -78,6 +101,22 @@ if [ ! -e "$FIRST_START_DONE" ]; then
     else
         ldapadd -Y EXTERNAL -Q -H ldapi:/// -f $LDIF_FILE |& log-helper debug || ldapadd -h localhost -p 389 -D cn=admin,$LDAP_BASE_DN -w "$LDAP_ADMIN_PASSWORD" -f $LDIF_FILE 2>&1 | log-helper debug
     fi
+  }
+
+  function copy_file (){
+    local FILE=$1
+    log-helper debug "Processing file ${FILE}"
+    sed -i "s|{{ LDAP_BASE_DN }}|${LDAP_BASE_DN}|g" $FILE
+    sed -i "s|{{ LDAP_DOMAIN }}|${LDAP_DOMAIN}|g" $FILE
+    sed -i "s|{{ KRB_REALM }}|${KRB_REALM}|g" $FILE
+    sed -i "s|{{ KDC_ADMIN }}|${KDC_ADMIN}|g" $FILE
+    sed -i "s|{{ ADM_ADMIN }}|${ADM_ADMIN}|g" $FILE
+
+    # temporary - don't want to write passwords to file!
+    sed -i "s|{{ LDAP_ADMIN_PASSWORD }}|${LDAP_ADMIN_PASSWORD}|g" $FILE
+    sed -i "s|{{ KRB_MASTER_PASSWORD }}|${KRB_MASTER_PASSWORD}|g" $FILE
+
+    cp $FILE $2
   }
 
   #
@@ -440,6 +479,42 @@ EOF
     echo "TLS_CERT ${LDAP_TLS_CRT_PATH}" > $HOME/.ldaprc
     echo "TLS_KEY ${LDAP_TLS_KEY_PATH}" >> $HOME/.ldaprc
     cp -f $HOME/.ldaprc ${CONTAINER_SERVICE_DIR}/slapd/assets/.ldaprc
+  fi
+
+  #
+  # Kerberos - create configuration files
+  #
+  copy_file ${CONTAINER_SERVICE_DIR}/slapd/assets/config/krb5/krb5.conf /etc/krb5.conf
+  copy_file ${CONTAINER_SERVICE_DIR}/slapd/assets/config/krb5/kdc.conf /etc/krb5kdc/kdc.conf
+  copy_file ${CONTAINER_SERVICE_DIR}/slapd/assets/config/krb5/kadm5.acl /etc/krb5kdc/kadm5.acl
+
+  #
+  # Kerberos - stash admin password, create entries.
+  #
+  if [ -n ENABLE_KERBEROS ]; then
+    # Cache admin password (KDC_ADMIN)
+    coproc kdb5_ldap_util stashsrvpw cn=${KDC_ADMIN},${LDAP_BASE_DN} -f /etc/krb5kdc/ldap.stash
+    echo ${LDAP_ADMIN_PASSWORD} >&${COPROC[1]}
+    echo ${LDAP_ADMIN_PASSWORD} >&${COPROC[1]}
+    wait
+
+    # Cache admin password (ADM)
+    if [ ${ADM_ADMIN} != ${KDC_ADMIN} ]; then
+      coproc kdb5_ldap_util stashsrvpw cn=${ADM_ADMIN},${LDAP_BASE_DN} -f /etc/krb5kdc/ldap.stash
+      echo ${LDAP_ADMIN_PASSWORD} >&${COPROC[1]}
+      echo ${LDAP_ADMIN_PASSWORD} >&${COPROC[1]}
+      wait
+    fi
+
+    # prepare scripts
+    log-helper info "Add custom bootstrap scripts..."
+    for f in $(find ${CONTAINER_SERVICE_DIR}/slapd/assets/config/krb5/custom -type f -name \*.sh); do
+      copy_file "$f" /usr/local/bin
+    done
+
+    # execute script once server is up...
+
+    # remove script and data
   fi
 
   #

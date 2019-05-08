@@ -1,0 +1,32 @@
+dn: ou=users,{{ LDAP_BASE_DN }}
+changetype: add
+objectClass: top
+objectClass: organizationalUnit
+ou:users
+
+dn: ou=services,{{ LDAP_BASE_DN }}
+changetype: add
+objectClass: top
+objectClass: organizationalUnit
+ou:services
+
+#
+# Create temporary entries so we can set ACLs. We could probably
+# skip creating the ou and define them in the same script we use
+# to populate all KDC entries.
+#
+dn: cn=krbContainer,{{ LDAP_BASE_DN }}
+changetype: add
+objectClass: krbContainer
+cn: krbContainer
+
+dn: cn={{ KRB_REALM }},cn=krbContainer,{{ LDAP_BASE_DN }}
+changetype: add
+cn: {{ KRB_REALM }}
+objectClass: top
+objectClass: krbRealmContainer
+objectClass: krbTicketPolicyAux
+krbSubTrees: ou=users,{{ LDAP_BASE_DN }}
+krbSubTrees: ou=services,{{ LDAP_BASE_DN }}
+krbSearchScope: 2
+

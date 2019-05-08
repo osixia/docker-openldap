@@ -1,0 +1,16 @@
+#
+# Grant access to principals to kdc_admin/adm_admin if they're outside
+# of the realm container (krbContainer)
+#
+dn: olcDatabase={1}{{ LDAP_BACKEND }},cn=config
+changetype: modify
+add: olcAccess
+olcAccess: to dn.subtree="ou=users,{{ LDAP_BASE_DN }}" by dn.exact="cn={{ KDC_ADMIN }},{{ LDAP_BASE_DN }}" write by dn.exact="cn={{ ADM_ADMIN }},{{ LDAP_BASE_DN }}" write by * none
+olcAccess: to dn.subtree="ou=services,{{ LDAP_BASE_DN }}" by dn.exact="cn={{ KDC_ADMIN }},{{ LDAP_BASE_DN }}" write by dn.exact="cn={{ ADM_ADMIN }},{{ LDAP_BASE_DN }}" write by * none
+
+#
+# Deny access to the realm container to anyone other than kdc_admin/adm_admin
+#
+-
+add: olcAccess
+olcAccess: to dn.subtree="cn={{ KRB_REALM }},cn=krbContainer,{{ LDAP_BASE_DN }} by dn.exact="cn={{ KDC_ADMIN }},{{ LDAP_BASE_DN }}" write by dn.exact="cn={{ ADM_ADMIN }},{{ LDAP_BASE_DN }}" write by * none
