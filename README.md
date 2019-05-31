@@ -35,6 +35,7 @@ Latest release: 1.2.4 - OpenLDAP 2.4.47 -  [Changelog](CHANGELOG.md) | [Docker H
 		- [Set your own environment variables](#set-your-own-environment-variables)
 			- [Use command line argument](#use-command-line-argument)
 			- [Link environment file](#link-environment-file)
+			- [Docker Secrets](#docker-secrets)
 			- [Make your own image or extend this image](#make-your-own-image-or-extend-this-image)
 	- [Advanced User Guide](#advanced-user-guide)
 		- [Extend osixia/openldap:1.2.4 image](#extend-osixiaopenldap124-image)
@@ -365,6 +366,17 @@ Note: the container will try to delete the **\*.startup.yaml** file after the en
 
 	docker run --volume /data/ldap/environment/my-env.yaml:/container/environment/01-custom/env.yaml \
 	--detach osixia/openldap:1.2.4
+
+#### Docker Secrets
+
+As an alternative to passing sensitive information via environmental variables, _FILE may be appended to the listed variables, causing 
+the startup.sh script to load the values for those values from files presented in the container. This is particular usefull for loading
+passwords using the [Docker secrets](https://docs.docker.com/engine/swarm/secrets/) mechanism. For example:
+
+	docker run --env LDAP_ORGANISATION="My company" --env LDAP_DOMAIN="my-company.com" \
+	--env LDAP_ADMIN_PASSWORD_FILE=/run/secrets/authentication_admin_pw --detach osixia/openldap:1.2.4
+
+Currently this is only supported for LDAP_ADMIN_PASSWORD, LDAP_CONFIG_PASSWORD, LDAP_READONLY_USER_PASSWORD
 
 #### Make your own image or extend this image
 

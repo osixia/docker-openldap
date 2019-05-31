@@ -10,6 +10,34 @@ log-helper level eq trace && set -x
 # see https://github.com/docker/docker/issues/8231
 ulimit -n $LDAP_NOFILE
 
+
+# usage: file_env VAR
+#    ie: file_env 'XYZ_DB_PASSWORD' 
+# (will allow for "$XYZ_DB_PASSWORD_FILE" to fill in the value of
+#  "$XYZ_DB_PASSWORD" from a file, especially for Docker's secrets feature)
+file_env() {
+	local var="$1"
+	local fileVar="${var}_FILE"
+
+  # The variables are already defined from the docker-light-baseimage
+  # So if the _FILE variable is available we ovewrite them
+	if [ "${!fileVar:-}" ]; then
+    log-helper trace "${fileVar} was defined"
+
+		val="$(< "${!fileVar}")"
+    log-helper debug "${var} was repalced with the contents of ${fileVar} (the value was: ${val})"
+
+    export "$var"="$val"
+	fi
+	
+	unset "$fileVar"
+}
+
+
+file_env 'LDAP_ADMIN_PASSWORD'
+file_env 'LDAP_CONFIG_PASSWORD'
+file_env 'LDAP_READONLY_USER_PASSWORD'
+
 # create dir if they not already exists
 [ -d /var/lib/ldap ] || mkdir -p /var/lib/ldap
 [ -d /etc/ldap/slapd.d ] || mkdir -p /etc/ldap/slapd.d
@@ -65,6 +93,7 @@ if [ ! -e "$FIRST_START_DONE" ]; then
 
   function ldap_add_or_modify (){
     local LDIF_FILE=$1
+
     log-helper debug "Processing file ${LDIF_FILE}"
     sed -i "s|{{ LDAP_BASE_DN }}|${LDAP_BASE_DN}|g" $LDIF_FILE
     sed -i "s|{{ LDAP_BACKEND }}|${LDAP_BACKEND}|g" $LDIF_FILE
