@@ -5,6 +5,9 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [1.2.5] - Unreleased
+## Added
+  - Support for docker secrets #325. Thanks to @anagno !
+
 ### Fixed
   - Fix of incorrectly positioned 'log-helper debug' command #327. Thanks to @turcan !
 
