@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [1.2.5] - Unreleased
+### Fixed
+  - Fix of incorrectly positioned 'log-helper debug' command #327. Thanks to @turcan !
+
 ## [1.2.4] - 2019-03-14
 ### Fixed
   - Excessive RAM usage on 1.2.2, increased 10x from 1.2.1 #242
