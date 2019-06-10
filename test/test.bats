@@ -38,6 +38,21 @@ load test_helper
 
 }
 
+@test "ldapsearch database with password provided from file" {
+
+  rm $PWD/password.txt && touch $PWD/password.txt 
+  echo "strongPassword" >> $PWD/password.txt
+
+  run_image -h ldap.osixia.net -e LDAP_ADMIN_PASSWORD_FILE=/run/secrets/admin_pw.txt --volume $PWD/password.txt:/run/secrets/admin_pw.txt
+  wait_process slapd
+  run docker exec $CONTAINER_ID ldapsearch -x -h ldap.osixia.net -b dc=example,dc=org -ZZ -D "cn=admin,dc=example,dc=org" -w strongPassword
+  clear_container
+  rm $PWD/password.txt
+
+  [ "$status" -eq 0 ]
+}
+
+
 @test "ldapsearch new database with strict TLS" {
 
   run_image -h ldap.example.org
