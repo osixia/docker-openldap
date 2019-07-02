@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+
 setup() {
   IMAGE_NAME="$NAME:$VERSION"
 }
