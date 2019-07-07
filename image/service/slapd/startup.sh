@@ -15,9 +15,11 @@ ulimit -n $LDAP_NOFILE
 [ -d /etc/ldap/slapd.d ] || mkdir -p /etc/ldap/slapd.d
 
 # fix file permissions
-chown -R openldap:openldap /var/lib/ldap
-chown -R openldap:openldap /etc/ldap
-chown -R openldap:openldap ${CONTAINER_SERVICE_DIR}/slapd
+if [ -z "$DISABLE_CHOWN" ]; then
+  chown -R openldap:openldap /var/lib/ldap
+  chown -R openldap:openldap /etc/ldap
+  chown -R openldap:openldap ${CONTAINER_SERVICE_DIR}/slapd
+fi
 
 FIRST_START_DONE="${CONTAINER_STATE_DIR}/slapd-first-start-done"
 WAS_STARTED_WITH_TLS="/etc/ldap/slapd.d/docker-openldap-was-started-with-tls"
@@ -127,7 +129,9 @@ EOF
       mv /tmp/schema/cn=config/cn=schema/* /etc/ldap/slapd.d/cn=config/cn=schema
       rm -r /tmp/schema
 
-      chown -R openldap:openldap /etc/ldap/slapd.d/cn=config/cn=schema
+      if [ -z "$DISABLE_CHOWN" ]; then
+        chown -R openldap:openldap /etc/ldap/slapd.d/cn=config/cn=schema
+      fi
     fi
 
     rm ${CONTAINER_SERVICE_DIR}/slapd/assets/config/bootstrap/schema/rfc2307bis.*
@@ -204,8 +208,10 @@ EOF
       ssl-helper $LDAP_SSL_HELPER_PREFIX $PREVIOUS_LDAP_TLS_CRT_PATH $PREVIOUS_LDAP_TLS_KEY_PATH $PREVIOUS_LDAP_TLS_CA_CRT_PATH
       [ -f ${PREVIOUS_LDAP_TLS_DH_PARAM_PATH} ] || openssl dhparam -out ${LDAP_TLS_DH_PARAM_PATH} 2048
 
-      chmod 600 ${PREVIOUS_LDAP_TLS_DH_PARAM_PATH}
-      chown openldap:openldap $PREVIOUS_LDAP_TLS_CRT_PATH $PREVIOUS_LDAP_TLS_KEY_PATH $PREVIOUS_LDAP_TLS_CA_CRT_PATH $PREVIOUS_LDAP_TLS_DH_PARAM_PATH
+      if [ -z "$DISABLE_CHOWN" ]; then
+        chmod 600 ${PREVIOUS_LDAP_TLS_DH_PARAM_PATH}
+        chown openldap:openldap $PREVIOUS_LDAP_TLS_CRT_PATH $PREVIOUS_LDAP_TLS_KEY_PATH $PREVIOUS_LDAP_TLS_CA_CRT_PATH $PREVIOUS_LDAP_TLS_DH_PARAM_PATH
+      fi
     fi
 
     # start OpenLDAP
@@ -308,10 +314,12 @@ EOF
 
       # create DHParamFile if not found
       [ -f ${LDAP_TLS_DH_PARAM_PATH} ] || openssl dhparam -out ${LDAP_TLS_DH_PARAM_PATH} 2048
-      chmod 600 ${LDAP_TLS_DH_PARAM_PATH}
-
+      
       # fix file permissions
-      chown -R openldap:openldap ${CONTAINER_SERVICE_DIR}/slapd
+      if [ -z "$DISABLE_CHOWN" ]; then
+        chmod 600 ${LDAP_TLS_DH_PARAM_PATH}
+        chown -R openldap:openldap ${CONTAINER_SERVICE_DIR}/slapd
+      fi
 
       # adapt tls ldif
       sed -i "s|{{ LDAP_TLS_CA_CRT_PATH }}|${LDAP_TLS_CA_CRT_PATH}|g" ${CONTAINER_SERVICE_DIR}/slapd/assets/config/tls/tls-enable.ldif
