@@ -43,7 +43,7 @@ file_env 'LDAP_READONLY_USER_PASSWORD'
 [ -d /etc/ldap/slapd.d ] || mkdir -p /etc/ldap/slapd.d
 
 # fix file permissions
-if [ -z "$DISABLE_CHOWN" ]; then
+if [ "${DISABLE_CHOWN,,}" == "true" ]; then
   chown -R openldap:openldap /var/lib/ldap
   chown -R openldap:openldap /etc/ldap
   chown -R openldap:openldap ${CONTAINER_SERVICE_DIR}/slapd
@@ -158,7 +158,7 @@ EOF
       mv /tmp/schema/cn=config/cn=schema/* /etc/ldap/slapd.d/cn=config/cn=schema
       rm -r /tmp/schema
 
-      if [ -z "$DISABLE_CHOWN" ]; then
+      if [ "${DISABLE_CHOWN,,}" == "true" ]; then
         chown -R openldap:openldap /etc/ldap/slapd.d/cn=config/cn=schema
       fi
     fi
@@ -237,7 +237,7 @@ EOF
       ssl-helper $LDAP_SSL_HELPER_PREFIX $PREVIOUS_LDAP_TLS_CRT_PATH $PREVIOUS_LDAP_TLS_KEY_PATH $PREVIOUS_LDAP_TLS_CA_CRT_PATH
       [ -f ${PREVIOUS_LDAP_TLS_DH_PARAM_PATH} ] || openssl dhparam -out ${LDAP_TLS_DH_PARAM_PATH} 2048
 
-      if [ -z "$DISABLE_CHOWN" ]; then
+      if [ "${DISABLE_CHOWN,,}" == "true" ]; then
         chmod 600 ${PREVIOUS_LDAP_TLS_DH_PARAM_PATH}
         chown openldap:openldap $PREVIOUS_LDAP_TLS_CRT_PATH $PREVIOUS_LDAP_TLS_KEY_PATH $PREVIOUS_LDAP_TLS_CA_CRT_PATH $PREVIOUS_LDAP_TLS_DH_PARAM_PATH
       fi
@@ -345,7 +345,7 @@ EOF
       [ -f ${LDAP_TLS_DH_PARAM_PATH} ] || openssl dhparam -out ${LDAP_TLS_DH_PARAM_PATH} 2048
       
       # fix file permissions
-      if [ -z "$DISABLE_CHOWN" ]; then
+      if [ "${DISABLE_CHOWN,,}" == "true" ]; then
         chmod 600 ${LDAP_TLS_DH_PARAM_PATH}
         chown -R openldap:openldap ${CONTAINER_SERVICE_DIR}/slapd
       fi

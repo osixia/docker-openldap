@@ -11,3 +11,6 @@ LDAP_LOG_LEVEL: 256
 
 # Ulimit
 LDAP_NOFILE: 1024
+
+# Do not perform any chown to fix file ownership
+DISABLE_CHOWN: false

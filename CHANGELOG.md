@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [1.2.5] - Unreleased
 ## Added
   - Support for docker secrets #325. Thanks to @anagno !
+  - Add DISABLE_CHOWN environment variable #240
 
 ### Fixed
   - Fix of incorrectly positioned 'log-helper debug' command #327. Thanks to @turcan !
