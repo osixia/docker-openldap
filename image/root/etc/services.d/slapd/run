@@ -1,6 +1,0 @@
-#!/usr/bin/with-contenv bash
-
-echo "Starting LDAP Server."
-export LDAP_SERVER_INFO_MODEL=$(uname -m)
-export LDAP_SERVER_INFO_PLATFORM_VERSION=$(uname -r)
-exec s6-setuidgid abc /bin/bash -c 'openldap'
