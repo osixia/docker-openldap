@@ -23,31 +23,31 @@ RUN if [ -z "${LDAP_OPENLDAP_GID}" ]; then groupadd -r openldap; else groupadd -
 #RUN echo "path-include /usr/share/doc/krb5*" >> /etc/dpkg/dpkg.cfg.d/docker && apt-get -y update \
 #    && /container/tool/add-service-available :ssl-tools \
 #	  && LC_ALL=C DEBIAN_FRONTEND=noninteractive apt-get -t stretch-backports install -y --no-install-recommends \
-RUN echo "path-include /usr/share/doc/krb5*" >> /etc/dpkg/dpkg.cfg.d/docker && apt-get -y update \
-    && /container/tool/add-service-available :ssl-tools \
-	  && LC_ALL=C DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
-       ldap-utils \
-       libsasl2-modules \
-       libsasl2-modules-db \
-       libsasl2-modules-gssapi-mit \
-       libsasl2-modules-ldap \
-       libsasl2-modules-otp \
-       libsasl2-modules-sql \
-       openssl \
-       slapd \
-       krb5-kdc-ldap \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
-
-# Add service directory to /container/service
-ADD service /container/service
-
-# Use baseimage install-service script
-# https://github.com/osixia/docker-light-baseimage/blob/stable/image/tool/install-service
-RUN /container/tool/install-service
-
-# Add default env variables
-ADD environment /container/environment/99-default
+#RUN echo "path-include /usr/share/doc/krb5*" >> /etc/dpkg/dpkg.cfg.d/docker && apt-get -y update \
+#    && /container/tool/add-service-available :ssl-tools \
+#	  && LC_ALL=C DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+#       ldap-utils \
+#       libsasl2-modules \
+#       libsasl2-modules-db \
+#       libsasl2-modules-gssapi-mit \
+#       libsasl2-modules-ldap \
+#       libsasl2-modules-otp \
+#       libsasl2-modules-sql \
+#       openssl \
+#       slapd \
+#       krb5-kdc-ldap \
+#    && apt-get clean \
+#    && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+#
+## Add service directory to /container/service
+#ADD service /container/service
+#
+## Use baseimage install-service script
+## https://github.com/osixia/docker-light-baseimage/blob/stable/image/tool/install-service
+#RUN /container/tool/install-service
+#
+## Add default env variables
+#ADD environment /container/environment/99-default
 
 # Expose default ldap and ldaps ports
 EXPOSE 389 636
