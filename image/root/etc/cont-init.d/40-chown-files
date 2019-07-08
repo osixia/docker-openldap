@@ -3,7 +3,7 @@
 # create folders
 if [ ! -d "${LDAP_SERVER_APPLICATION_SUPPORT_DIR}" ]; then \
 mkdir -p "${LDAP_SERVER_APPLICATION_SUPPORT_DIR}"
-chown -R abc:abc /var/lib/ldap
+chown -R abc:abc /var/lib/slapd
 fi
 
 # check ldap database permissions

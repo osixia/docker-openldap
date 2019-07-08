@@ -8,7 +8,7 @@ LDAP_SERVER_MAX_STACK_SIZE=3000
 
 # uncomment to set it to something else
 #LDAP_SERVER_APPLICATION_SUPPORT_DIR="/config/Library/Application Support"
-LDAP_SERVER_APPLICATION_SUPPORT_DIR="/var/lib/ldap"
+LDAP_SERVER_APPLICATION_SUPPORT_DIR="/var/lib/slapd"
 
 # the user that PMS should run as, defaults to 'plex'
 # note that if you change this you might need to move
