@@ -1,0 +1,17 @@
+# default script for Plex Media Server
+
+# the number of plugins that can run at the same time
+LDAP_SERVER_MAX_PLUGIN_PROCS=6
+
+# ulimit -s $LDAP_SERVER_MAX_STACK_SIZE
+LDAP_SERVER_MAX_STACK_SIZE=3000
+
+# uncomment to set it to something else
+#LDAP_SERVER_APPLICATION_SUPPORT_DIR="/config/Library/Application Support"
+LDAP_SERVER_APPLICATION_SUPPORT_DIR="/config/"
+
+# the user that PMS should run as, defaults to 'plex'
+# note that if you change this you might need to move
+# the Application Support directory to not lose your
+# media library
+LDAP_SERVER_USER=abc
