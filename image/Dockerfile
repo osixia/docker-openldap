@@ -49,6 +49,9 @@ RUN /container/tool/install-service
 ## Add default env variables
 ADD environment /container/environment/99-default
 
+# add local files
+COPY root/ /
+
 # Expose default ldap and ldaps ports
 EXPOSE 389 636
 
