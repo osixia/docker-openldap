@@ -1,4 +1,6 @@
-#!/bin/bash -e
+#!/usr/bin/with-contenv bash
+##!/bin/bash -e
+
 set -o pipefail
 
 # set -x (bash debug) if log level is trace
