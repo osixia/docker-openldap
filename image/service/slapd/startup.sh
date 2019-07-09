@@ -219,10 +219,16 @@ EOF
 #      slapd -h "ldap://$HOSTNAME $PREVIOUS_HOSTNAME_PARAM ldap://localhost ldapi:///" -u openldap -g openldap
 #    fi
 
+#    if log-helper level ge debug; then
+#      exec s6-setuidgid abc /bin/bash -c slapd -h "ldap://$HOSTNAME $PREVIOUS_HOSTNAME_PARAM ldap://localhost ldapi:///" -u abc -g abc -d $LDAP_LOG_LEVEL 2>&1 &
+#    else
+#      exec s6-setuidgid abc /bin/bash -c slapd -h "ldap://$HOSTNAME $PREVIOUS_HOSTNAME_PARAM ldap://localhost ldapi:///" -u abc -g abc
+#    fi
+
     if log-helper level ge debug; then
-      exec s6-setuidgid abc /bin/bash -c slapd -h "ldap://$HOSTNAME $PREVIOUS_HOSTNAME_PARAM ldap://localhost ldapi:///" -u abc -g abc -d $LDAP_LOG_LEVEL 2>&1 &
+      slapd -h "ldap://$HOSTNAME $PREVIOUS_HOSTNAME_PARAM ldap://localhost ldapi:///" -u abc -g abc -d $LDAP_LOG_LEVEL 2>&1 &
     else
-      exec s6-setuidgid abc /bin/bash -c slapd -h "ldap://$HOSTNAME $PREVIOUS_HOSTNAME_PARAM ldap://localhost ldapi:///" -u abc -g abc
+      slapd -h "ldap://$HOSTNAME $PREVIOUS_HOSTNAME_PARAM ldap://localhost ldapi:///" -u abc -g abc
     fi
 
     log-helper info "Waiting for OpenLDAP to start..."
