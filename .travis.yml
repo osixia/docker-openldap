@@ -94,7 +94,7 @@ jobs:
     - stage: Manifest creation
       install: skip
       script: skip
-      after_success:
+      after_deploy:
         - docker login -u "$DOCKER_USER" -p "$DOCKER_PASS";
         - docker manifest create ${NAME}:${VERSION} 
             ${NAME}:${VERSION}-amd64 
