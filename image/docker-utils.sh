@@ -216,7 +216,7 @@ while getopts "f:hx" opt; do
 done
 shift $((OPTIND-1))
 
-if [ $# < 2 ]; then
+if [ $# -lt 2 ]; then
     echo "required command and image arguments not specified" >&2
     usage
 fi
