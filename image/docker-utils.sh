@@ -227,8 +227,6 @@ docker_image_name=$2
 shift 2
 additional_args=$@
 
-echo "additional_args=${additional_args}"
-
 case "${command}" in
     "build")
         build_image ${docker_image_name} 0

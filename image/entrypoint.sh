@@ -1,4 +1,5 @@
-#!/usr/bin/env bash
+#!/bin/bash -e
+##!/usr/bin/env bash
 ##!/bin/bash
 
 PUID=${PUID:-911}
@@ -26,4 +27,6 @@ User gid:    $(id -g openldap)
 #chown -R openldap:openldap ${CONTAINER_SERVICE_DIR}/slapd
 
 #exec /init
-exec /container/tool/run "$@"
+#exec /container/tool/run "$@"
+echo "\$@=${@}"
+/container/tool/run "$@"
