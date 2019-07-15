@@ -110,6 +110,7 @@ restart_container() {
     DOCKER_IMAGE_NAME=$1
     DOCKER_APP_NAME="$( cut -d ':' -f 1 <<< ${DOCKER_IMAGE_NAME} )"
     DEBUG=${2-0}
+    ADDITIONAL_ARGS=${3-}
 
 #    DOCKER_IMAGE_NAME="${DOCKER_REGISTRY_LABEL}/${DOCKER_APP_NAME}"
     CONTAINER_NAME="${DOCKER_APP_NAME}"
@@ -145,7 +146,7 @@ restart_container() {
         --volume "${PWD}/.certs":/opt/ssl/ \
         --volumes-from ${DATA_CONTAINER_NAME} \
         --net=host \
-        -d ${DOCKER_IMAGE_NAME}
+        -d ${DOCKER_IMAGE_NAME} ${ADDITIONAL_ARGS}
 
     echo "started container"
     echo "tailing container stdout..."
@@ -215,13 +216,18 @@ while getopts "f:hx" opt; do
 done
 shift $((OPTIND-1))
 
-if [ $# != 2 ]; then
+if [ $# < 2 ]; then
     echo "required command and image arguments not specified" >&2
     usage
 fi
 
 command=$1
 docker_image_name=$2
+
+shift 2
+additional_args=$@
+
+echo "additional_args=${additional_args}"
 
 case "${command}" in
     "build")
@@ -234,7 +240,7 @@ case "${command}" in
         deploy_image ${docker_image_name}
         ;;
     "restart"|"run")
-        restart_container ${docker_image_name} $debug_container
+        restart_container ${docker_image_name} $debug_container "${additional_args}"
         ;;
     "debug")
         debug_container=1
