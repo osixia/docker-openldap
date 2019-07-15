@@ -2,7 +2,7 @@
 # sources: https://github.com/osixia/docker-light-baseimage
 #FROM osixia/light-baseimage:1.1.2
 FROM light-baseimage:latest
-FROM ubuntu:bionic
+#FROM ubuntu:bionic
 
 ARG LDAP_OPENLDAP_GID
 ARG LDAP_OPENLDAP_UID
