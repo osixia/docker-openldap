@@ -5,8 +5,6 @@ set -o pipefail
 # https://github.com/osixia/docker-light-baseimage/blob/stable/image/tool/log-helper
 log-helper level eq trace && set -x
 
-log-helper info "starting startup.sh ..."
-
 # Reduce maximum number of number of open file descriptors to 1024
 # otherwise slapd consumes two orders of magnitude more of RAM
 # see https://github.com/docker/docker/issues/8231
@@ -17,9 +15,9 @@ ulimit -n $LDAP_NOFILE
 [ -d /etc/ldap/slapd.d ] || mkdir -p /etc/ldap/slapd.d
 
 # fix file permissions
-chown -R abc:abc /var/lib/ldap
-chown -R abc:abc /etc/ldap
-chown -R abc:abc ${CONTAINER_SERVICE_DIR}/slapd
+chown -R openldap:openldap /var/lib/ldap
+chown -R openldap:openldap /etc/ldap
+chown -R openldap:openldap ${CONTAINER_SERVICE_DIR}/slapd
 
 FIRST_START_DONE="${CONTAINER_STATE_DIR}/slapd-first-start-done"
 WAS_STARTED_WITH_TLS="/etc/ldap/slapd.d/docker-openldap-was-started-with-tls"
@@ -129,7 +127,7 @@ EOF
       mv /tmp/schema/cn=config/cn=schema/* /etc/ldap/slapd.d/cn=config/cn=schema
       rm -r /tmp/schema
 
-      chown -R abc:abc /etc/ldap/slapd.d/cn=config/cn=schema
+      chown -R openldap:openldap /etc/ldap/slapd.d/cn=config/cn=schema
     fi
 
     rm ${CONTAINER_SERVICE_DIR}/slapd/assets/config/bootstrap/schema/rfc2307bis.*
@@ -207,29 +205,18 @@ EOF
       [ -f ${PREVIOUS_LDAP_TLS_DH_PARAM_PATH} ] || openssl dhparam -out ${LDAP_TLS_DH_PARAM_PATH} 2048
 
       chmod 600 ${PREVIOUS_LDAP_TLS_DH_PARAM_PATH}
-      chown abc:abc $PREVIOUS_LDAP_TLS_CRT_PATH $PREVIOUS_LDAP_TLS_KEY_PATH $PREVIOUS_LDAP_TLS_CA_CRT_PATH $PREVIOUS_LDAP_TLS_DH_PARAM_PATH
+      chown openldap:openldap $PREVIOUS_LDAP_TLS_CRT_PATH $PREVIOUS_LDAP_TLS_KEY_PATH $PREVIOUS_LDAP_TLS_CA_CRT_PATH $PREVIOUS_LDAP_TLS_DH_PARAM_PATH
     fi
 
     # start OpenLDAP
     log-helper info "Start OpenLDAP..."
 
-#    if log-helper level ge debug; then
-#      slapd -h "ldap://$HOSTNAME $PREVIOUS_HOSTNAME_PARAM ldap://localhost ldapi:///" -u openldap -g openldap -d $LDAP_LOG_LEVEL 2>&1 &
-#    else
-#      slapd -h "ldap://$HOSTNAME $PREVIOUS_HOSTNAME_PARAM ldap://localhost ldapi:///" -u openldap -g openldap
-#    fi
-
-#    if log-helper level ge debug; then
-#      exec s6-setuidgid abc /bin/bash -c slapd -h "ldap://$HOSTNAME $PREVIOUS_HOSTNAME_PARAM ldap://localhost ldapi:///" -u abc -g abc -d $LDAP_LOG_LEVEL 2>&1 &
-#    else
-#      exec s6-setuidgid abc /bin/bash -c slapd -h "ldap://$HOSTNAME $PREVIOUS_HOSTNAME_PARAM ldap://localhost ldapi:///" -u abc -g abc
-#    fi
-
     if log-helper level ge debug; then
-      slapd -h "ldap://$HOSTNAME $PREVIOUS_HOSTNAME_PARAM ldap://localhost ldapi:///" -u abc -g abc -d $LDAP_LOG_LEVEL 2>&1 &
+      slapd -h "ldap://$HOSTNAME $PREVIOUS_HOSTNAME_PARAM ldap://localhost ldapi:///" -u openldap -g openldap -d $LDAP_LOG_LEVEL 2>&1 &
     else
-      slapd -h "ldap://$HOSTNAME $PREVIOUS_HOSTNAME_PARAM ldap://localhost ldapi:///" -u abc -g abc
+      slapd -h "ldap://$HOSTNAME $PREVIOUS_HOSTNAME_PARAM ldap://localhost ldapi:///" -u openldap -g openldap
     fi
+
 
     log-helper info "Waiting for OpenLDAP to start..."
     while [ ! -e /run/slapd/slapd.pid ]; do sleep 0.1; done
@@ -324,7 +311,7 @@ EOF
       chmod 600 ${LDAP_TLS_DH_PARAM_PATH}
 
       # fix file permissions
-      chown -R abc:abc ${CONTAINER_SERVICE_DIR}/slapd
+      chown -R openldap:openldap ${CONTAINER_SERVICE_DIR}/slapd
 
       # adapt tls ldif
       sed -i "s|{{ LDAP_TLS_CA_CRT_PATH }}|${LDAP_TLS_CA_CRT_PATH}|g" ${CONTAINER_SERVICE_DIR}/slapd/assets/config/tls/tls-enable.ldif
