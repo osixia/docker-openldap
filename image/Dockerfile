@@ -29,19 +29,10 @@ RUN echo "path-include /usr/share/doc/krb5*" >> /etc/dpkg/dpkg.cfg.d/docker && a
        libsasl2-modules-otp \
        libsasl2-modules-sql \
        openssl \
-       wget \
        slapd \
        krb5-kdc-ldap \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
-
-## ref: https://github.com/sudo-bmitch/jenkins-docker/blob/master/Dockerfile
-# install gosu for a better su+exec command
-ARG GOSU_VERSION=1.10
-RUN dpkgArch="$(dpkg --print-architecture | awk -F- '{ print $NF }')" \
- && wget -O /usr/local/bin/gosu "https://github.com/tianon/gosu/releases/download/$GOSU_VERSION/gosu-$dpkgArch" \
- && chmod +x /usr/local/bin/gosu \
- && gosu nobody true
 
 # Add service directory to /container/service
 ADD service /container/service
