@@ -42,6 +42,12 @@ RUN /container/tool/install-service
 # Add default env variables
 ADD environment /container/environment/99-default
 
+# add local files
+# entrypoint is used to update docker uid/gid to openldap user
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+ENTRYPOINT ["/entrypoint.sh"]
+
 # Expose default ldap and ldaps ports
 EXPOSE 389 636
 
