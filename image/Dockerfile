@@ -8,7 +8,7 @@ ARG LDAP_OPENLDAP_UID
 # Add openldap user and group first to make sure their IDs get assigned consistently, regardless of whatever dependencies get added
 # If explicit uid or gid is given, use it.
 RUN if [ -z "${LDAP_OPENLDAP_GID}" ]; then groupadd -g 911 -r openldap; else groupadd -r -g ${LDAP_OPENLDAP_GID} openldap; fi \
-    && if [ -z "${LDAP_OPENLDAP_UID}" ]; then useradd -g 911 -r -g openldap openldap; else useradd -r -g openldap -u ${LDAP_OPENLDAP_UID} openldap; fi
+    && if [ -z "${LDAP_OPENLDAP_UID}" ]; then useradd -u 911 -r -g openldap openldap; else useradd -r -g openldap -u ${LDAP_OPENLDAP_UID} openldap; fi
 
 # Add stretch-backports in preparation for downloading newer openldap components, especially sladp
 RUN echo "deb http://ftp.debian.org/debian stretch-backports main" >> /etc/apt/sources.list
