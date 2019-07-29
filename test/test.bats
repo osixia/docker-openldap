@@ -19,6 +19,19 @@ load test_helper
 
 }
 
+@test "ldap domain with ldap base dn" {
+
+  run_image -h ldap.example.org -e LDAP_TLS=false -e LDAP_DOMAIN=example.com -e LDAP_BASE_DN="dc=example,dc=org"
+
+  sleep 2
+
+  CSTATUS=$(check_container)
+  clear_container
+
+  [ "$CSTATUS" != "running 0" ]
+
+}
+
 @test "ldapsearch database from created volumes" {
 
   rm -rf VOLUMES && mkdir -p VOLUMES/config VOLUMES/database

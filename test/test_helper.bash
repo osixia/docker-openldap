@@ -34,6 +34,12 @@ wait_process() {
   wait_process_by_cid $CONTAINER_ID $@
 }
 
+check_container() {
+  # "Status" = "exited", and "ExitCode" != 0,
+  local CSTAT=$(docker inspect -f "{{ .State.Status }} {{ .State.ExitCode }}" $CONTAINER_ID)
+  echo "$CSTAT"
+}
+
 # generic functions
 get_container_ip_by_cid() {
   local IP=$(docker inspect -f "{{ .NetworkSettings.IPAddress }}" $1)
