@@ -53,7 +53,8 @@ if [ ! -e "$FIRST_START_DONE" ]; then
     fi
     # Check that LDAP_BASE_DN and LDAP_DOMAIN are in sync
     domain_from_base_dn=$(echo $LDAP_BASE_DN | tr ',' '\n' | sed -e 's/^.*=//' | tr '\n' '.' | sed -e 's/\.$//')
-    if [ "$domain_from_base_dn" != "$LDAP_DOMAIN" ]; then
+    echo "$domain_from_base_dn" | egrep -q ".*$LDAP_DOMAIN\$"
+    if [ $? -ne 0 ]; then
       log-helper error "Error: domain $domain_from_base_dn derived from LDAP_BASE_DN $LDAP_BASE_DN does not match LDAP_DOMAIN $LDAP_DOMAIN"
       exit 1
     fi

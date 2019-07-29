@@ -32,6 +32,32 @@ load test_helper
 
 }
 
+@test "ldap domain with ldap base dn subdomain" {
+
+  run_image -h ldap.example.fr -e LDAP_TLS=false -e LDAP_DOMAIN=example.fr -e LDAP_BASE_DN="ou=myou,o=example,c=fr"
+
+  sleep 2
+
+  CSTATUS=$(check_container)
+  clear_container
+
+  [ "$CSTATUS" == "running 0" ]
+
+}
+
+@test "ldap domain with ldap base dn subdomain included" {
+
+  run_image -h ldap.example.com -e LDAP_TLS=false -e LDAP_DOMAIN=example.com -e LDAP_BASE_DN="ou=myou,o=example,dc=com,c=fr"
+
+  sleep 2
+
+  CSTATUS=$(check_container)
+  clear_container
+
+  [ "$CSTATUS" != "running 0" ]
+
+}
+
 @test "ldapsearch database from created volumes" {
 
   rm -rf VOLUMES && mkdir -p VOLUMES/config VOLUMES/database
