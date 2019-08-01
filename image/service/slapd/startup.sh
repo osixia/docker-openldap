@@ -81,7 +81,15 @@ if [ ! -e "$FIRST_START_DONE" ]; then
 
       LDAP_BASE_DN=${LDAP_BASE_DN::-1}
     fi
-
+    # Check that LDAP_BASE_DN and LDAP_DOMAIN are in sync
+    domain_from_base_dn=$(echo $LDAP_BASE_DN | tr ',' '\n' | sed -e 's/^.*=//' | tr '\n' '.' | sed -e 's/\.$//')
+    set +e
+    echo "$domain_from_base_dn" | egrep -q ".*$LDAP_DOMAIN\$"
+    if [ $? -ne 0 ]; then
+      log-helper error "Error: domain $domain_from_base_dn derived from LDAP_BASE_DN $LDAP_BASE_DN does not match LDAP_DOMAIN $LDAP_DOMAIN"
+      exit 1
+    fi
+    set -e
   }
 
   function is_new_schema() {
@@ -127,6 +135,7 @@ if [ ! -e "$FIRST_START_DONE" ]; then
     log-helper info "Database and config directory are empty..."
     log-helper info "Init new ldap server..."
 
+    get_ldap_base_dn
     cat <<EOF | debconf-set-selections
 slapd slapd/internal/generated_adminpw password ${LDAP_ADMIN_PASSWORD}
 slapd slapd/internal/adminpw password ${LDAP_ADMIN_PASSWORD}
