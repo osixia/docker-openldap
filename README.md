@@ -433,7 +433,7 @@ Run your image:
 
 We use **Bats** (Bash Automated Testing System) to test this image:
 
-> [https://github.com/sstephenson/bats](https://github.com/sstephenson/bats)
+> [https://github.com/bats-core/bats-core](https://github.com/bats-core/bats-core)
 
 Install Bats, and in this project directory run:
 
