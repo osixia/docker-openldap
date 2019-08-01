@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## Added
   - Support for docker secrets #325. Thanks to @anagno !
   - Add DISABLE_CHOWN environment variable #240
+  - pqChecker lib to check passwords strength with ppolicy pwdCheckModule
 
 ### Fixed
   - Fix of incorrectly positioned 'log-helper debug' command #327. Thanks to @turcan !
