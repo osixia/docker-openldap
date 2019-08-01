@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Fixed
   - Fix of incorrectly positioned 'log-helper debug' command #327. Thanks to @turcan !
+  - Fix domain dn #341. Thanks to @obourdon !
 
 ## [1.2.4] - 2019-03-14
 ### Fixed
