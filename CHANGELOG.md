@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [1.3.0] - Unreleased
+## Added
+  - Multiarch support
+
+## Changes
+  - Update openldap 2.4.47 to 2.4.48 #247
+  - Upgrade baseimage to light-baseimage:1.2.0 (debian buster)
+
 ## [1.2.5] - 2019-08-16
 ## Added
   - Support for docker secrets #325. Thanks to @anagno !

@@ -1,6 +1,6 @@
 # Use osixia/light-baseimage
 # sources: https://github.com/osixia/docker-light-baseimage
-FROM osixia/light-baseimage:1.1.2
+FROM osixia/light-baseimage:release-1.2.0-dev
 
 ARG LDAP_OPENLDAP_GID
 ARG LDAP_OPENLDAP_UID
@@ -13,15 +13,15 @@ ARG PQCHECKER_MD5=c005ce596e97d13e39485e711dcbc7e1
 RUN if [ -z "${LDAP_OPENLDAP_GID}" ]; then groupadd -r openldap; else groupadd -r -g ${LDAP_OPENLDAP_GID} openldap; fi \
     && if [ -z "${LDAP_OPENLDAP_UID}" ]; then useradd -r -g openldap openldap; else useradd -r -g openldap -u ${LDAP_OPENLDAP_UID} openldap; fi
 
-# Add stretch-backports in preparation for downloading newer openldap components, especially sladp
-RUN echo "deb http://ftp.debian.org/debian stretch-backports main" >> /etc/apt/sources.list
+# Add buster-backports in preparation for downloading newer openldap components, especially sladp
+RUN echo "deb http://ftp.debian.org/debian buster-backports main" >> /etc/apt/sources.list
 
 # Install OpenLDAP, ldap-utils and ssl-tools from the (backported) baseimage and clean apt-get files
 # sources: https://github.com/osixia/docker-light-baseimage/blob/stable/image/tool/add-service-available
 #          https://github.com/osixia/docker-light-baseimage/blob/stable/image/service-available/:ssl-tools/download.sh
 RUN echo "path-include /usr/share/doc/krb5*" >> /etc/dpkg/dpkg.cfg.d/docker && apt-get -y update \
     && /container/tool/add-service-available :ssl-tools \
-    && LC_ALL=C DEBIAN_FRONTEND=noninteractive apt-get -t stretch-backports install -y --no-install-recommends \
+    && LC_ALL=C DEBIAN_FRONTEND=noninteractive apt-get -t buster-backports install -y --no-install-recommends \
     ca-certificates \
     curl \
     ldap-utils \
