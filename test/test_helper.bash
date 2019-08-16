@@ -9,7 +9,7 @@ build_image() {
 }
 
 run_image() {
-  CONTAINER_ID=$(docker run $@ -d $IMAGE_NAME --copy-service -c "/container/service/slapd/test.sh")
+  CONTAINER_ID=$(docker run $@ -d $IMAGE_NAME --copy-service -c "/container/service/slapd/test.sh" $EXTRA_DOCKER_RUN_FLAGS)
   CONTAINER_IP=$(get_container_ip_by_cid $CONTAINER_ID)
 }
 
@@ -32,6 +32,12 @@ clear_container() {
 
 wait_process() {
   wait_process_by_cid $CONTAINER_ID $@
+}
+
+check_container() {
+  # "Status" = "exited", and "ExitCode" != 0,
+  local CSTAT=$(docker inspect -f "{{ .State.Status }} {{ .State.ExitCode }}" $CONTAINER_ID)
+  echo "$CSTAT"
 }
 
 # generic functions

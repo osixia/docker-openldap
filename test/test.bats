@@ -19,6 +19,45 @@ load test_helper
 
 }
 
+@test "ldap domain with ldap base dn" {
+
+  run_image -h ldap.example.org -e LDAP_TLS=false -e LDAP_DOMAIN=example.com -e LDAP_BASE_DN="dc=example,dc=org"
+
+  sleep 2
+
+  CSTATUS=$(check_container)
+  clear_container
+
+  [ "$CSTATUS" != "running 0" ]
+
+}
+
+@test "ldap domain with ldap base dn subdomain" {
+
+  run_image -h ldap.example.fr -e LDAP_TLS=false -e LDAP_DOMAIN=example.fr -e LDAP_BASE_DN="ou=myou,o=example,c=fr"
+
+  sleep 2
+
+  CSTATUS=$(check_container)
+  clear_container
+
+  [ "$CSTATUS" == "running 0" ]
+
+}
+
+@test "ldap domain with ldap base dn subdomain included" {
+
+  run_image -h ldap.example.com -e LDAP_TLS=false -e LDAP_DOMAIN=example.com -e LDAP_BASE_DN="ou=myou,o=example,dc=com,c=fr"
+
+  sleep 2
+
+  CSTATUS=$(check_container)
+  clear_container
+
+  [ "$CSTATUS" != "running 0" ]
+
+}
+
 @test "ldapsearch database from created volumes" {
 
   rm -rf VOLUMES && mkdir -p VOLUMES/config VOLUMES/database
@@ -26,17 +65,36 @@ load test_helper
   wait_process_by_cid $LDAP_CID slapd
   run docker exec $LDAP_CID ldapsearch -x -h ldap.example.org -b dc=example,dc=org -D "cn=admin,dc=example,dc=org" -w admin
   docker kill $LDAP_CID
+  clear_containers_by_cid $LDAP_CID
+
   [ "$status" -eq 0 ]
+
   LDAP_CID=$(docker run -h ldap.example.org -e LDAP_TLS=false --volume $PWD/VOLUMES/database:/var/lib/ldap --volume $PWD/VOLUMES/config:/etc/ldap/slapd.d -d $NAME:$VERSION)
   wait_process_by_cid $LDAP_CID slapd
   run docker exec $LDAP_CID ldapsearch -x -h ldap.example.org -b dc=example,dc=org -D "cn=admin,dc=example,dc=org" -w admin
   run docker exec $LDAP_CID chown -R $UID:$UID /var/lib/ldap /etc/ldap/slapd.d
   docker kill $LDAP_CID
   rm -rf VOLUMES
+  clear_containers_by_cid $LDAP_CID
 
   [ "$status" -eq 0 ]
 
 }
+
+@test "ldapsearch database with password provided from file" {
+
+  rm $PWD/password.txt && touch $PWD/password.txt 
+  echo "strongPassword" >> $PWD/password.txt
+
+  run_image -h ldap.osixia.net -e LDAP_ADMIN_PASSWORD_FILE=/run/secrets/admin_pw.txt --volume $PWD/password.txt:/run/secrets/admin_pw.txt
+  wait_process slapd
+  run docker exec $CONTAINER_ID ldapsearch -x -h ldap.osixia.net -b dc=example,dc=org -ZZ -D "cn=admin,dc=example,dc=org" -w strongPassword
+  clear_container
+  rm $PWD/password.txt
+
+  [ "$status" -eq 0 ]
+}
+
 
 @test "ldapsearch new database with strict TLS" {
 

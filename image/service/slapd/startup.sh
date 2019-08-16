@@ -10,14 +10,44 @@ log-helper level eq trace && set -x
 # see https://github.com/docker/docker/issues/8231
 ulimit -n $LDAP_NOFILE
 
+
+# usage: file_env VAR
+#    ie: file_env 'XYZ_DB_PASSWORD' 
+# (will allow for "$XYZ_DB_PASSWORD_FILE" to fill in the value of
+#  "$XYZ_DB_PASSWORD" from a file, especially for Docker's secrets feature)
+file_env() {
+	local var="$1"
+	local fileVar="${var}_FILE"
+
+  # The variables are already defined from the docker-light-baseimage
+  # So if the _FILE variable is available we ovewrite them
+	if [ "${!fileVar:-}" ]; then
+    log-helper trace "${fileVar} was defined"
+
+		val="$(< "${!fileVar}")"
+    log-helper debug "${var} was repalced with the contents of ${fileVar} (the value was: ${val})"
+
+    export "$var"="$val"
+	fi
+	
+	unset "$fileVar"
+}
+
+
+file_env 'LDAP_ADMIN_PASSWORD'
+file_env 'LDAP_CONFIG_PASSWORD'
+file_env 'LDAP_READONLY_USER_PASSWORD'
+
 # create dir if they not already exists
 [ -d /var/lib/ldap ] || mkdir -p /var/lib/ldap
 [ -d /etc/ldap/slapd.d ] || mkdir -p /etc/ldap/slapd.d
 
 # fix file permissions
-chown -R openldap:openldap /var/lib/ldap
-chown -R openldap:openldap /etc/ldap
-chown -R openldap:openldap ${CONTAINER_SERVICE_DIR}/slapd
+if [ "${DISABLE_CHOWN,,}" == "false" ]; then
+  chown -R openldap:openldap /var/lib/ldap
+  chown -R openldap:openldap /etc/ldap
+  chown -R openldap:openldap ${CONTAINER_SERVICE_DIR}/slapd
+fi
 
 FIRST_START_DONE="${CONTAINER_STATE_DIR}/slapd-first-start-done"
 WAS_STARTED_WITH_TLS="/etc/ldap/slapd.d/docker-openldap-was-started-with-tls"
@@ -51,7 +81,15 @@ if [ ! -e "$FIRST_START_DONE" ]; then
 
       LDAP_BASE_DN=${LDAP_BASE_DN::-1}
     fi
-
+    # Check that LDAP_BASE_DN and LDAP_DOMAIN are in sync
+    domain_from_base_dn=$(echo $LDAP_BASE_DN | tr ',' '\n' | sed -e 's/^.*=//' | tr '\n' '.' | sed -e 's/\.$//')
+    set +e
+    echo "$domain_from_base_dn" | egrep -q ".*$LDAP_DOMAIN\$"
+    if [ $? -ne 0 ]; then
+      log-helper error "Error: domain $domain_from_base_dn derived from LDAP_BASE_DN $LDAP_BASE_DN does not match LDAP_DOMAIN $LDAP_DOMAIN"
+      exit 1
+    fi
+    set -e
   }
 
   function is_new_schema() {
@@ -65,6 +103,7 @@ if [ ! -e "$FIRST_START_DONE" ]; then
 
   function ldap_add_or_modify (){
     local LDIF_FILE=$1
+
     log-helper debug "Processing file ${LDIF_FILE}"
     sed -i "s|{{ LDAP_BASE_DN }}|${LDAP_BASE_DN}|g" $LDIF_FILE
     sed -i "s|{{ LDAP_BACKEND }}|${LDAP_BACKEND}|g" $LDIF_FILE
@@ -74,9 +113,9 @@ if [ ! -e "$FIRST_START_DONE" ]; then
       sed -i "s|{{ LDAP_READONLY_USER_PASSWORD_ENCRYPTED }}|${LDAP_READONLY_USER_PASSWORD_ENCRYPTED}|g" $LDIF_FILE
     fi
     if grep -iq changetype $LDIF_FILE ; then
-        ldapmodify -Y EXTERNAL -Q -H ldapi:/// -f $LDIF_FILE 2>&1 | log-helper debug || ldapmodify -h localhost -p 389 -D cn=admin,$LDAP_BASE_DN -w "$LDAP_ADMIN_PASSWORD" -f $LDIF_FILE 2>&1 | log-helper debug
+        ( ldapmodify -Y EXTERNAL -Q -H ldapi:/// -f $LDIF_FILE 2>&1 || ldapmodify -h localhost -p 389 -D cn=admin,$LDAP_BASE_DN -w "$LDAP_ADMIN_PASSWORD" -f $LDIF_FILE 2>&1 ) | log-helper debug
     else
-        ldapadd -Y EXTERNAL -Q -H ldapi:/// -f $LDIF_FILE |& log-helper debug || ldapadd -h localhost -p 389 -D cn=admin,$LDAP_BASE_DN -w "$LDAP_ADMIN_PASSWORD" -f $LDIF_FILE 2>&1 | log-helper debug
+        ( ldapadd -Y EXTERNAL -Q -H ldapi:/// -f $LDIF_FILE 2>&1 || ldapadd -h localhost -p 389 -D cn=admin,$LDAP_BASE_DN -w "$LDAP_ADMIN_PASSWORD" -f $LDIF_FILE 2>&1 ) | log-helper debug
     fi
   }
 
@@ -96,6 +135,7 @@ if [ ! -e "$FIRST_START_DONE" ]; then
     log-helper info "Database and config directory are empty..."
     log-helper info "Init new ldap server..."
 
+    get_ldap_base_dn
     cat <<EOF | debconf-set-selections
 slapd slapd/internal/generated_adminpw password ${LDAP_ADMIN_PASSWORD}
 slapd slapd/internal/adminpw password ${LDAP_ADMIN_PASSWORD}
@@ -127,7 +167,9 @@ EOF
       mv /tmp/schema/cn=config/cn=schema/* /etc/ldap/slapd.d/cn=config/cn=schema
       rm -r /tmp/schema
 
-      chown -R openldap:openldap /etc/ldap/slapd.d/cn=config/cn=schema
+      if [ "${DISABLE_CHOWN,,}" == "false" ]; then
+        chown -R openldap:openldap /etc/ldap/slapd.d/cn=config/cn=schema
+      fi
     fi
 
     rm ${CONTAINER_SERVICE_DIR}/slapd/assets/config/bootstrap/schema/rfc2307bis.*
@@ -204,8 +246,10 @@ EOF
       ssl-helper $LDAP_SSL_HELPER_PREFIX $PREVIOUS_LDAP_TLS_CRT_PATH $PREVIOUS_LDAP_TLS_KEY_PATH $PREVIOUS_LDAP_TLS_CA_CRT_PATH
       [ -f ${PREVIOUS_LDAP_TLS_DH_PARAM_PATH} ] || openssl dhparam -out ${LDAP_TLS_DH_PARAM_PATH} 2048
 
-      chmod 600 ${PREVIOUS_LDAP_TLS_DH_PARAM_PATH}
-      chown openldap:openldap $PREVIOUS_LDAP_TLS_CRT_PATH $PREVIOUS_LDAP_TLS_KEY_PATH $PREVIOUS_LDAP_TLS_CA_CRT_PATH $PREVIOUS_LDAP_TLS_DH_PARAM_PATH
+      if [ "${DISABLE_CHOWN,,}" == "false" ]; then
+        chmod 600 ${PREVIOUS_LDAP_TLS_DH_PARAM_PATH}
+        chown openldap:openldap $PREVIOUS_LDAP_TLS_CRT_PATH $PREVIOUS_LDAP_TLS_KEY_PATH $PREVIOUS_LDAP_TLS_CA_CRT_PATH $PREVIOUS_LDAP_TLS_DH_PARAM_PATH
+      fi
     fi
 
     # start OpenLDAP
@@ -308,10 +352,12 @@ EOF
 
       # create DHParamFile if not found
       [ -f ${LDAP_TLS_DH_PARAM_PATH} ] || openssl dhparam -out ${LDAP_TLS_DH_PARAM_PATH} 2048
-      chmod 600 ${LDAP_TLS_DH_PARAM_PATH}
-
+      
       # fix file permissions
-      chown -R openldap:openldap ${CONTAINER_SERVICE_DIR}/slapd
+      if [ "${DISABLE_CHOWN,,}" == "false" ]; then
+        chmod 600 ${LDAP_TLS_DH_PARAM_PATH}
+        chown -R openldap:openldap ${CONTAINER_SERVICE_DIR}/slapd
+      fi
 
       # adapt tls ldif
       sed -i "s|{{ LDAP_TLS_CA_CRT_PATH }}|${LDAP_TLS_CA_CRT_PATH}|g" ${CONTAINER_SERVICE_DIR}/slapd/assets/config/tls/tls-enable.ldif
