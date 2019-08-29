@@ -17,8 +17,8 @@ addons:
     # The docker manifest command was added in docker-ee version 18.x
     # So update our current installation and we also have to enable the experimental features.
     sources:
-    - sourceline: 'deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable'
-      key_url: 'https://download.docker.com/linux/ubuntu/gpg'
+      - sourceline: "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+        key_url: "https://download.docker.com/linux/ubuntu/gpg"
     packages:
       - docker-ce
 
@@ -31,10 +31,10 @@ before_install:
   - sudo service docker restart
 
 install:
-    # For cross buidling our images
-    # This is necessary because travis-ci.org has only x86_64 machines.
-    # If travis-ci.org gets native arm builds, probably this step is not
-    # necessary any more.
+  # For cross buidling our images
+  # This is necessary because travis-ci.org has only x86_64 machines.
+  # If travis-ci.org gets native arm builds, probably this step is not
+  # necessary any more.
   - docker run --rm --privileged multiarch/qemu-user-static:register --reset
     # Bats is necessary for the UT
   - curl -o bats.tar.gz -SL https://github.com/bats-core/bats-core/archive/v1.1.0.tar.gz
@@ -46,23 +46,23 @@ install:
 before_script:
   # Set baseimage.
   # remove pqchecker if arch is not amd64
-  # we are injecting them in the build scripts and we do not include them in the Dockerfiles 
   - sed -i -e "s/FROM \(.*\)/FROM \1-${TARGET_ARCH}/g" image/Dockerfile;
   - if [[ "${TARGET_ARCH}" != 'amd64' ]]; then
-      sed -i -e "/PQCHECKER/Id" image/Dockerfile;
+    sed -i -e "/PQCHECKER/Id" image/Dockerfile;
     fi
   - cat image/Dockerfile;
   # If this is a tag then change the VERSION variable to only have the
   # tag name and not also the commit hash.
   - if [ -n "$TRAVIS_TAG" ]; then
-      VERSION=$(echo "${TRAVIS_TAG}" | sed -e 's/\(.*\)[-v]\(.*\)/\1\2/g');
+    VERSION=$(echo "${TRAVIS_TAG}" | sed -e 's/\(.*\)[-v]\(.*\)/\1\2/g');
     fi
 
 script:
   - make build-nocache NAME=${NAME} VERSION=${VERSION}-${TARGET_ARCH}
-
-after_success:
+  # Run the test and if the test fails mark the build as failed.
   - make test NAME=${NAME} VERSION=${VERSION}-${TARGET_ARCH}
+
+before_deploy:
   - docker run -d --name test_image ${NAME}:${VERSION}-${TARGET_ARCH} sleep 10
   - sleep 5
   - sudo docker ps | grep -q test_image
@@ -70,14 +70,20 @@ after_success:
   # use `travis env set`.
   - docker login -u "$DOCKER_USER" -p "$DOCKER_PASS";
   - make tag NAME=${NAME} VERSION=${VERSION}-${TARGET_ARCH}
-  - make push NAME=${NAME} VERSION=${VERSION}-${TARGET_ARCH}
+
+deploy:
+  provider: script
+  on:
+    repo: osixia/openldap
+    all_branches: true
+  script: make push NAME=${NAME} VERSION=${VERSION}-${TARGET_ARCH}
 
 jobs:
   include:
-    - stage: deploy
+    - stage: Manifest creation
       install: skip
       script: skip
-      after_success:
+      after_deploy:
         - docker login -u "$DOCKER_USER" -p "$DOCKER_PASS";
         - docker manifest create ${NAME}:${VERSION} ${NAME}:${VERSION}-amd64 ${NAME}:${VERSION}-i386 ${NAME}:${VERSION}-arm32v7 ${NAME}:${VERSION}-arm64v8;
           docker manifest annotate ${NAME}:${VERSION} ${NAME}:${VERSION}-amd64 --os linux --arch amd64;
@@ -87,14 +93,14 @@ jobs:
 
         # The latest tag is coming from the stable branch of the repo
         - if [ "${TRAVIS_BRANCH}" == 'stable' ]; then
-            docker manifest create ${NAME}:latest ${NAME}:${VERSION}-amd64 ${NAME}:${VERSION}-i386 ${NAME}:${VERSION}-arm32v7 ${NAME}:${VERSION}-arm64v8;
-            docker manifest annotate ${NAME}:latest ${NAME}:${VERSION}-amd64 --os linux --arch amd64;
-            docker manifest annotate ${NAME}:latest ${NAME}:${VERSION}-i386 --os linux --arch 386;
-            docker manifest annotate ${NAME}:latest ${NAME}:${VERSION}-arm32v7 --os linux --arch arm --variant v7;
-            docker manifest annotate ${NAME}:latest ${NAME}:${VERSION}-arm64v8 --os linux --arch arm64 --variant v8;
+          docker manifest create ${NAME}:latest ${NAME}:${VERSION}-amd64 ${NAME}:${VERSION}-i386 ${NAME}:${VERSION}-arm32v7 ${NAME}:${VERSION}-arm64v8;
+          docker manifest annotate ${NAME}:latest ${NAME}:${VERSION}-amd64 --os linux --arch amd64;
+          docker manifest annotate ${NAME}:latest ${NAME}:${VERSION}-i386 --os linux --arch 386;
+          docker manifest annotate ${NAME}:latest ${NAME}:${VERSION}-arm32v7 --os linux --arch arm --variant v7;
+          docker manifest annotate ${NAME}:latest ${NAME}:${VERSION}-arm64v8 --os linux --arch arm64 --variant v8;
           fi
 
         - docker manifest push ${NAME}:${VERSION};
           if [ "${TRAVIS_BRANCH}" == 'stable' ]; then
-            docker manifest push ${NAME}:latest;
+          docker manifest push ${NAME}:latest;
           fi
