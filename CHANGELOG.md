@@ -252,6 +252,8 @@ Environment variable LDAP_REPLICATION_HDB_SYNCPROV changed to LDAP_REPLICATION_D
 ## [0.10.0] - 2015-03-03
 New version initial release, no changelog before this sorry.
 
+[1.3.0]: https://github.com/osixia/docker-openldap/compare/v1.2.5...v1.3.0
+[1.2.5]: https://github.com/osixia/docker-openldap/compare/v1.2.4...v1.2.5
 [1.2.4]: https://github.com/osixia/docker-openldap/compare/v1.2.3...v1.2.4
 [1.2.3]: https://github.com/osixia/docker-openldap/compare/v1.2.2...v1.2.3
 [1.2.2]: https://github.com/osixia/docker-openldap/compare/v1.2.1...v1.2.2
