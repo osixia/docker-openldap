@@ -8,7 +8,6 @@ env:
     - VERSION="${TRAVIS_BRANCH}-dev"
   matrix:
     - TARGET_ARCH=amd64 QEMU_ARCH=x86_64
-    - TARGET_ARCH=i386 QEMU_ARCH=i386
     - TARGET_ARCH=arm32v7 QEMU_ARCH=arm
     - TARGET_ARCH=arm64v8 QEMU_ARCH=aarch64
 
@@ -59,6 +58,10 @@ before_script:
 
 script:
   - make build-nocache NAME=${NAME} VERSION=${VERSION}-${TARGET_ARCH}
+  # skip test "ldapsearch existing hdb database and config" if arch != amd64
+  - if [[ "${TARGET_ARCH}" != 'amd64' ]]; then
+    sed -i '/@test "ldapsearch existing hdb database and config"/a skip' test/test.bats;
+    fi
   # Run the test and if the test fails mark the build as failed.
   - make test NAME=${NAME} VERSION=${VERSION}-${TARGET_ARCH}
 
@@ -84,17 +87,15 @@ jobs:
       script: skip
       after_deploy:
         - docker login -u "$DOCKER_USER" -p "$DOCKER_PASS";
-        - docker manifest create ${NAME}:${VERSION} ${NAME}:${VERSION}-amd64 ${NAME}:${VERSION}-i386 ${NAME}:${VERSION}-arm32v7 ${NAME}:${VERSION}-arm64v8;
+        - docker manifest create ${NAME}:${VERSION} ${NAME}:${VERSION}-amd64 ${NAME}:${VERSION}-arm32v7 ${NAME}:${VERSION}-arm64v8;
           docker manifest annotate ${NAME}:${VERSION} ${NAME}:${VERSION}-amd64 --os linux --arch amd64;
-          docker manifest annotate ${NAME}:${VERSION} ${NAME}:${VERSION}-i386 --os linux --arch 386;
           docker manifest annotate ${NAME}:${VERSION} ${NAME}:${VERSION}-arm32v7 --os linux --arch arm --variant v7;
           docker manifest annotate ${NAME}:${VERSION} ${NAME}:${VERSION}-arm64v8 --os linux --arch arm64 --variant v8;
 
         # The latest tag is coming from the stable branch of the repo
         - if [ "${TRAVIS_BRANCH}" == 'stable' ]; then
-          docker manifest create ${NAME}:latest ${NAME}:${VERSION}-amd64 ${NAME}:${VERSION}-i386 ${NAME}:${VERSION}-arm32v7 ${NAME}:${VERSION}-arm64v8;
+          docker manifest create ${NAME}:latest ${NAME}:${VERSION}-amd64 ${NAME}:${VERSION}-arm32v7 ${NAME}:${VERSION}-arm64v8;
           docker manifest annotate ${NAME}:latest ${NAME}:${VERSION}-amd64 --os linux --arch amd64;
-          docker manifest annotate ${NAME}:latest ${NAME}:${VERSION}-i386 --os linux --arch 386;
           docker manifest annotate ${NAME}:latest ${NAME}:${VERSION}-arm32v7 --os linux --arch arm --variant v7;
           docker manifest annotate ${NAME}:latest ${NAME}:${VERSION}-arm64v8 --os linux --arch arm64 --variant v8;
           fi
