@@ -22,7 +22,7 @@ stop_container() {
 }
 
 remove_container() {
- remove_containers_by_cid $CONTAINER_ID
+  remove_containers_by_cid $CONTAINER_ID
 }
 
 clear_container() {
