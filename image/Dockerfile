@@ -33,6 +33,7 @@ RUN echo "path-include /usr/share/doc/krb5*" >> /etc/dpkg/dpkg.cfg.d/docker && a
     libsasl2-modules-sql \
     openssl \
     slapd \
+    slapd-contrib \
     krb5-kdc-ldap \
     && curl -o pqchecker.deb -SL http://www.meddeb.net/pub/pqchecker/deb/8/pqchecker_${PQCHECKER_VERSION}_amd64.deb \
     && echo "${PQCHECKER_MD5} *pqchecker.deb" | md5sum -c - \
