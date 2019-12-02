@@ -38,6 +38,20 @@ file_env 'LDAP_ADMIN_PASSWORD'
 file_env 'LDAP_CONFIG_PASSWORD'
 file_env 'LDAP_READONLY_USER_PASSWORD'
 
+# Seed ldif from internal path if specified
+file_env 'LDAP_SEED_INTERNAL_LDIF_PATH'
+if [ ! -z "${LDAP_SEED_INTERNAL_LDIF_PATH}" ]; then
+  mkdir -p /container/service/slapd/assets/config/bootstrap/ldif/custom/
+  cp -R ${LDAP_SEED_INTERNAL_LDIF_PATH}/*.ldif /container/service/slapd/assets/config/bootstrap/ldif/custom/
+fi
+
+# Seed schema from internal path if specified
+file_env 'LDAP_SEED_INTERNAL_SCHEMA_PATH'
+if [ ! -z "${LDAP_SEED_INTERNAL_SCHEMA_PATH}" ]; then
+  mkdir -p /container/service/slapd/assets/config/bootstrap/schema/custom/
+  cp -R ${LDAP_SEED_INTERNAL_SCHEMA_PATH}/*.schema /container/service/slapd/assets/config/bootstrap/schema/custom/
+fi
+
 # create dir if they not already exists
 [ -d /var/lib/ldap ] || mkdir -p /var/lib/ldap
 [ -d /etc/ldap/slapd.d ] || mkdir -p /etc/ldap/slapd.d

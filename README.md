@@ -19,6 +19,7 @@ Latest release: 1.3.0 - OpenLDAP 2.4.48 -  [Changelog](CHANGELOG.md) | [Docker H
 			- [Data persistence](#data-persistence)
 			- [Edit your server configuration](#edit-your-server-configuration)
 			- [Seed ldap database with ldif](#seed-ldap-database-with-ldif)
+			- [Seed from internal path](#seed-from-internal-path)
 		- [Use an existing ldap database](#use-an-existing-ldap-database)
 		- [Backup](#backup)
 		- [Administrate your ldap server](#administrate-your-ldap-server)
@@ -155,6 +156,24 @@ argument to entrypoint if you don't want to overwrite them.
 		docker run \
 	     --volume ./ldif:/container/service/slapd/assets/config/bootstrap/ldif/custom \
 	     osixia/openldap:1.3.0 --copy-service
+
+#### Seed from internal path
+
+This image can load ldif and schema files at startup from an internal path. This is useful if a continuous integration service mounts automatically the working copy (sources) into a docker service, which has a relation to the ci job.
+
+For example: Gitlab is not capable of mounting custom paths into docker services of a ci job, but gitlab automatically mounts the working copy in every service container. So the working copy (sources) are accessible under `/builds` in every services
+of a ci job. The path to the working copy can be obtained via `${CI_PROJECT_DIR}`. See also: https://docs.gitlab.com/runner/executors/docker.html#build-directory-in-service
+
+This may also work with other CI services, if they automatically mount the working directory to the services of a ci job like gitlab ci does.
+
+In order to seed ldif or schema files from internal path you must set the specific environment variable `LDAP_SEED_INTERNAL_LDIF_PATH` and/or `LDAP_SEED_INTERNAL_SCHEMA_PATH`. If set this will copy any *.ldif or *.schema file into the default seeding
+directories of this image.
+
+Example variables defined in gitlab-ci.yml:
+
+	variables:
+		LDAP_SEED_INTERNAL_LDIF_PATH: "${CI_PROJECT_DIR}/docker/openldap/ldif"
+		LDAP_SEED_INTERNAL_SCHEMA_PATH: "${CI_PROJECT_DIR}/docker/openldap/schema"
 
 ### Use an existing ldap database
 
