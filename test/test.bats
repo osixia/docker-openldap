@@ -22,7 +22,7 @@ load test_helper
 
 }
 
-@test "ldap domain with ldap base dn" {
+@test "ldap domain with non-matching ldap base dn" {
 
   run_image -h ldap.example.org -e LDAP_TLS=false -e LDAP_DOMAIN=example.com -e LDAP_BASE_DN="dc=example,dc=org"
 
@@ -35,9 +35,22 @@ load test_helper
 
 }
 
-@test "ldap domain with ldap base dn subdomain" {
+@test "ldap domain with matching ldap base dn subdomain" {
 
   run_image -h ldap.example.fr -e LDAP_TLS=false -e LDAP_DOMAIN=example.fr -e LDAP_BASE_DN="ou=myou,o=example,c=fr"
+
+  sleep 5
+
+  CSTATUS=$(check_container)
+  clear_container
+
+  [ "$CSTATUS" == "running 0" ]
+
+}
+
+@test "ldap base dn domain with matching ldap subdomain" {
+
+  run_image -h ldap.example.fr -e LDAP_TLS=false -e LDAP_DOMAIN=mysub.example.fr -e LDAP_BASE_DN="o=example,c=fr"
 
   sleep 5
 
