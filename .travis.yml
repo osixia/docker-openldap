@@ -44,8 +44,8 @@ install:
 
 before_script:
   # Set baseimage.
-  # remove pqchecker if arch is not amd64
   - sed -i -e "s/FROM \(.*\)/FROM \1-${TARGET_ARCH}/g" image/Dockerfile;
+  # remove pqchecker if arch is not amd64
   - if [[ "${TARGET_ARCH}" != 'amd64' ]]; then
     sed -i -e "/PQCHECKER/Id" image/Dockerfile;
     fi
@@ -54,6 +54,9 @@ before_script:
   # tag name and not also the commit hash.
   - if [ -n "$TRAVIS_TAG" ]; then
     VERSION=$(echo "${TRAVIS_TAG}" | sed -e 's/\(.*\)[-v]\(.*\)/\1\2/g');
+    fi
+  - if [ "${TRAVIS_BRANCH}" == 'stable' ]; then
+    VERSION="stable";
     fi
 
 script:
