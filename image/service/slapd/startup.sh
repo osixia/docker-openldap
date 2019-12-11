@@ -39,16 +39,14 @@ log-helper info 'openldap GID/UID'
 log-helper info '-------------------------------------'
 log-helper info "User uid:    $(id -u openldap)"
 log-helper info "User gid:    $(id -g openldap)"
-log-helper info "LDAP_UIDGID_CHANGED: ${LDAP_UIDGID_CHANGED}"
+log-helper info "uid/gid changed: ${LDAP_UIDGID_CHANGED}"
 log-helper info "-------------------------------------"
 
-if $LDAP_UIDGID_CHANGED ; then
-  log-helper info "fixing file permissions since LDAP_UIDGID_CHANGED==($LDAP_UIDGID_CHANGED)"
-  chown -R openldap:openldap /var/run/slapd
-  chown -R openldap:openldap /var/lib/ldap
-  chown -R openldap:openldap /etc/ldap
-  chown -R openldap:openldap ${CONTAINER_SERVICE_DIR}/slapd
-fi
+log-helper info "updating file uid/gid ownership"
+chown -R openldap:openldap /var/run/slapd
+chown -R openldap:openldap /var/lib/ldap
+chown -R openldap:openldap /etc/ldap
+chown -R openldap:openldap ${CONTAINER_SERVICE_DIR}/slapd
 
 FIRST_START_DONE="${CONTAINER_STATE_DIR}/slapd-first-start-done"
 WAS_STARTED_WITH_TLS="/etc/ldap/slapd.d/docker-openldap-was-started-with-tls"
