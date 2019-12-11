@@ -4,6 +4,24 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [1.3.0] - 2019-09-29
+## Added
+  - Multiarch support
+
+## Changes
+  - Update openldap 2.4.47 to 2.4.48 #247
+  - Upgrade baseimage to light-baseimage:1.2.0 (debian buster)
+
+## [1.2.5] - 2019-08-16
+## Added
+  - Support for docker secrets #325. Thanks to @anagno !
+  - Add DISABLE_CHOWN environment variable #240
+  - pqChecker lib to check passwords strength with ppolicy pwdCheckModule
+
+### Fixed
+  - Fix of incorrectly positioned 'log-helper debug' command #327. Thanks to @turcan !
+  - Fix domain dn #341. Thanks to @obourdon !
+
 ## [1.2.4] - 2019-03-14
 ### Fixed
   - Excessive RAM usage on 1.2.2, increased 10x from 1.2.1 #242
@@ -234,6 +252,8 @@ Environment variable LDAP_REPLICATION_HDB_SYNCPROV changed to LDAP_REPLICATION_D
 ## [0.10.0] - 2015-03-03
 New version initial release, no changelog before this sorry.
 
+[1.3.0]: https://github.com/osixia/docker-openldap/compare/v1.2.5...v1.3.0
+[1.2.5]: https://github.com/osixia/docker-openldap/compare/v1.2.4...v1.2.5
 [1.2.4]: https://github.com/osixia/docker-openldap/compare/v1.2.3...v1.2.4
 [1.2.3]: https://github.com/osixia/docker-openldap/compare/v1.2.2...v1.2.3
 [1.2.2]: https://github.com/osixia/docker-openldap/compare/v1.2.1...v1.2.2
