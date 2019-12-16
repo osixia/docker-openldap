@@ -20,7 +20,7 @@ spec:
             - name: ldap-config
               mountPath: /etc/ldap/slapd.d
             - name: ldap-certs
-              mountPath: /container/service/slapd/assets/certs
+              mountPath: /container/run/service/slapd/assets/certs
           ports:
             - containerPort: 389
               name: openldap
