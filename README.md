@@ -125,6 +125,7 @@ Docker Engine doesn't work well with firewall-cmd and can cause issues if you're
 ```
 $ firewall-cmd --add-port=389/tcp --permanent
 $ firewall-cmd --add-port=636/tcp --permanent
+$ firewall-cmd --reload
 ```
 Learn more about this issue at https://github.com/moby/moby/issues/32138
 
