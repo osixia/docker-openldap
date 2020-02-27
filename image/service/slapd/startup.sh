@@ -296,7 +296,7 @@ EOF
       done
 
       # set config password
-      LDAP_CONFIG_PASSWORD_ENCRYPTED=$(slappasswd -s "$LDAP_CONFIG_PASSWORD")
+      LDAP_CONFIG_PASSWORD_ENCRYPTED=$(slappasswd -c '$6$rounds=1000000$%.16s' -s "$LDAP_CONFIG_PASSWORD")
       sed -i "s|{{ LDAP_CONFIG_PASSWORD_ENCRYPTED }}|${LDAP_CONFIG_PASSWORD_ENCRYPTED}|g" ${CONTAINER_SERVICE_DIR}/slapd/assets/config/bootstrap/ldif/01-config-password.ldif
 
       # adapt security config file
@@ -314,7 +314,7 @@ EOF
       if [ "${LDAP_READONLY_USER,,}" == "true" ]; then
         log-helper info "Add read only user..."
 
-        LDAP_READONLY_USER_PASSWORD_ENCRYPTED=$(slappasswd -s $LDAP_READONLY_USER_PASSWORD)
+        LDAP_READONLY_USER_PASSWORD_ENCRYPTED=$(slappasswd -c '$6$rounds=1000000$%.16s' -s $LDAP_READONLY_USER_PASSWORD)
 
         ldap_add_or_modify "${CONTAINER_SERVICE_DIR}/slapd/assets/config/bootstrap/ldif/readonly-user/readonly-user.ldif"
         ldap_add_or_modify "${CONTAINER_SERVICE_DIR}/slapd/assets/config/bootstrap/ldif/readonly-user/readonly-user-acl.ldif"
@@ -448,8 +448,8 @@ EOF
 
     if [[ -f "$WAS_ADMIN_PASSWORD_SET" ]]; then
       get_ldap_base_dn
-      LDAP_CONFIG_PASSWORD_ENCRYPTED=$(slappasswd -s "$LDAP_CONFIG_PASSWORD")
-      LDAP_ADMIN_PASSWORD_ENCRYPTED=$(slappasswd -s "$LDAP_ADMIN_PASSWORD")
+      LDAP_CONFIG_PASSWORD_ENCRYPTED=$(slappasswd -c '$6$rounds=1000000$%.16s' -s "$LDAP_CONFIG_PASSWORD")
+      LDAP_ADMIN_PASSWORD_ENCRYPTED=$(slappasswd -c '$6$rounds=1000000$%.16s' -s "$LDAP_ADMIN_PASSWORD")
       sed -i "s|{{ LDAP_CONFIG_PASSWORD_ENCRYPTED }}|${LDAP_CONFIG_PASSWORD_ENCRYPTED}|g" ${CONTAINER_SERVICE_DIR}/slapd/assets/config/admin-pw/ldif/06-root-pw-change.ldif
       sed -i "s|{{ LDAP_ADMIN_PASSWORD_ENCRYPTED }}|${LDAP_ADMIN_PASSWORD_ENCRYPTED}|g" ${CONTAINER_SERVICE_DIR}/slapd/assets/config/admin-pw/ldif/06-root-pw-change.ldif
       sed -i "s|{{ LDAP_BACKEND }}|${LDAP_BACKEND}|g" ${CONTAINER_SERVICE_DIR}/slapd/assets/config/admin-pw/ldif/06-root-pw-change.ldif
