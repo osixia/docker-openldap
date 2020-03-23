@@ -38,20 +38,6 @@ file_env 'LDAP_ADMIN_PASSWORD'
 file_env 'LDAP_CONFIG_PASSWORD'
 file_env 'LDAP_READONLY_USER_PASSWORD'
 
-# Seed ldif from internal path if specified
-file_env 'LDAP_SEED_INTERNAL_LDIF_PATH'
-if [ ! -z "${LDAP_SEED_INTERNAL_LDIF_PATH}" ]; then
-  mkdir -p /container/service/slapd/assets/config/bootstrap/ldif/custom/
-  cp -R ${LDAP_SEED_INTERNAL_LDIF_PATH}/*.ldif /container/service/slapd/assets/config/bootstrap/ldif/custom/
-fi
-
-# Seed schema from internal path if specified
-file_env 'LDAP_SEED_INTERNAL_SCHEMA_PATH'
-if [ ! -z "${LDAP_SEED_INTERNAL_SCHEMA_PATH}" ]; then
-  mkdir -p /container/service/slapd/assets/config/bootstrap/schema/custom/
-  cp -R ${LDAP_SEED_INTERNAL_SCHEMA_PATH}/*.schema /container/service/slapd/assets/config/bootstrap/schema/custom/
-fi
-
 # create dir if they not already exists
 [ -d /var/lib/ldap ] || mkdir -p /var/lib/ldap
 [ -d /etc/ldap/slapd.d ] || mkdir -p /etc/ldap/slapd.d
@@ -74,6 +60,28 @@ LDAP_TLS_CRT_PATH="${CONTAINER_SERVICE_DIR}/slapd/assets/certs/$LDAP_TLS_CRT_FIL
 LDAP_TLS_KEY_PATH="${CONTAINER_SERVICE_DIR}/slapd/assets/certs/$LDAP_TLS_KEY_FILENAME"
 LDAP_TLS_DH_PARAM_PATH="${CONTAINER_SERVICE_DIR}/slapd/assets/certs/$LDAP_TLS_DH_PARAM_FILENAME"
 
+copy_internal_seed_if_exists() {
+  local src=$1
+  local dest=$2
+  if [ ! -z "${src}" ]; then
+    echo  -e "Copy from internal path ${src} to ${dest}"
+    cp -R ${src} ${dest}
+  fi
+}
+
+# Copy seed files from internal path if specified
+file_env 'LDAP_SEED_INTERNAL_LDAP_TLS_CRT_FILE'
+copy_internal_seed_if_exists "${LDAP_SEED_INTERNAL_LDAP_TLS_CRT_FILE}" "${LDAP_TLS_CRT_PATH}"
+file_env 'LDAP_SEED_INTERNAL_LDAP_TLS_KEY_FILE'
+copy_internal_seed_if_exists "${LDAP_SEED_INTERNAL_LDAP_TLS_KEY_FILE}" "${LDAP_TLS_KEY_PATH}"
+file_env 'LDAP_SEED_INTERNAL_LDAP_TLS_CA_CRT_FILE'
+copy_internal_seed_if_exists "${LDAP_SEED_INTERNAL_LDAP_TLS_CA_CRT_FILE}" "${LDAP_TLS_CA_CRT_PATH}"
+file_env 'LDAP_SEED_INTERNAL_LDAP_TLS_DH_PARAM_FILE'
+copy_internal_seed_if_exists "${LDAP_SEED_INTERNAL_LDAP_TLS_DH_PARAM_FILE}" "${LDAP_TLS_DH_PARAM_PATH}"
+file_env 'LDAP_SEED_INTERNAL_SCHEMA_PATH'
+copy_internal_seed_if_exists "${LDAP_SEED_INTERNAL_SCHEMA_PATH}" "${CONTAINER_SERVICE_DIR}/slapd/assets/config/bootstrap/schema/custom"
+file_env 'LDAP_SEED_INTERNAL_LDIF_PATH'
+copy_internal_seed_if_exists "${LDAP_SEED_INTERNAL_LDIF_PATH}" "${CONTAINER_SERVICE_DIR}/slapd/assets/config/bootstrap/ldif/custom"
 
 # CONTAINER_SERVICE_DIR and CONTAINER_STATE_DIR variables are set by
 # the baseimage run tool more info : https://github.com/osixia/docker-light-baseimage
