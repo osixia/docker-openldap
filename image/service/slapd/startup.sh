@@ -12,25 +12,25 @@ ulimit -n $LDAP_NOFILE
 
 
 # usage: file_env VAR
-#    ie: file_env 'XYZ_DB_PASSWORD' 
+#    ie: file_env 'XYZ_DB_PASSWORD'
 # (will allow for "$XYZ_DB_PASSWORD_FILE" to fill in the value of
 #  "$XYZ_DB_PASSWORD" from a file, especially for Docker's secrets feature)
 file_env() {
-	local var="$1"
-	local fileVar="${var}_FILE"
+        local var="$1"
+        local fileVar="${var}_FILE"
 
   # The variables are already defined from the docker-light-baseimage
   # So if the _FILE variable is available we ovewrite them
-	if [ "${!fileVar:-}" ]; then
+        if [ "${!fileVar:-}" ]; then
     log-helper trace "${fileVar} was defined"
 
-		val="$(< "${!fileVar}")"
+                val="$(< "${!fileVar}")"
     log-helper debug "${var} was repalced with the contents of ${fileVar} (the value was: ${val})"
 
     export "$var"="$val"
-	fi
-	
-	unset "$fileVar"
+        fi
+
+        unset "$fileVar"
 }
 
 
@@ -254,11 +254,11 @@ EOF
 
     # start OpenLDAP
     log-helper info "Start OpenLDAP..."
-
+    # At this stage, we can just listen to ldap:// and ldap:// without naming any names
     if log-helper level ge debug; then
-      slapd -h "ldap://$HOSTNAME $PREVIOUS_HOSTNAME_PARAM ldap://localhost ldapi:///" -u openldap -g openldap -d $LDAP_LOG_LEVEL 2>&1 &
+      slapd -h "ldap:/// ldapi:///" -u openldap -g openldap -d "$LDAP_LOG_LEVEL" 2>&1 &
     else
-      slapd -h "ldap://$HOSTNAME $PREVIOUS_HOSTNAME_PARAM ldap://localhost ldapi:///" -u openldap -g openldap
+      slapd -h "ldap:/// ldapi:///" -u openldap -g openldap
     fi
 
 
@@ -352,7 +352,7 @@ EOF
 
       # create DHParamFile if not found
       [ -f ${LDAP_TLS_DH_PARAM_PATH} ] || openssl dhparam -out ${LDAP_TLS_DH_PARAM_PATH} 2048
-      
+
       # fix file permissions
       if [ "${DISABLE_CHOWN,,}" == "false" ]; then
         chmod 600 ${LDAP_TLS_DH_PARAM_PATH}
@@ -507,8 +507,17 @@ ln -sf ${CONTAINER_SERVICE_DIR}/slapd/assets/.ldaprc $HOME/.ldaprc
 ln -sf ${CONTAINER_SERVICE_DIR}/slapd/assets/ldap.conf /etc/ldap/ldap.conf
 
 # force OpenLDAP to listen on all interfaces
+# We need to make sure that /etc/hosts continues to include the
+# fully-qualified domain name and not just the specified hostname.
+# Without the FQDN, /bin/hostname --fqdn stops working.
+FQDN="$(/bin/hostname --fqdn)"
+if [ "$FQDN" != "$HOSTNAME" ]; then
+    FQDN_PARAM="$FQDN"
+else
+    FQDN_PARAM=""
+fi
 ETC_HOSTS=$(cat /etc/hosts | sed "/$HOSTNAME/d")
-echo "0.0.0.0 $HOSTNAME" > /etc/hosts
+echo "0.0.0.0 $FQDN_PARAM $HOSTNAME" > /etc/hosts
 echo "$ETC_HOSTS" >> /etc/hosts
 
 exit 0
