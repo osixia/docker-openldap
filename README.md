@@ -340,6 +340,8 @@ Other environment variables:
 - **LDAP_SSL_HELPER_PREFIX**: ssl-helper environment variables prefix. Defaults to `ldap`, ssl-helper first search config from LDAP_SSL_HELPER_* variables, before SSL_HELPER_* variables.
 - **HOSTNAME**: set the hostname of the running openldap server. Defaults to whatever docker creates.
 - **DISABLE_CHOWN**: do not perform any chown to fix file ownership. Defaults to `false`
+- LDAP_OPENLDAP_UID: runtime docker user uid to run container as
+- LDAP_OPENLDAP_GID: runtime docker user gid to run container as
 
 
 ### Set your own environment variables
