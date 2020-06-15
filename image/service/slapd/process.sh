@@ -9,4 +9,4 @@ log-helper level eq trace && set -x
 # see https://github.com/docker/docker/issues/8231
 ulimit -n $LDAP_NOFILE
 
-exec /usr/sbin/slapd -h "ldap://$HOSTNAME ldaps://$HOSTNAME ldapi:///" -u openldap -g openldap -d $LDAP_LOG_LEVEL
+exec /usr/sbin/slapd -h "ldap://$HOSTNAME:$LDAP_PORT ldaps://$HOSTNAME:$LDAPS_PORT ldapi:///" -u openldap -g openldap -d $LDAP_LOG_LEVEL
