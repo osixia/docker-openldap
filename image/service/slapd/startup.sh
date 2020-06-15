@@ -56,8 +56,38 @@ fi
 [ -d /var/lib/ldap ] || mkdir -p /var/lib/ldap
 [ -d /etc/ldap/slapd.d ] || mkdir -p /etc/ldap/slapd.d
 
+log-helper info "openldap user and group adjustments"
+LDAP_OPENLDAP_UID=${LDAP_OPENLDAP_UID:-911}
+LDAP_OPENLDAP_GID=${LDAP_OPENLDAP_GID:-911}
+
+log-helper info "get current openldap uid/gid info inside container"
+CUR_USER_GID=`id -g openldap || true`
+CUR_USER_UID=`id -u openldap || true`
+
+LDAP_UIDGID_CHANGED=false
+if [ "$LDAP_OPENLDAP_UID" != "$CUR_USER_UID" ]; then
+    log-helper info "CUR_USER_UID (${CUR_USER_UID}) does't match LDAP_OPENLDAP_UID (${LDAP_OPENLDAP_UID}), adjusting..."
+    usermod -o -u "$LDAP_OPENLDAP_UID" openldap
+    LDAP_UIDGID_CHANGED=true
+fi
+if [ "$LDAP_OPENLDAP_GID" != "$CUR_USER_GID" ]; then
+    log-helper info "CUR_USER_GID (${CUR_USER_GID}) does't match LDAP_OPENLDAP_GID (${LDAP_OPENLDAP_GID}), adjusting..."
+    groupmod -o -g "$LDAP_OPENLDAP_GID" openldap
+    LDAP_UIDGID_CHANGED=true
+fi
+
+log-helper info '-------------------------------------'
+log-helper info 'openldap GID/UID'
+log-helper info '-------------------------------------'
+log-helper info "User uid:    $(id -u openldap)"
+log-helper info "User gid:    $(id -g openldap)"
+log-helper info "uid/gid changed: ${LDAP_UIDGID_CHANGED}"
+log-helper info "-------------------------------------"
+
 # fix file permissions
 if [ "${DISABLE_CHOWN,,}" == "false" ]; then
+  log-helper info "updating file uid/gid ownership"
+  chown -R openldap:openldap /var/run/slapd
   chown -R openldap:openldap /var/lib/ldap
   chown -R openldap:openldap /etc/ldap
   chown -R openldap:openldap ${CONTAINER_SERVICE_DIR}/slapd
