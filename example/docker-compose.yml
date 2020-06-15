@@ -22,7 +22,6 @@ services:
       LDAP_TLS_CA_CRT_FILENAME: "ca.crt"
       LDAP_TLS_ENFORCE: "false"
       LDAP_TLS_CIPHER_SUITE: "SECURE256:-VERS-SSL3.0"
-      LDAP_TLS_PROTOCOL_MIN: "3.1"
       LDAP_TLS_VERIFY_CLIENT: "demand"
       LDAP_REPLICATION: "false"
       #LDAP_REPLICATION_CONFIG_SYNCPROV: "binddn="cn=admin,cn=config" bindmethod=simple credentials=$LDAP_CONFIG_PASSWORD searchbase="cn=config" type=refreshAndPersist retry="60 +" timeout=1 starttls=critical"
