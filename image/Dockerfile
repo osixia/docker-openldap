@@ -39,6 +39,7 @@ RUN echo "path-include /usr/share/doc/krb5*" >> /etc/dpkg/dpkg.cfg.d/docker && a
     && echo "${PQCHECKER_MD5} *pqchecker.deb" | md5sum -c - \
     && dpkg -i pqchecker.deb \
     && rm pqchecker.deb \
+    && update-ca-certificates \
     && apt-get remove -y --purge --auto-remove curl ca-certificates \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
