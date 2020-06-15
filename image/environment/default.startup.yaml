@@ -61,3 +61,7 @@ LDAP_REMOVE_CONFIG_AFTER_SETUP: true
 LDAP_SSL_HELPER_PREFIX: ldap # ssl-helper first search config from LDAP_SSL_HELPER_* variables, before SSL_HELPER_* variables.
 
 SSL_HELPER_AUTO_RENEW_SERVICES_IMPACTED: slapd
+
+# Internal seeding. For example, for services in Gitlab CI.
+LDAP_SEED_INTERNAL_LDIF_PATH:
+LDAP_SEED_INTERNAL_SCHEMA_PATH:

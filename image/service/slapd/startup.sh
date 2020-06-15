@@ -12,25 +12,25 @@ ulimit -n $LDAP_NOFILE
 
 
 # usage: file_env VAR
-#    ie: file_env 'XYZ_DB_PASSWORD' 
+#    ie: file_env 'XYZ_DB_PASSWORD'
 # (will allow for "$XYZ_DB_PASSWORD_FILE" to fill in the value of
 #  "$XYZ_DB_PASSWORD" from a file, especially for Docker's secrets feature)
 file_env() {
-	local var="$1"
-	local fileVar="${var}_FILE"
+        local var="$1"
+        local fileVar="${var}_FILE"
 
   # The variables are already defined from the docker-light-baseimage
   # So if the _FILE variable is available we ovewrite them
-	if [ "${!fileVar:-}" ]; then
+        if [ "${!fileVar:-}" ]; then
     log-helper trace "${fileVar} was defined"
 
-		val="$(< "${!fileVar}")"
+                val="$(< "${!fileVar}")"
     log-helper debug "${var} was repalced with the contents of ${fileVar} (the value was: ${val})"
 
     export "$var"="$val"
-	fi
-	
-	unset "$fileVar"
+        fi
+
+        unset "$fileVar"
 }
 
 
@@ -38,12 +38,56 @@ file_env 'LDAP_ADMIN_PASSWORD'
 file_env 'LDAP_CONFIG_PASSWORD'
 file_env 'LDAP_READONLY_USER_PASSWORD'
 
+# Seed ldif from internal path if specified
+file_env 'LDAP_SEED_INTERNAL_LDIF_PATH'
+if [ ! -z "${LDAP_SEED_INTERNAL_LDIF_PATH}" ]; then
+  mkdir -p /container/service/slapd/assets/config/bootstrap/ldif/custom/
+  cp -R ${LDAP_SEED_INTERNAL_LDIF_PATH}/*.ldif /container/service/slapd/assets/config/bootstrap/ldif/custom/
+fi
+
+# Seed schema from internal path if specified
+file_env 'LDAP_SEED_INTERNAL_SCHEMA_PATH'
+if [ ! -z "${LDAP_SEED_INTERNAL_SCHEMA_PATH}" ]; then
+  mkdir -p /container/service/slapd/assets/config/bootstrap/schema/custom/
+  cp -R ${LDAP_SEED_INTERNAL_SCHEMA_PATH}/*.schema /container/service/slapd/assets/config/bootstrap/schema/custom/
+fi
+
 # create dir if they not already exists
 [ -d /var/lib/ldap ] || mkdir -p /var/lib/ldap
 [ -d /etc/ldap/slapd.d ] || mkdir -p /etc/ldap/slapd.d
 
+log-helper info "openldap user and group adjustments"
+LDAP_OPENLDAP_UID=${LDAP_OPENLDAP_UID:-911}
+LDAP_OPENLDAP_GID=${LDAP_OPENLDAP_GID:-911}
+
+log-helper info "get current openldap uid/gid info inside container"
+CUR_USER_GID=`id -g openldap || true`
+CUR_USER_UID=`id -u openldap || true`
+
+LDAP_UIDGID_CHANGED=false
+if [ "$LDAP_OPENLDAP_UID" != "$CUR_USER_UID" ]; then
+    log-helper info "CUR_USER_UID (${CUR_USER_UID}) does't match LDAP_OPENLDAP_UID (${LDAP_OPENLDAP_UID}), adjusting..."
+    usermod -o -u "$LDAP_OPENLDAP_UID" openldap
+    LDAP_UIDGID_CHANGED=true
+fi
+if [ "$LDAP_OPENLDAP_GID" != "$CUR_USER_GID" ]; then
+    log-helper info "CUR_USER_GID (${CUR_USER_GID}) does't match LDAP_OPENLDAP_GID (${LDAP_OPENLDAP_GID}), adjusting..."
+    groupmod -o -g "$LDAP_OPENLDAP_GID" openldap
+    LDAP_UIDGID_CHANGED=true
+fi
+
+log-helper info '-------------------------------------'
+log-helper info 'openldap GID/UID'
+log-helper info '-------------------------------------'
+log-helper info "User uid:    $(id -u openldap)"
+log-helper info "User gid:    $(id -g openldap)"
+log-helper info "uid/gid changed: ${LDAP_UIDGID_CHANGED}"
+log-helper info "-------------------------------------"
+
 # fix file permissions
 if [ "${DISABLE_CHOWN,,}" == "false" ]; then
+  log-helper info "updating file uid/gid ownership"
+  chown -R openldap:openldap /var/run/slapd
   chown -R openldap:openldap /var/lib/ldap
   chown -R openldap:openldap /etc/ldap
   chown -R openldap:openldap ${CONTAINER_SERVICE_DIR}/slapd
@@ -83,13 +127,12 @@ if [ ! -e "$FIRST_START_DONE" ]; then
     fi
     # Check that LDAP_BASE_DN and LDAP_DOMAIN are in sync
     domain_from_base_dn=$(echo $LDAP_BASE_DN | tr ',' '\n' | sed -e 's/^.*=//' | tr '\n' '.' | sed -e 's/\.$//')
-    set +e
-    echo "$domain_from_base_dn" | egrep -q ".*$LDAP_DOMAIN\$"
-    if [ $? -ne 0 ]; then
+    if `echo "$domain_from_base_dn" | egrep -q ".*$LDAP_DOMAIN\$" || echo $LDAP_DOMAIN | egrep -q ".*$domain_from_base_dn\$"`; then
+      : # pass
+    else
       log-helper error "Error: domain $domain_from_base_dn derived from LDAP_BASE_DN $LDAP_BASE_DN does not match LDAP_DOMAIN $LDAP_DOMAIN"
       exit 1
     fi
-    set -e
   }
 
   function is_new_schema() {
@@ -254,11 +297,11 @@ EOF
 
     # start OpenLDAP
     log-helper info "Start OpenLDAP..."
-
+    # At this stage, we can just listen to ldap:// and ldap:// without naming any names
     if log-helper level ge debug; then
-      slapd -h "ldap://$HOSTNAME $PREVIOUS_HOSTNAME_PARAM ldap://localhost ldapi:///" -u openldap -g openldap -d $LDAP_LOG_LEVEL 2>&1 &
+      slapd -h "ldap:/// ldapi:///" -u openldap -g openldap -d "$LDAP_LOG_LEVEL" 2>&1 &
     else
-      slapd -h "ldap://$HOSTNAME $PREVIOUS_HOSTNAME_PARAM ldap://localhost ldapi:///" -u openldap -g openldap
+      slapd -h "ldap:/// ldapi:///" -u openldap -g openldap
     fi
 
 
@@ -352,7 +395,7 @@ EOF
 
       # create DHParamFile if not found
       [ -f ${LDAP_TLS_DH_PARAM_PATH} ] || openssl dhparam -out ${LDAP_TLS_DH_PARAM_PATH} 2048
-      
+
       # fix file permissions
       if [ "${DISABLE_CHOWN,,}" == "false" ]; then
         chmod 600 ${LDAP_TLS_DH_PARAM_PATH}
@@ -507,8 +550,17 @@ ln -sf ${CONTAINER_SERVICE_DIR}/slapd/assets/.ldaprc $HOME/.ldaprc
 ln -sf ${CONTAINER_SERVICE_DIR}/slapd/assets/ldap.conf /etc/ldap/ldap.conf
 
 # force OpenLDAP to listen on all interfaces
+# We need to make sure that /etc/hosts continues to include the
+# fully-qualified domain name and not just the specified hostname.
+# Without the FQDN, /bin/hostname --fqdn stops working.
+FQDN="$(/bin/hostname --fqdn)"
+if [ "$FQDN" != "$HOSTNAME" ]; then
+    FQDN_PARAM="$FQDN"
+else
+    FQDN_PARAM=""
+fi
 ETC_HOSTS=$(cat /etc/hosts | sed "/$HOSTNAME/d")
-echo "0.0.0.0 $HOSTNAME" > /etc/hosts
+echo "0.0.0.0 $FQDN_PARAM $HOSTNAME" > /etc/hosts
 echo "$ETC_HOSTS" >> /etc/hosts
 
 exit 0

@@ -4,16 +4,35 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [1.4.0] - 2020-06-15
+30M+ docker pulls 🎉🎉🎉 thanks to all contributors 💕
+### Added
+  - Allow setting ports on ldap and ldaps #403. Thanks to @chirauki !
+  - Address firewall issues on RHEL in README #394. Thanks to @BirkhoffLee !
+  - Ensure ca certs are up to date #387. Thanks to @Jyrno42 !
+  - Install slapd-contrib to include pbkdf2 pw support #365. Thanks to @col-panic !
+  - Seeding from internal path. #361. Thanks to @dbck !
+  - Enable openldap uid/gid to be specified at runtime #336. Thanks to @lj020326 !
+
+### Changes
+  - Update openldap 2.4.48 to 2.4.50 
+  - LDAP_TLS_PROTOCOL_MIN is deprecated #432. Thanks to @mettacrawler !
+  - Better handling of environment variables checks #382. Thanks to @obourdon !
+
+### Fixed
+  - Multi-node replication fixes #420. Thanks to @pcolmer !
+  - Grant root manage access to database #416. Thanks to @olia-dev !
+
 ## [1.3.0] - 2019-09-29
-## Added
+### Added
   - Multiarch support
 
-## Changes
+### Changes
   - Update openldap 2.4.47 to 2.4.48 #247
   - Upgrade baseimage to light-baseimage:1.2.0 (debian buster)
 
 ## [1.2.5] - 2019-08-16
-## Added
+### Added
   - Support for docker secrets #325. Thanks to @anagno !
   - Add DISABLE_CHOWN environment variable #240
   - pqChecker lib to check passwords strength with ppolicy pwdCheckModule
@@ -252,6 +271,7 @@ Environment variable LDAP_REPLICATION_HDB_SYNCPROV changed to LDAP_REPLICATION_D
 ## [0.10.0] - 2015-03-03
 New version initial release, no changelog before this sorry.
 
+[1.4.0]: https://github.com/osixia/docker-openldap/compare/v1.3.0...v1.4.0
 [1.3.0]: https://github.com/osixia/docker-openldap/compare/v1.2.5...v1.3.0
 [1.2.5]: https://github.com/osixia/docker-openldap/compare/v1.2.4...v1.2.5
 [1.2.4]: https://github.com/osixia/docker-openldap/compare/v1.2.3...v1.2.4

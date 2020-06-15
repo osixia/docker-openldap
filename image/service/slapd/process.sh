@@ -9,4 +9,8 @@ log-helper level eq trace && set -x
 # see https://github.com/docker/docker/issues/8231
 ulimit -n $LDAP_NOFILE
 
-exec /usr/sbin/slapd -h "ldap://$HOSTNAME ldaps://$HOSTNAME ldapi:///" -u openldap -g openldap -d $LDAP_LOG_LEVEL
+# Call hostname to determine the fully qualified domain name. We want OpenLDAP to listen
+# to the named host for the ldap:// and ldaps:// protocols.
+FQDN="$(/bin/hostname --fqdn)"
+HOST_PARAM="ldap://$FQDN:$LDAP_PORT ldaps://$FQDN:$LDAPS_PORT"
+exec /usr/sbin/slapd -h "$HOST_PARAM ldapi:///" -u openldap -g openldap -d "$LDAP_LOG_LEVEL"

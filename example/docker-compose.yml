@@ -1,7 +1,7 @@
 version: '2'
 services:
   openldap:
-    image: osixia/openldap:1.3.0
+    image: osixia/openldap:1.4.0
     container_name: openldap
     environment:
       LDAP_LOG_LEVEL: "256"
@@ -22,11 +22,10 @@ services:
       LDAP_TLS_CA_CRT_FILENAME: "ca.crt"
       LDAP_TLS_ENFORCE: "false"
       LDAP_TLS_CIPHER_SUITE: "SECURE256:-VERS-SSL3.0"
-      LDAP_TLS_PROTOCOL_MIN: "3.1"
       LDAP_TLS_VERIFY_CLIENT: "demand"
       LDAP_REPLICATION: "false"
-      #LDAP_REPLICATION_CONFIG_SYNCPROV: "binddn="cn=admin,cn=config" bindmethod=simple credentials=$LDAP_CONFIG_PASSWORD searchbase="cn=config" type=refreshAndPersist retry="60 +" timeout=1 starttls=critical"
-      #LDAP_REPLICATION_DB_SYNCPROV: "binddn="cn=admin,$LDAP_BASE_DN" bindmethod=simple credentials=$LDAP_ADMIN_PASSWORD searchbase="$LDAP_BASE_DN" type=refreshAndPersist interval=00:00:00:10 retry="60 +" timeout=1 starttls=critical"
+      #LDAP_REPLICATION_CONFIG_SYNCPROV: "binddn="cn=admin,cn=config" bindmethod=simple credentials=$$LDAP_CONFIG_PASSWORD searchbase="cn=config" type=refreshAndPersist retry="60 +" timeout=1 starttls=critical"
+      #LDAP_REPLICATION_DB_SYNCPROV: "binddn="cn=admin,$$LDAP_BASE_DN" bindmethod=simple credentials=$$LDAP_ADMIN_PASSWORD searchbase="$$LDAP_BASE_DN" type=refreshAndPersist interval=00:00:00:10 retry="60 +" timeout=1 starttls=critical"
       #LDAP_REPLICATION_HOSTS: "#PYTHON2BASH:['ldap://ldap.example.org','ldap://ldap2.example.org']"
       KEEP_EXISTING_CONFIG: "false"
       LDAP_REMOVE_CONFIG_AFTER_SETUP: "true"
@@ -40,8 +39,11 @@ services:
     ports:
       - "389:389"
       - "636:636"
-    domainname: "example.org" # important: same as hostname
-    hostname: "example.org"
+    # For replication to work correctly, domainname and hostname must be
+    # set correctly so that "hostname"."domainname" equates to the
+    # fully-qualified domain name for the host.
+    domainname: "example.org"
+    hostname: "ldap-server"
   phpldapadmin:
     image: osixia/phpldapadmin:latest
     container_name: phpldapadmin

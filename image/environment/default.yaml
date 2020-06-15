@@ -14,3 +14,7 @@ LDAP_NOFILE: 1024
 
 # Do not perform any chown to fix file ownership
 DISABLE_CHOWN: false
+
+# Default port to bind slapd
+LDAP_PORT: 389
+LDAPS_PORT: 636
