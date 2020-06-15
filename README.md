@@ -121,6 +121,14 @@ For more information about docker data volume, please refer to:
 
 > [https://docs.docker.com/engine/tutorials/dockervolumes/](https://docs.docker.com/engine/tutorials/dockervolumes/)
 
+#### Firewall issues on RHEL/CentOS
+Docker Engine doesn't work well with firewall-cmd and can cause issues if you're connecting to the LDAP server from another container on the same machine. You can fix this by running:
+```
+$ firewall-cmd --add-port=389/tcp --permanent
+$ firewall-cmd --add-port=636/tcp --permanent
+$ firewall-cmd --reload
+```
+Learn more about this issue at https://github.com/moby/moby/issues/32138
 
 #### Edit your server configuration
 
