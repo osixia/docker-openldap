@@ -30,6 +30,9 @@ LDAP_TLS_KEY_FILENAME: ldap.key
 LDAP_TLS_DH_PARAM_FILENAME: dhparam.pem
 LDAP_TLS_CA_CRT_FILENAME: ca.crt
 
+# copy certs from this directory to the default certs directory, to workaround that the mounted filesystem is read-only
+LDAP_TLS_CERTS_COPY_FROM:
+
 LDAP_TLS_ENFORCE: false
 LDAP_TLS_CIPHER_SUITE: SECURE256:+SECURE128:-VERS-TLS-ALL:+VERS-TLS1.2:-RSA:-DHE-DSS:-CAMELLIA-128-CBC:-CAMELLIA-256-CBC
 LDAP_TLS_VERIFY_CLIENT: demand

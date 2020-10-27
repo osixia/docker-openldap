@@ -11,6 +11,21 @@ log-helper level eq trace && set -x
 ulimit -n $LDAP_NOFILE
 
 
+# CONTAINER_SERVICE_DIR and CONTAINER_STATE_DIR variables are set by
+# the baseimage run tool more info : https://github.com/osixia/docker-light-baseimage
+FIRST_START_DONE="${CONTAINER_STATE_DIR}/slapd-first-start-done"
+WAS_STARTED_WITH_TLS="/etc/ldap/slapd.d/docker-openldap-was-started-with-tls"
+WAS_STARTED_WITH_TLS_ENFORCE="/etc/ldap/slapd.d/docker-openldap-was-started-with-tls-enforce"
+WAS_STARTED_WITH_REPLICATION="/etc/ldap/slapd.d/docker-openldap-was-started-with-replication"
+WAS_ADMIN_PASSWORD_SET="/etc/ldap/slapd.d/docker-openldap-was-admin-password-set"
+
+LDAP_TLS_CERTS_PATH="${CONTAINER_SERVICE_DIR}/slapd/assets/certs"
+LDAP_TLS_CA_CRT_PATH="${LDAP_TLS_CERTS_PATH}/$LDAP_TLS_CA_CRT_FILENAME"
+LDAP_TLS_CRT_PATH="${LDAP_TLS_CERTS_PATH}/$LDAP_TLS_CRT_FILENAME"
+LDAP_TLS_KEY_PATH="${LDAP_TLS_CERTS_PATH}/$LDAP_TLS_KEY_FILENAME"
+LDAP_TLS_DH_PARAM_PATH="${LDAP_TLS_CERTS_PATH}/$LDAP_TLS_DH_PARAM_FILENAME"
+
+
 # usage: file_env VAR
 #    ie: file_env 'XYZ_DB_PASSWORD'
 # (will allow for "$XYZ_DB_PASSWORD_FILE" to fill in the value of
@@ -56,6 +71,12 @@ fi
 [ -d /var/lib/ldap ] || mkdir -p /var/lib/ldap
 [ -d /etc/ldap/slapd.d ] || mkdir -p /etc/ldap/slapd.d
 
+# copy certs
+if [[ ! -z "${LDAP_TLS_CERTS_COPY_FROM}" ]]; then
+  log-helper info "copy certs from ${LDAP_TLS_CERTS_COPY_FROM} to ${LDAP_TLS_CERTS_PATH}"
+  cp -RL "${LDAP_TLS_CERTS_COPY_FROM}"/* "${LDAP_TLS_CERTS_PATH}"
+fi
+
 log-helper info "openldap user and group adjustments"
 LDAP_OPENLDAP_UID=${LDAP_OPENLDAP_UID:-911}
 LDAP_OPENLDAP_GID=${LDAP_OPENLDAP_GID:-911}
@@ -92,21 +113,6 @@ if [ "${DISABLE_CHOWN,,}" == "false" ]; then
   chown -R openldap:openldap /etc/ldap
   chown -R openldap:openldap ${CONTAINER_SERVICE_DIR}/slapd
 fi
-
-FIRST_START_DONE="${CONTAINER_STATE_DIR}/slapd-first-start-done"
-WAS_STARTED_WITH_TLS="/etc/ldap/slapd.d/docker-openldap-was-started-with-tls"
-WAS_STARTED_WITH_TLS_ENFORCE="/etc/ldap/slapd.d/docker-openldap-was-started-with-tls-enforce"
-WAS_STARTED_WITH_REPLICATION="/etc/ldap/slapd.d/docker-openldap-was-started-with-replication"
-WAS_ADMIN_PASSWORD_SET="/etc/ldap/slapd.d/docker-openldap-was-admin-password-set"
-
-LDAP_TLS_CA_CRT_PATH="${CONTAINER_SERVICE_DIR}/slapd/assets/certs/$LDAP_TLS_CA_CRT_FILENAME"
-LDAP_TLS_CRT_PATH="${CONTAINER_SERVICE_DIR}/slapd/assets/certs/$LDAP_TLS_CRT_FILENAME"
-LDAP_TLS_KEY_PATH="${CONTAINER_SERVICE_DIR}/slapd/assets/certs/$LDAP_TLS_KEY_FILENAME"
-LDAP_TLS_DH_PARAM_PATH="${CONTAINER_SERVICE_DIR}/slapd/assets/certs/$LDAP_TLS_DH_PARAM_FILENAME"
-
-
-# CONTAINER_SERVICE_DIR and CONTAINER_STATE_DIR variables are set by
-# the baseimage run tool more info : https://github.com/osixia/docker-light-baseimage
 
 # container first start
 if [ ! -e "$FIRST_START_DONE" ]; then
