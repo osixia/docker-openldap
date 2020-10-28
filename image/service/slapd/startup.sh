@@ -506,10 +506,7 @@ EOF
       sed -i "s|{{ LDAP_BASE_DN }}|${LDAP_BASE_DN}|g" ${CONTAINER_SERVICE_DIR}/slapd/assets/config/admin-pw/ldif/07-admin-pw-change.ldif
 
       for f in $(find ${CONTAINER_SERVICE_DIR}/slapd/assets/config/admin-pw/ldif -type f -name \*.ldif  | sort); do
-        # FIXME: why no admin DN?
-        set +e
         ldap_add_or_modify "$f"
-        set -e
       done
     else
        touch "$WAS_ADMIN_PASSWORD_SET"
