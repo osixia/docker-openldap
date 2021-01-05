@@ -348,6 +348,7 @@ Required and used for new ldap server only:
 - **LDAP_CONFIG_PASSWORD** Ldap Config password. Defaults to `config`
 
 - **LDAP_READONLY_USER** Add a read only user. Defaults to `false`
+  > **Note:** The read only user **does** have write access to its own password.
 - **LDAP_READONLY_USER_USERNAME** Read only user username. Defaults to `readonly`
 - **LDAP_READONLY_USER_PASSWORD** Read only user password. Defaults to `readonly`
 
