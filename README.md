@@ -197,9 +197,9 @@ directories of this image.
 Example variables defined in gitlab-ci.yml:
 
 ```yml
-	variables:
-		LDAP_SEED_INTERNAL_LDIF_PATH: "${CI_PROJECT_DIR}/docker/openldap/ldif"
-		LDAP_SEED_INTERNAL_SCHEMA_PATH: "${CI_PROJECT_DIR}/docker/openldap/schema"
+variables:
+  LDAP_SEED_INTERNAL_LDIF_PATH: "${CI_PROJECT_DIR}/docker/openldap/ldif"
+  LDAP_SEED_INTERNAL_SCHEMA_PATH: "${CI_PROJECT_DIR}/docker/openldap/schema"
 ```
 
 ### Use an existing ldap database
@@ -443,7 +443,7 @@ docker run \
 #### Docker Secrets
 
 As an alternative to passing sensitive information via environmental variables, _FILE may be appended to the listed variables, causing
-the startup.sh script to load the values for those values from files presented in the container. This is particular usefull for loading
+the startup.sh script to load the values for those values from files presented in the container. This is particular useful for loading
 passwords using the [Docker secrets](https://docs.docker.com/engine/swarm/secrets/) mechanism. For example:
 
 ```sh
