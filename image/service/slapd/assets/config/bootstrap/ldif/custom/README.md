@@ -5,6 +5,7 @@ The startup script provides some substitutions in bootstrap ldif files. Followin
 
 - `{{ LDAP_BASE_DN }}`
 - `{{ LDAP_BACKEND }}`
+- `{{ LDAP_DOMAIN }}`
 - `{{ LDAP_READONLY_USER_USERNAME }}`
 - `{{ LDAP_READONLY_USER_PASSWORD_ENCRYPTED }}`
 
