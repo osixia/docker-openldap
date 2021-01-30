@@ -5,7 +5,7 @@ setup() {
 # function relative to the current container / image
 build_image() {
   #disable outputs
-  docker build -t $IMAGE_NAME $BATS_TEST_DIRNAME/../image &> /dev/null
+  docker build -t $IMAGE_NAME $BATS_TEST_DIRNAME/../image
 }
 
 run_image() {

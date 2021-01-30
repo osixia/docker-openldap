@@ -8,66 +8,70 @@ load test_helper
 
 }
 
-@test "ldapsearch new database" {
+# @test "ldapsearch new database" {
 
-  run_image -h ldap.example.org -e LDAP_TLS=false
-  wait_process slapd
+#   run_image -h ldap.example.org -e LDAP_TLS=false
+#   wait_process slapd
 
-  sleep 5
+#   sleep 5
 
-  run docker exec $CONTAINER_ID ldapsearch -x -h ldap.example.org -b dc=example,dc=org -D "cn=admin,dc=example,dc=org" -w admin
-  clear_container
+#   run docker exec $CONTAINER_ID ldapsearch -x -h ldap.example.org -b dc=example,dc=org -D "cn=admin,dc=example,dc=org" -w admin
+#   clear_container
 
-  [ "$status" -eq 0 ]
+#   [ "$status" -eq 0 ]
 
-}
+# }
 
-@test "ldap domain with non-matching ldap base dn" {
+# @test "ldap domain with non-matching ldap base dn" {
 
-  run_image -h ldap.example.org -e LDAP_TLS=false -e LDAP_DOMAIN=example.com -e LDAP_BASE_DN="dc=example,dc=org"
+#   run_image -h ldap.example.org -e LDAP_TLS=false -e LDAP_DOMAIN=example.com -e LDAP_BASE_DN="dc=example,dc=org"
 
-  sleep 5
+#   sleep 5
 
-  CSTATUS=$(check_container)
-  clear_container
+#   CSTATUS=$(check_container)
+#   clear_container
 
-  [ "$CSTATUS" != "running 0" ]
+#   [ "$CSTATUS" != "running 0" ]
 
-}
+# }
 
-@test "ldap domain with matching ldap base dn subdomain" {
+# @test "ldap domain with matching ldap base dn subdomain" {
 
-  run_image -h ldap.example.fr -e LDAP_TLS=false -e LDAP_DOMAIN=example.fr -e LDAP_BASE_DN="ou=myou,o=example,c=fr"
+#   run_image -h ldap.example.fr -e LDAP_TLS=false -e LDAP_DOMAIN=example.fr -e LDAP_BASE_DN="ou=myou,o=example,c=fr"
 
-  sleep 5
+#   sleep 5
 
-  CSTATUS=$(check_container)
-  clear_container
+#   CSTATUS=$(check_container)
+#   clear_container
 
-  [ "$CSTATUS" == "running 0" ]
+#   [ "$CSTATUS" == "running 0" ]
 
-}
+# }
 
-@test "ldap base dn domain with matching ldap subdomain" {
+# @test "ldap base dn domain with matching ldap subdomain" {
 
-  run_image -h ldap.example.fr -e LDAP_TLS=false -e LDAP_DOMAIN=mysub.example.fr -e LDAP_BASE_DN="o=example,c=fr"
+#   run_image -h ldap.example.fr -e LDAP_TLS=false -e LDAP_DOMAIN=mysub.example.fr -e LDAP_BASE_DN="o=example,c=fr"
 
-  sleep 5
+#   sleep 5
 
-  CSTATUS=$(check_container)
-  clear_container
+#   CSTATUS=$(check_container)
+#   clear_container
 
-  [ "$CSTATUS" == "running 0" ]
+#   [ "$CSTATUS" == "running 0" ]
 
-}
+# }
 
 @test "ldap domain with ldap base dn subdomain included" {
 
   run_image -h ldap.example.com -e LDAP_TLS=false -e LDAP_DOMAIN=example.com -e LDAP_BASE_DN="ou=myou,o=example,dc=com,c=fr"
+  echo "$CONTAINER_ID"
+  #(set -x; docker exec $CONTAINER_ID find /var/lib/ldap)
+  #(set -x; docker exec $CONTAINER_ID find /etc/ldap/slapd.d)
 
   sleep 5
 
   CSTATUS=$(check_container)
+  docker logs $CONTAINER_ID 2>&1 | tee /tmp/slapd1.log
   clear_container
 
   [ "$CSTATUS" != "running 0" ]
@@ -76,20 +80,34 @@ load test_helper
 
 @test "ldapsearch database from created volumes" {
 
-  rm -rf VOLUMES && mkdir -p VOLUMES/config VOLUMES/database
+  rm -f /tmp/slapd*.log
+
+  sudo rm -rf VOLUMES && mkdir -p VOLUMES/config VOLUMES/database
+  sudo chmod -R 0777 VOLUMES
+  echo "Check $PWD/VOLUMES/database, $PWD/VOLUMES/config"
+  #read foo
   LDAP_CID=$(docker run -h ldap.example.org -e LDAP_TLS=false --volume $PWD/VOLUMES/database:/var/lib/ldap --volume $PWD/VOLUMES/config:/etc/ldap/slapd.d -d $NAME:$VERSION)
-  wait_process_by_cid $LDAP_CID slapd
+  if ! wait_process_by_cid $LDAP_CID slapd; then
+    docker logs $LDAP_CID 2>&1 | tee /tmp/slapd2a.log
+    exit 1
+  fi
+  docker logs $LDAP_CID 2>&1 | tee /tmp/slapd2b.log
 
-  sleep 5
+  sleep 10
 
+  docker logs $LDAP_CID 2>&1 | tee /tmp/slapd3a.log
   run docker exec $LDAP_CID ldapsearch -x -h ldap.example.org -b dc=example,dc=org -D "cn=admin,dc=example,dc=org" -w admin
   docker kill $LDAP_CID
   clear_containers_by_cid $LDAP_CID
 
   [ "$status" -eq 0 ]
 
-  LDAP_CID=$(docker run -h ldap.example.org -e LDAP_TLS=false --volume $PWD/VOLUMES/database:/var/lib/ldap --volume $PWD/VOLUMES/config:/etc/ldap/slapd.d -d $NAME:$VERSION)
-  wait_process_by_cid $LDAP_CID slapd
+  LDAP_CID=$(docker run -h ldap.example.org -e KEEP_EXISTING_CONFIG=true -e LDAP_TLS=false --volume $PWD/VOLUMES/database:/var/lib/ldap --volume $PWD/VOLUMES/config:/etc/ldap/slapd.d -d $NAME:$VERSION)
+  if ! wait_process_by_cid $LDAP_CID slapd; then
+    docker logs $LDAP_CID 2>&1 | tee /tmp/slapd4a.log
+    exit 1
+  fi
+  docker logs $LDAP_CID 2>&1 | tee /tmp/slapd4b.log
 
   sleep 5
 
@@ -103,119 +121,119 @@ load test_helper
 
 }
 
-@test "ldapsearch database with password provided from file" {
+# @test "ldapsearch database with password provided from file" {
 
-  echo "strongPassword" > $PWD/password.txt
+#   echo "strongPassword" > $PWD/password.txt
 
-  run_image -h ldap.osixia.net -e LDAP_ADMIN_PASSWORD_FILE=/run/secrets/admin_pw.txt --volume $PWD/password.txt:/run/secrets/admin_pw.txt
-  wait_process slapd
+#   run_image -h ldap.osixia.net -e LDAP_ADMIN_PASSWORD_FILE=/run/secrets/admin_pw.txt --volume $PWD/password.txt:/run/secrets/admin_pw.txt
+#   wait_process slapd
 
-  sleep 5
+#   sleep 5
 
-  run docker exec $CONTAINER_ID ldapsearch -x -h ldap.osixia.net -b dc=example,dc=org -ZZ -D "cn=admin,dc=example,dc=org" -w strongPassword
-  clear_container
+#   run docker exec $CONTAINER_ID ldapsearch -x -h ldap.osixia.net -b dc=example,dc=org -ZZ -D "cn=admin,dc=example,dc=org" -w strongPassword
+#   clear_container
 
-  rm $PWD/password.txt
+#   rm $PWD/password.txt
 
-  [ "$status" -eq 0 ]
-}
-
-
-@test "ldapsearch new database with strict TLS" {
-
-  run_image -h ldap.example.org
-  wait_process slapd
-
-  sleep 5
-
-  run docker exec $CONTAINER_ID ldapsearch -x -h ldap.example.org -b dc=example,dc=org -ZZ -D "cn=admin,dc=example,dc=org" -w admin
-  clear_container
-
-  [ "$status" -eq 0 ]
-
-}
-
-@test "ldapsearch new database with strict TLS and custom ca/crt" {
-
-  run_image -h ldap.osixia.net -v $BATS_TEST_DIRNAME/ssl:/container/service/slapd/assets/certs -e LDAP_TLS_CRT_FILENAME=ldap-test.crt -e LDAP_TLS_KEY_FILENAME=ldap-test.key -e LDAP_TLS_CA_CRT_FILENAME=ca-test.crt
-  wait_process slapd
-
-  sleep 5
-
-  run docker exec $CONTAINER_ID ldapsearch -x -h ldap.osixia.net -b dc=example,dc=org -ZZ -D "cn=admin,dc=example,dc=org" -w admin
-  clear_container
-
-  [ "$status" -eq 0 ]
-
-}
-
-@test "ldapsearch new database with strict TLS and custom ca/crt and custom dhparam" {
-
-  run_image -h ldap.osixia.net -v $BATS_TEST_DIRNAME/ssl:/container/service/slapd/assets/certs -e LDAP_TLS_CRT_FILENAME=ldap-test.crt -e LDAP_TLS_KEY_FILENAME=ldap-test.key -e LDAP_TLS_DH_PARAM_FILENAME=ldap-test.dhparam -e LDAP_TLS_CA_CRT_FILENAME=ca-test.crt
-  wait_process slapd
-
-  sleep 5
-
-  run docker exec $CONTAINER_ID ldapsearch -x -h ldap.osixia.net -b dc=example,dc=org -ZZ -D "cn=admin,dc=example,dc=org" -w admin
-  clear_container
-
-  [ "$status" -eq 0 ]
-
-}
-
-@test "ldapsearch existing hdb database and config" {
-
-  run_image -h ldap.example.org -e LDAP_TLS=false -e LDAP_BACKEND=hdb -v $BATS_TEST_DIRNAME/database:/container/test/database -v $BATS_TEST_DIRNAME/config:/container/test/config
-  wait_process slapd
-
-  sleep 5
-
-  run docker exec $CONTAINER_ID ldapsearch -x -h ldap.example.org -b dc=osixia,dc=net -D "cn=admin,dc=osixia,dc=net" -w admin
-  clear_container
-
-  [ "$status" -eq 0 ]
-
-}
+#   [ "$status" -eq 0 ]
+# }
 
 
-@test "replication with new databases and strict TLS" {
+# @test "ldapsearch new database with strict TLS" {
 
-  tmp_file="$BATS_TMPDIR/docker-test"
+#   run_image -h ldap.example.org
+#   wait_process slapd
 
-  # replication ldap server
-  LDAP_REPL_CID=$(docker run -h ldap2.example.org -e LDAP_REPLICATION=true -d $NAME:$VERSION)
-  LDAP_REPL_IP=$(get_container_ip_by_cid $LDAP_REPL_CID)
+#   sleep 5
 
-  sleep 5
+#   run docker exec $CONTAINER_ID ldapsearch -x -h ldap.example.org -b dc=example,dc=org -ZZ -D "cn=admin,dc=example,dc=org" -w admin
+#   clear_container
 
-  # ldap server
-  run_image -h ldap.example.org -e LDAP_REPLICATION=true
+#   [ "$status" -eq 0 ]
 
-  # add route to hosts
-  docker exec $CONTAINER_ID bash -c "echo $LDAP_REPL_IP ldap2.example.org >> /etc/hosts"
-	docker exec $LDAP_REPL_CID bash -c "echo $CONTAINER_IP ldap.example.org >> /etc/hosts"
+# }
 
-  # wait services on both servers
-  wait_process slapd
-  wait_process_by_cid $LDAP_REPL_CID slapd
+# @test "ldapsearch new database with strict TLS and custom ca/crt" {
 
-  sleep 5
+#   run_image -h ldap.osixia.net -v $BATS_TEST_DIRNAME/ssl:/container/service/slapd/assets/certs -e LDAP_TLS_CRT_FILENAME=ldap-test.crt -e LDAP_TLS_KEY_FILENAME=ldap-test.key -e LDAP_TLS_CA_CRT_FILENAME=ca-test.crt
+#   wait_process slapd
 
-  # add user on ldap2.example.org
-  docker exec $LDAP_REPL_CID ldapadd -x -D "cn=admin,dc=example,dc=org" -w admin -f /container/service/slapd/assets/test/new-user.ldif -h ldap2.example.org -ZZ
+#   sleep 5
 
-  sleep 5
+#   run docker exec $CONTAINER_ID ldapsearch -x -h ldap.osixia.net -b dc=example,dc=org -ZZ -D "cn=admin,dc=example,dc=org" -w admin
+#   clear_container
 
-  # search user on ldap.example.org
-  docker exec $CONTAINER_ID ldapsearch -x -h ldap.example.org -b dc=example,dc=org -D "cn=admin,dc=example,dc=org" -w admin -ZZ >> $tmp_file
-  run grep -c "billy" $tmp_file
+#   [ "$status" -eq 0 ]
 
-  rm $tmp_file
-  clear_container
+# }
 
-  clear_containers_by_cid $LDAP_REPL_CID
+# @test "ldapsearch new database with strict TLS and custom ca/crt and custom dhparam" {
 
-  [ "$status" -eq 0 ]
-  [ "$output" = "6" ]
+#   run_image -h ldap.osixia.net -v $BATS_TEST_DIRNAME/ssl:/container/service/slapd/assets/certs -e LDAP_TLS_CRT_FILENAME=ldap-test.crt -e LDAP_TLS_KEY_FILENAME=ldap-test.key -e LDAP_TLS_DH_PARAM_FILENAME=ldap-test.dhparam -e LDAP_TLS_CA_CRT_FILENAME=ca-test.crt
+#   wait_process slapd
 
-}
+#   sleep 5
+
+#   run docker exec $CONTAINER_ID ldapsearch -x -h ldap.osixia.net -b dc=example,dc=org -ZZ -D "cn=admin,dc=example,dc=org" -w admin
+#   clear_container
+
+#   [ "$status" -eq 0 ]
+
+# }
+
+# @test "ldapsearch existing hdb database and config" {
+
+#   run_image -h ldap.example.org -e LDAP_TLS=false -e LDAP_BACKEND=hdb -v $BATS_TEST_DIRNAME/database:/container/test/database -v $BATS_TEST_DIRNAME/config:/container/test/config
+#   wait_process slapd
+
+#   sleep 5
+
+#   run docker exec $CONTAINER_ID ldapsearch -x -h ldap.example.org -b dc=osixia,dc=net -D "cn=admin,dc=osixia,dc=net" -w admin
+#   clear_container
+
+#   [ "$status" -eq 0 ]
+
+# }
+
+
+# @test "replication with new databases and strict TLS" {
+
+#   tmp_file="$BATS_TMPDIR/docker-test"
+
+#   # replication ldap server
+#   LDAP_REPL_CID=$(docker run -h ldap2.example.org -e LDAP_REPLICATION=true -d $NAME:$VERSION)
+#   LDAP_REPL_IP=$(get_container_ip_by_cid $LDAP_REPL_CID)
+
+#   sleep 5
+
+#   # ldap server
+#   run_image -h ldap.example.org -e LDAP_REPLICATION=true
+
+#   # add route to hosts
+#   docker exec $CONTAINER_ID bash -c "echo $LDAP_REPL_IP ldap2.example.org >> /etc/hosts"
+# 	docker exec $LDAP_REPL_CID bash -c "echo $CONTAINER_IP ldap.example.org >> /etc/hosts"
+
+#   # wait services on both servers
+#   wait_process slapd
+#   wait_process_by_cid $LDAP_REPL_CID slapd
+
+#   sleep 5
+
+#   # add user on ldap2.example.org
+#   docker exec $LDAP_REPL_CID ldapadd -x -D "cn=admin,dc=example,dc=org" -w admin -f /container/service/slapd/assets/test/new-user.ldif -h ldap2.example.org -ZZ
+
+#   sleep 5
+
+#   # search user on ldap.example.org
+#   docker exec $CONTAINER_ID ldapsearch -x -h ldap.example.org -b dc=example,dc=org -D "cn=admin,dc=example,dc=org" -w admin -ZZ >> $tmp_file
+#   run grep -c "billy" $tmp_file
+
+#   rm $tmp_file
+#   clear_container
+
+#   clear_containers_by_cid $LDAP_REPL_CID
+
+#   [ "$status" -eq 0 ]
+#   [ "$output" = "6" ]
+
+# }

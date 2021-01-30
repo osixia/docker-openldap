@@ -52,9 +52,13 @@ if [ ! -z "${LDAP_SEED_INTERNAL_SCHEMA_PATH}" ]; then
   cp -R ${LDAP_SEED_INTERNAL_SCHEMA_PATH}/*.schema /container/service/slapd/assets/config/bootstrap/schema/custom/
 fi
 
+
 # create dir if they not already exists
 [ -d /var/lib/ldap ] || mkdir -p /var/lib/ldap
 [ -d /etc/ldap/slapd.d ] || mkdir -p /etc/ldap/slapd.d
+
+(set -x; find /var/lib/ldap)
+(set -x; find /etc/ldap/slapd.d)
 
 log-helper info "openldap user and group adjustments"
 LDAP_OPENLDAP_UID=${LDAP_OPENLDAP_UID:-911}
@@ -108,8 +112,11 @@ LDAP_TLS_DH_PARAM_PATH="${CONTAINER_SERVICE_DIR}/slapd/assets/certs/$LDAP_TLS_DH
 # CONTAINER_SERVICE_DIR and CONTAINER_STATE_DIR variables are set by
 # the baseimage run tool more info : https://github.com/osixia/docker-light-baseimage
 
+echo "Check $FIRST_START_DONE ..."
+
 # container first start
 if [ ! -e "$FIRST_START_DONE" ]; then
+  echo "Exists: $FIRST_START_DONE"
 
   #
   # Helpers
@@ -147,19 +154,35 @@ if [ ! -e "$FIRST_START_DONE" ]; then
   function ldap_add_or_modify (){
     local LDIF_FILE=$1
 
-    log-helper debug "Processing file ${LDIF_FILE}"
+    log-helper debug "A Processing file ${LDIF_FILE}"
+    echo "A - 1"
     sed -i "s|{{ LDAP_BASE_DN }}|${LDAP_BASE_DN}|g" $LDIF_FILE
+    echo "A - 2"
     sed -i "s|{{ LDAP_BACKEND }}|${LDAP_BACKEND}|g" $LDIF_FILE
+    echo "A - 3"
     sed -i "s|{{ LDAP_DOMAIN }}|${LDAP_DOMAIN}|g" $LDIF_FILE
+    echo "A - 4"
     if [ "${LDAP_READONLY_USER,,}" == "true" ]; then
+      echo "A - 5"
       sed -i "s|{{ LDAP_READONLY_USER_USERNAME }}|${LDAP_READONLY_USER_USERNAME}|g" $LDIF_FILE
+      echo "A - 6"
       sed -i "s|{{ LDAP_READONLY_USER_PASSWORD_ENCRYPTED }}|${LDAP_READONLY_USER_PASSWORD_ENCRYPTED}|g" $LDIF_FILE
     fi
+    echo "A - 7"
     if grep -iq changetype $LDIF_FILE ; then
-        ( ldapmodify -Y EXTERNAL -Q -H ldapi:/// -f $LDIF_FILE 2>&1 || ldapmodify -h localhost -p 389 -D cn=admin,$LDAP_BASE_DN -w "$LDAP_ADMIN_PASSWORD" -f $LDIF_FILE 2>&1 ) | log-helper debug
+        echo "A - 8"
+        echo ldapmodify -Y EXTERNAL -Q -H ldapi:/// -f $LDIF_FILE
+        if ! ldapmodify -Y EXTERNAL -Q -H ldapi:/// -f $LDIF_FILE 2>&1 ; then
+          echo "A - 8a"
+          echo ldapmodify -h localhost -p 389 -D cn=admin,$LDAP_BASE_DN -w "$LDAP_ADMIN_PASSWORD" -f $LDIF_FILE 2>&1
+          ldapmodify -h localhost -p 389 -D cn=admin,$LDAP_BASE_DN -w "$LDAP_ADMIN_PASSWORD" -f $LDIF_FILE 2>&1
+          echo "A - 8b"
+        fi
     else
+        echo "A - 9"
         ( ldapadd -Y EXTERNAL -Q -H ldapi:/// -f $LDIF_FILE 2>&1 || ldapadd -h localhost -p 389 -D cn=admin,$LDAP_BASE_DN -w "$LDAP_ADMIN_PASSWORD" -f $LDIF_FILE 2>&1 ) | log-helper debug
     fi
+    echo "A - done"
   }
 
   #
@@ -235,6 +258,7 @@ EOF
   # We have a database and config directory
   #
   else
+    echo "We have a database and config directory"
 
     # try to detect if ldap backend is hdb but LDAP_BACKEND environment variable is mdb
     # due to default switch from hdb to mdb in 1.2.x
@@ -327,7 +351,7 @@ EOF
 
       # add converted schemas
       for f in $(find ${CONTAINER_SERVICE_DIR}/slapd/assets/config/bootstrap/schema -name \*.ldif -type f|sort); do
-        log-helper debug "Processing file ${f}"
+        log-helper debug "B Processing file ${f}"
         # add schema if not already exists
         SCHEMA=$(basename "${f}" .ldif)
         ADD_SCHEMA=$(is_new_schema $SCHEMA)
@@ -337,6 +361,7 @@ EOF
           log-helper info "schema ${f} already exists"
         fi
       done
+      echo "B - done"
 
       # set config password
       LDAP_CONFIG_PASSWORD_ENCRYPTED=$(slappasswd -s "$LDAP_CONFIG_PASSWORD")
@@ -349,9 +374,10 @@ EOF
       # process config files (*.ldif) in bootstrap directory (do no process files in subdirectories)
       log-helper info "Add image bootstrap ldif..."
       for f in $(find ${CONTAINER_SERVICE_DIR}/slapd/assets/config/bootstrap/ldif -mindepth 1 -maxdepth 1 -type f -name \*.ldif  | sort); do
-        log-helper debug "Processing file ${f}"
+        log-helper debug "C Processing file ${f}"
         ldap_add_or_modify "$f"
       done
+      echo "C - done"
 
       # read only user
       if [ "${LDAP_READONLY_USER,,}" == "true" ]; then
