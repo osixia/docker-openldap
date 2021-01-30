@@ -76,7 +76,9 @@ load test_helper
 
 @test "ldapsearch database from created volumes" {
 
-  rm -rf VOLUMES && mkdir -p VOLUMES/config VOLUMES/database
+  rm -rf VOLUMES || sudo rm -rf VOLUMES
+  mkdir -p VOLUMES/config VOLUMES/database
+
   LDAP_CID=$(docker run -h ldap.example.org -e LDAP_TLS=false --volume $PWD/VOLUMES/database:/var/lib/ldap --volume $PWD/VOLUMES/config:/etc/ldap/slapd.d -d $NAME:$VERSION)
   wait_process_by_cid $LDAP_CID slapd
 
@@ -88,7 +90,10 @@ load test_helper
 
   [ "$status" -eq 0 ]
 
-  LDAP_CID=$(docker run -h ldap.example.org -e LDAP_TLS=false --volume $PWD/VOLUMES/database:/var/lib/ldap --volume $PWD/VOLUMES/config:/etc/ldap/slapd.d -d $NAME:$VERSION)
+  # TODO: KEEP_EXISTING_CONFIG=true seems required to pass the test.
+  #       Otherwise, "ldapmodify" complains that it cannot find the admin user.
+  #       Normally, the existing config should be detected and handled correctly?
+  LDAP_CID=$(docker run -h ldap.example.org -e KEEP_EXISTING_CONFIG=true -e LDAP_TLS=false --volume $PWD/VOLUMES/database:/var/lib/ldap --volume $PWD/VOLUMES/config:/etc/ldap/slapd.d -d $NAME:$VERSION)
   wait_process_by_cid $LDAP_CID slapd
 
   sleep 5
@@ -96,7 +101,7 @@ load test_helper
   run docker exec $LDAP_CID ldapsearch -x -h ldap.example.org -b dc=example,dc=org -D "cn=admin,dc=example,dc=org" -w admin
   run docker exec $LDAP_CID chown -R $UID:$UID /var/lib/ldap /etc/ldap/slapd.d
   docker kill $LDAP_CID
-  rm -rf VOLUMES
+  rm -rf VOLUMES || sudo rm -rf VOLUMES
   clear_containers_by_cid $LDAP_CID
 
   [ "$status" -eq 0 ]
