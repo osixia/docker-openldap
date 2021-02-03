@@ -8,10 +8,10 @@ ldap-secret.yaml: example
 example: environment/my-env.startup.yaml environment/my-env.yaml ldap-deployment.yaml
 
 environment/my-env.startup.yaml:
-	cd environment ; cp -v my-env.startup.yaml.example my-env.startup.yaml
+	cd environment ; cp my-env.startup.yaml.example my-env.startup.yaml
 
 environment/my-env.yaml:
-	cd environment ; cp -v my-env.yaml.example my-env.yaml
+	cd environment ; cp my-env.yaml.example my-env.yaml
 
 ldap-deployment.yaml:
-	cp -v ldap-deployment.yaml.example ldap-deployment.yaml
+	cp ldap-deployment.yaml.example ldap-deployment.yaml

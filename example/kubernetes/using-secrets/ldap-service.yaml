@@ -7,5 +7,6 @@ metadata:
 spec:
   ports:
     - port: 389
+    - port: 636
   selector:
     app: ldap
