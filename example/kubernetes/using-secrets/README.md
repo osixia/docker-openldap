@@ -16,4 +16,4 @@ Apply the deployment yaml for ldap in k8s:
 
 Finally apply the service yaml for ldap in k8s:
 
-`kubectl apply -f ldap-deployment.yaml`
+`kubectl apply -f ldap-service.yaml`
