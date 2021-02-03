@@ -33,7 +33,7 @@ spec:
             - containerPort: 389
               name: openldap
             - containerPort: 636
-              name: openldapSSL
+              name: openldapssl
           env:
             - name: LDAP_LOG_LEVEL
               value: "256"
