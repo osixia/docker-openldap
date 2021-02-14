@@ -1,4 +1,4 @@
-FROM osixia/openldap:1.4.0
+FROM osixia/openldap:1.5.0
 MAINTAINER Your Name <your@name.com>
 
 ADD bootstrap /container/service/slapd/assets/config/bootstrap
