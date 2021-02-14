@@ -482,6 +482,13 @@ EOF
       [[ -f "$WAS_STARTED_WITH_REPLICATION" ]] && rm -f "$WAS_STARTED_WITH_REPLICATION"
       echo "export PREVIOUS_HOSTNAME=${HOSTNAME}" > $WAS_STARTED_WITH_REPLICATION
 
+    elif [ "${LDAP_REPLICATION,,}" == "own" ]; then
+
+      log-helper info "Not touching replication config..."
+
+      [[ -f "$WAS_STARTED_WITH_REPLICATION" ]] && rm -f "$WAS_STARTED_WITH_REPLICATION"
+      echo "export PREVIOUS_HOSTNAME=${HOSTNAME}" > $WAS_STARTED_WITH_REPLICATION
+
     else
 
       log-helper info "Disable replication config..."
