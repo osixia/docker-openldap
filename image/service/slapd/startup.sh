@@ -38,20 +38,6 @@ file_env 'LDAP_ADMIN_PASSWORD'
 file_env 'LDAP_CONFIG_PASSWORD'
 file_env 'LDAP_READONLY_USER_PASSWORD'
 
-# Seed ldif from internal path if specified
-file_env 'LDAP_SEED_INTERNAL_LDIF_PATH'
-if [ ! -z "${LDAP_SEED_INTERNAL_LDIF_PATH}" ]; then
-  mkdir -p ${CONTAINER_SERVICE_DIR}/slapd/assets/config/bootstrap/ldif/custom/
-  cp -R ${LDAP_SEED_INTERNAL_LDIF_PATH}/*.ldif ${CONTAINER_SERVICE_DIR}/slapd/assets/config/bootstrap/ldif/custom/
-fi
-
-# Seed schema from internal path if specified
-file_env 'LDAP_SEED_INTERNAL_SCHEMA_PATH'
-if [ ! -z "${LDAP_SEED_INTERNAL_SCHEMA_PATH}" ]; then
-  mkdir -p ${CONTAINER_SERVICE_DIR}/slapd/assets/config/bootstrap/schema/custom/
-  cp -R ${LDAP_SEED_INTERNAL_SCHEMA_PATH}/*.schema ${CONTAINER_SERVICE_DIR}/slapd/assets/config/bootstrap/schema/custom/
-fi
-
 # create dir if they not already exists
 [ -d /var/lib/ldap ] || mkdir -p /var/lib/ldap
 [ -d /etc/ldap/slapd.d ] || mkdir -p /etc/ldap/slapd.d
@@ -522,14 +508,14 @@ EOF
       get_ldap_base_dn
       LDAP_CONFIG_PASSWORD_ENCRYPTED=$(slappasswd -s "$LDAP_CONFIG_PASSWORD")
       LDAP_ADMIN_PASSWORD_ENCRYPTED=$(slappasswd -s "$LDAP_ADMIN_PASSWORD")
-      sed -i "s|{{ LDAP_CONFIG_PASSWORD_ENCRYPTED }}|${LDAP_CONFIG_PASSWORD_ENCRYPTED}|g" ${CONTAINER_SERVICE_DIR}/slapd/assets/config/admin-pw/ldif/06-root-pw-change.ldif
-      sed -i "s|{{ LDAP_ADMIN_PASSWORD_ENCRYPTED }}|${LDAP_ADMIN_PASSWORD_ENCRYPTED}|g" ${CONTAINER_SERVICE_DIR}/slapd/assets/config/admin-pw/ldif/06-root-pw-change.ldif
-      sed -i "s|{{ LDAP_BACKEND }}|${LDAP_BACKEND}|g" ${CONTAINER_SERVICE_DIR}/slapd/assets/config/admin-pw/ldif/06-root-pw-change.ldif
-      sed -i "s|{{ LDAP_ADMIN_PASSWORD_ENCRYPTED }}|${LDAP_ADMIN_PASSWORD_ENCRYPTED}|g" ${CONTAINER_SERVICE_DIR}/slapd/assets/config/admin-pw/ldif/07-admin-pw-change.ldif
-      sed -i "s|{{ LDAP_BASE_DN }}|${LDAP_BASE_DN}|g" ${CONTAINER_SERVICE_DIR}/slapd/assets/config/admin-pw/ldif/07-admin-pw-change.ldif
+      sed -i "s|{{ LDAP_CONFIG_PASSWORD_ENCRYPTED }}|${LDAP_CONFIG_PASSWORD_ENCRYPTED}|g" ${CONTAINER_SERVICE_DIR}/slapd/assets/config/admin/root-password-change.ldif
+      sed -i "s|{{ LDAP_ADMIN_PASSWORD_ENCRYPTED }}|${LDAP_ADMIN_PASSWORD_ENCRYPTED}|g" ${CONTAINER_SERVICE_DIR}/slapd/assets/config/admin/root-password-change.ldif
+      sed -i "s|{{ LDAP_BACKEND }}|${LDAP_BACKEND}|g" ${CONTAINER_SERVICE_DIR}/slapd/assets/config/admin/root-password-change.ldif
+      sed -i "s|{{ LDAP_ADMIN_PASSWORD_ENCRYPTED }}|${LDAP_ADMIN_PASSWORD_ENCRYPTED}|g" ${CONTAINER_SERVICE_DIR}/slapd/assets/config/admin/admin-password-change.ldif
+      sed -i "s|{{ LDAP_BASE_DN }}|${LDAP_BASE_DN}|g" ${CONTAINER_SERVICE_DIR}/slapd/assets/config/admin/admin-password-change.ldif
 
-      ldap_add_or_modify "${CONTAINER_SERVICE_DIR}/slapd/assets/config/admin-pw/ldif/06-root-pw-change.ldif"
-      ldap_add_or_modify "${CONTAINER_SERVICE_DIR}/slapd/assets/config/admin-pw/ldif/07-admin-pw-change.ldif" | log-helper debug || true
+      ldap_add_or_modify "${CONTAINER_SERVICE_DIR}/slapd/assets/config/admin/root-password-change.ldif"
+      ldap_add_or_modify "${CONTAINER_SERVICE_DIR}/slapd/assets/config/admin/admin-password-change.ldif" | log-helper debug || true
 
     else
         touch "$WAS_ADMIN_PASSWORD_SET"
