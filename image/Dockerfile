@@ -1,6 +1,8 @@
 # Use osixia/light-baseimage
 # sources: https://github.com/osixia/docker-light-baseimage
-FROM osixia/light-baseimage:1.3.1
+FROM osixia/light-baseimage:1.3.2
+
+ARG SLAPD_PACKAGE_VERSION=2.4.57+dfsg-1~bpo10+1
 
 ARG LDAP_OPENLDAP_GID
 ARG LDAP_OPENLDAP_UID
@@ -32,7 +34,7 @@ RUN echo "path-include /usr/share/doc/krb5*" >> /etc/dpkg/dpkg.cfg.d/docker && a
     libsasl2-modules-otp \
     libsasl2-modules-sql \
     openssl \
-    slapd \
+    slapd=${SLAPD_PACKAGE_VERSION} \
     slapd-contrib \
     krb5-kdc-ldap \
     && curl -o pqchecker.deb -SL http://www.meddeb.net/pub/pqchecker/deb/8/pqchecker_${PQCHECKER_VERSION}_amd64.deb \
