@@ -184,14 +184,14 @@ docker run \
 
 #### Seed from internal path
 
-This image can load ldif and schema files at startup from an internal path. This is useful if a continuous integration service mounts automatically the working copy (sources) into a docker service, which has a relation to the ci job.
+This image can load ldif and schema files at startup from an internal path. Additionally, certificates can be copied from an internal path. This is useful if a continuous integration service mounts automatically the working copy (sources) into a docker service, which has a relation to the ci job.
 
 For example: Gitlab is not capable of mounting custom paths into docker services of a ci job, but Gitlab automatically mounts the working copy in every service container. So the working copy (sources) are accessible under `/builds` in every services
 of a ci job. The path to the working copy can be obtained via `${CI_PROJECT_DIR}`. See also: https://docs.gitlab.com/runner/executors/docker.html#build-directory-in-service
 
 This may also work with other CI services, if they automatically mount the working directory to the services of a ci job like Gitlab ci does.
 
-In order to seed ldif or schema files from internal path you must set the specific environment variable `LDAP_SEED_INTERNAL_LDIF_PATH` and/or `LDAP_SEED_INTERNAL_SCHEMA_PATH`. If set this will copy any *.ldif or *.schema file into the default seeding
+In order to seed ldif or schema files from internal path you must set the specific environment variable `LDAP_SEED_INTERNAL_LDIF_PATH` and/or `LDAP_SEED_INTERNAL_SCHEMA_PATH`. If set this will copy any files in the specified directory into the default seeding
 directories of this image.
 
 Example variables defined in gitlab-ci.yml:
@@ -201,6 +201,14 @@ variables:
   LDAP_SEED_INTERNAL_LDIF_PATH: "${CI_PROJECT_DIR}/docker/openldap/ldif"
   LDAP_SEED_INTERNAL_SCHEMA_PATH: "${CI_PROJECT_DIR}/docker/openldap/schema"
 ```
+
+Also, certificates can be used by the internal path. The file, specified in a variable, will be copied in the default certificate directory of this image. If desired, you can use these with the LDAP_TLS_CRT_FILENAME, LDAP_TLS_KEY_FILENAME, LDAP_TLS_CA_CRT_FILENAME and LDAP_TLS_DH_PARAM_FILENAME to set a different filename in the default certificate directory of the image.
+
+	variables:
+        LDAP_SEED_INTERNAL_LDAP_TLS_CRT_FILE: "${CI_PROJECT_DIR}/docker/certificates/certs/cert.pem"
+        LDAP_SEED_INTERNAL_LDAP_TLS_KEY_FILE: "${CI_PROJECT_DIR}/docker/certificates/certs/key.pem"
+        LDAP_SEED_INTERNAL_LDAP_TLS_CA_CRT_FILE: "${CI_PROJECT_DIR}/docker/certificates/ca/ca.pem"
+        LDAP_SEED_INTERNAL_LDAP_TLS_DH_PARAM_FILE: "${CI_PROJECT_DIR}/certificates/dhparam.pem"
 
 ### Use an existing ldap database
 
