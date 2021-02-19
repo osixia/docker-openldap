@@ -153,7 +153,7 @@ Do not edit slapd.conf it's not used. To modify your server configuration use ld
 #### Seed ldap database with ldif
 
 This image can load ldif files at startup with either `ldapadd` or `ldapmodify`.
-Mount `.ldif` in `/container/service/slapd/assets/config/bootstrap/ldif` directory if you want to overwrite image default boostrap ldif files or in `/container/service/slapd/assets/config/bootstrap/ldif/custom` (recommended) to extend image config.
+Mount `.ldif` in `/container/service/slapd/assets/config/bootstrap/ldif` directory if you want to overwrite image default bootstrap ldif files or in `/container/service/slapd/assets/config/bootstrap/ldif/custom` (recommended) to extend image config.
 
 Files containing `changeType:` attributes will be loaded with `ldapmodify`.
 
@@ -401,7 +401,7 @@ Replication options:
 Other environment variables:
 - **KEEP_EXISTING_CONFIG**: Do not change the ldap config. Defaults to `false`
 	- if set to *true* with an existing database, config will remain unchanged. Image tls and replication config will not be run. The container can be started with LDAP_ADMIN_PASSWORD and LDAP_CONFIG_PASSWORD empty or filled with fake data.
-	- if set to *true* when bootstrapping a new database, bootstap ldif and schema will not be added and tls and replication config will not be run.
+	- if set to *true* when bootstrapping a new database, bootstrap ldif and schema will not be added and tls and replication config will not be run.
 
 - **LDAP_REMOVE_CONFIG_AFTER_SETUP**: delete config folder after setup. Defaults to `true`
 - **LDAP_SSL_HELPER_PREFIX**: ssl-helper environment variables prefix. Defaults to `ldap`, ssl-helper first search config from LDAP_SSL_HELPER_* variables, before SSL_HELPER_* variables.
