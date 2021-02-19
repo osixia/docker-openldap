@@ -94,10 +94,10 @@ load test_helper
   sleep 5
 
   run docker exec $LDAP_CID ldapsearch -x -h ldap.example.org -b dc=example,dc=org -D "cn=admin,dc=example,dc=org" -w admin
-  run docker exec $LDAP_CID chown -R $UID:$UID /var/lib/ldap /etc/ldap/slapd.d
+  docker exec $LDAP_CID chown -R $UID:$UID /var/lib/ldap /etc/ldap/slapd.d
   docker kill $LDAP_CID
-  rm -rf VOLUMES
   clear_containers_by_cid $LDAP_CID
+  rm -rf VOLUMES
 
   [ "$status" -eq 0 ]
 

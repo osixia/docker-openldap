@@ -1,10 +1,13 @@
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: ldap
   labels:
     app: ldap
 spec:
+  selector:
+    matchLabels:
+      app: ldap
   replicas: 1
   template:
     metadata:
@@ -13,7 +16,7 @@ spec:
     spec:
       containers:
         - name: ldap
-          image: osixia/openldap:1.4.0
+          image: osixia/openldap:1.5.0
           args: ["--copy-service"]
           volumeMounts:
             - name: ldap-data
@@ -29,6 +32,8 @@ spec:
           ports:
             - containerPort: 389
               name: openldap
+            - containerPort: 636
+              name: openldapssl
       volumes:
         - name: ldap-data
           hostPath:

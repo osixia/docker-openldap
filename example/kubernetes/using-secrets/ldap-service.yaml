@@ -5,7 +5,15 @@ metadata:
     app: ldap
   name: ldap-service
 spec:
-  ports:
-    - port: 389
   selector:
     app: ldap
+  ports:
+    - protocol: TCP 
+      name: ldap
+      port: 389
+      targetPort: 389
+    - protocol: TCP 
+      name: ldapssl
+      port: 636
+      targetPort: 636
+

@@ -4,8 +4,30 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [1.5.0] - 2021-02-19
+50M+ docker pulls 🎉🎉🎉 thanks to all contributors 💕
+
+### Added
+  - Allowing own replication via LDAP_REPLICATION=own #535. Thanks to @sistason !
+  - Seeding from internal path is now complete. #361. Thanks to @dbck !
+
+### Changed
+  - Update openldap 2.4.50 to 2.4.57
+  - Upgrade baseimage to light-baseimage:1.3.2. Thanks to @heidemn !
+  - Replace mail.schema for postfix-book.schema #450. Thanks to @vivacarvajalito !
+  - Replace zarafa.schema for kopano.schema
+
+### Removed
+  - mmc schemas (dhcp.schema, dnszone.schema, mail.schema, mmc.schema, quota.schema) and radius.schema
+
+### Fixed
+  - Few small typos #536. Thanks to @timgates42 !
+  - Out of date api in the using-secrets kubernetes yaml #527. Thanks to @joshuacox !
+  - Custom ldap file and schema #481.  Thanks to @Os-carsun !
+
 ## [1.4.0] - 2020-06-15
 30M+ docker pulls 🎉🎉🎉 thanks to all contributors 💕
+
 ### Added
   - Allow setting ports on ldap and ldaps #403. Thanks to @chirauki !
   - Address firewall issues on RHEL in README #394. Thanks to @BirkhoffLee !
@@ -14,7 +36,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
   - Seeding from internal path. #361. Thanks to @dbck !
   - Enable openldap uid/gid to be specified at runtime #336. Thanks to @lj020326 !
 
-### Changes
+### Changed
   - Update openldap 2.4.48 to 2.4.50 
   - LDAP_TLS_PROTOCOL_MIN is deprecated #432. Thanks to @mettacrawler !
   - Better handling of environment variables checks #382. Thanks to @obourdon !
@@ -27,7 +49,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
   - Multiarch support
 
-### Changes
+### Changed
   - Update openldap 2.4.47 to 2.4.48 #247
   - Upgrade baseimage to light-baseimage:1.2.0 (debian buster)
 
@@ -271,6 +293,7 @@ Environment variable LDAP_REPLICATION_HDB_SYNCPROV changed to LDAP_REPLICATION_D
 ## [0.10.0] - 2015-03-03
 New version initial release, no changelog before this sorry.
 
+[1.5.0]: https://github.com/osixia/docker-openldap/compare/v1.4.0...v1.5.0
 [1.4.0]: https://github.com/osixia/docker-openldap/compare/v1.3.0...v1.4.0
 [1.3.0]: https://github.com/osixia/docker-openldap/compare/v1.2.5...v1.3.0
 [1.2.5]: https://github.com/osixia/docker-openldap/compare/v1.2.4...v1.2.5

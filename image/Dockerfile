@@ -1,6 +1,8 @@
 # Use osixia/light-baseimage
 # sources: https://github.com/osixia/docker-light-baseimage
-FROM osixia/light-baseimage:1.2.0
+FROM osixia/light-baseimage:1.3.2
+
+ARG OPENLDAP_PACKAGE_VERSION=2.4.57
 
 ARG LDAP_OPENLDAP_GID
 ARG LDAP_OPENLDAP_UID
@@ -24,7 +26,7 @@ RUN echo "path-include /usr/share/doc/krb5*" >> /etc/dpkg/dpkg.cfg.d/docker && a
     && LC_ALL=C DEBIAN_FRONTEND=noninteractive apt-get -t buster-backports install -y --no-install-recommends \
     ca-certificates \
     curl \
-    ldap-utils \
+    ldap-utils=${OPENLDAP_PACKAGE_VERSION}\* \
     libsasl2-modules \
     libsasl2-modules-db \
     libsasl2-modules-gssapi-mit \
@@ -32,8 +34,8 @@ RUN echo "path-include /usr/share/doc/krb5*" >> /etc/dpkg/dpkg.cfg.d/docker && a
     libsasl2-modules-otp \
     libsasl2-modules-sql \
     openssl \
-    slapd \
-    slapd-contrib \
+    slapd=${OPENLDAP_PACKAGE_VERSION}\* \
+    slapd-contrib=${OPENLDAP_PACKAGE_VERSION}\* \
     krb5-kdc-ldap \
     && curl -o pqchecker.deb -SL http://www.meddeb.net/pub/pqchecker/deb/8/pqchecker_${PQCHECKER_VERSION}_amd64.deb \
     && echo "${PQCHECKER_MD5} *pqchecker.deb" | md5sum -c - \
