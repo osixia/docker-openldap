@@ -24,7 +24,7 @@ for schema in ${SCHEMAS} ; do
     echo "include ${schema}" >> convert.dat
 done
 
-slaptest -f convert.dat -F .
+slaptest -f convert.dat -F . 2>&1 | log-helper debug
 
 if [ $? -ne 0 ] ; then
     log-helper error "slaptest conversion failed"
