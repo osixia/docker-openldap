@@ -526,6 +526,14 @@ EOF
         touch "$WAS_ADMIN_PASSWORD_SET"
     fi
 
+    if [[ -d  ${CONTAINER_SERVICE_DIR}/slapd/assets/config/extra ]]; then
+      log-helper info "Add image bootstrap ldif..."
+      for f in $(find ${CONTAINER_SERVICE_DIR}/slapd/assets/config/extra -mindepth 1 -maxdepth 1 -type f -name \*.ldif | sort); do
+        log-helper debug "Processing file ${f}"
+        ldap_add_or_modify "$f"
+      done
+    fi
+
     #
     # stop OpenLDAP
     #
