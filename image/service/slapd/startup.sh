@@ -365,7 +365,7 @@ EOF
       if [ "${LDAP_READONLY_USER,,}" == "true" ]; then
         log-helper info "Add read only user..."
 
-        LDAP_READONLY_USER_PASSWORD_ENCRYPTED=$(slappasswd -s $LDAP_READONLY_USER_PASSWORD)
+        LDAP_READONLY_USER_PASSWORD_ENCRYPTED=$(slappasswd -s "$LDAP_READONLY_USER_PASSWORD")
 
         ldap_add_or_modify "${CONTAINER_SERVICE_DIR}/slapd/assets/config/bootstrap/ldif/readonly-user/readonly-user.ldif"
         ldap_add_or_modify "${CONTAINER_SERVICE_DIR}/slapd/assets/config/bootstrap/ldif/readonly-user/readonly-user-acl.ldif"
