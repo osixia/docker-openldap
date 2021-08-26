@@ -49,6 +49,18 @@ if [ -z "$FQDN" ]; then
   FQDN="$(/bin/hostname --fqdn)"
 fi
 
+# force OpenLDAP to listen on all interfaces
+# We need to make sure that /etc/hosts continues to include the
+# fully-qualified domain name and not just the specified hostname.
+if [ "$FQDN" != "$HOSTNAME" ]; then
+    FQDN_PARAM="$FQDN"
+else
+    FQDN_PARAM=""
+fi
+ETC_HOSTS=$(cat /etc/hosts | sed "/$HOSTNAME/d")
+echo "0.0.0.0 $FQDN_PARAM $HOSTNAME" > /etc/hosts
+echo "$ETC_HOSTS" >> /etc/hosts
+
 log-helper info "openldap user and group adjustments"
 LDAP_OPENLDAP_UID=${LDAP_OPENLDAP_UID:-911}
 LDAP_OPENLDAP_GID=${LDAP_OPENLDAP_GID:-911}
@@ -580,16 +592,5 @@ fi
 ln -sf ${CONTAINER_SERVICE_DIR}/slapd/assets/.ldaprc $HOME/.ldaprc
 ln -sf ${CONTAINER_SERVICE_DIR}/slapd/assets/ldap.conf /etc/ldap/ldap.conf
 
-# force OpenLDAP to listen on all interfaces
-# We need to make sure that /etc/hosts continues to include the
-# fully-qualified domain name and not just the specified hostname.
-if [ "$FQDN" != "$HOSTNAME" ]; then
-    FQDN_PARAM="$FQDN"
-else
-    FQDN_PARAM=""
-fi
-ETC_HOSTS=$(cat /etc/hosts | sed "/$HOSTNAME/d")
-echo "0.0.0.0 $FQDN_PARAM $HOSTNAME" > /etc/hosts
-echo "$ETC_HOSTS" >> /etc/hosts
 
 exit 0
