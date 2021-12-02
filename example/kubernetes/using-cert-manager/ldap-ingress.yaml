@@ -13,4 +13,4 @@ spec:
     - ldap.example.org
     secretName: org-example-ldap-tls
   rules:
-  - host: "ldap.example.org" 
+  - host: "ldap.example.org"

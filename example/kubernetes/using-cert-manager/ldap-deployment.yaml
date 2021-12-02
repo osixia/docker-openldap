@@ -48,8 +48,6 @@ spec:
               value: "admin"
             - name: LDAP_CONFIG_PASSWORD
               value: "config"
-            - name: LDAP_READONLY_USER_PASSWORD
-              value: "readonly"
             - name: LDAP_TLS_CRT_FILENAME
               value: "tls.crt"
             - name: LDAP_TLS_KEY_FILENAME
