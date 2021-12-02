@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: ldap
+  name: ldap
+spec:
+  selector:
+    app: ldap
+  ports:
+    - protocol: TCP 
+      name: ldap
+      port: 389
+      targetPort: 389
+    - protocol: TCP 
+      name: ldaps
+      port: 636
+      targetPort: 636
