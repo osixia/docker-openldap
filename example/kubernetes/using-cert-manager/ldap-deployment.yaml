@@ -1,0 +1,69 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ldap
+  labels:
+    app: ldap
+spec:
+  selector:
+    matchLabels:
+      app: ldap
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: ldap
+    spec:
+      containers:
+        - name: ldap
+          image: osixia/openldap:1.5.0
+          args: ["--copy-service"]
+          volumeMounts:
+            - name: ldap-data
+              mountPath: /var/lib/ldap
+            - name: ldap-config
+              mountPath: /etc/ldap/slapd.d
+            - name: kube-root-ca
+              mountPath: "/container/service/slapd/assets/certs/ca.crt"
+              subPath: ca.crt
+            - name: ldap-tls
+              mountPath: "/container/service/slapd/assets/certs/tls.crt"
+              subPath: tls.crt
+            - name: ldap-tls
+              mountPath: "/container/service/slapd/assets/certs/tls.key"
+              subPath: tls.key
+          ports:
+            - containerPort: 389
+              name: ldap
+            - containerPort: 636
+              name: ldaps
+          env:
+            - name: LDAP_LOG_LEVEL
+              value: "256"
+            - name: LDAP_ORGANISATION
+              value: "Example Inc."
+            - name: LDAP_DOMAIN
+              value: "example.org"
+            - name: LDAP_ADMIN_PASSWORD
+              value: "admin"
+            - name: LDAP_CONFIG_PASSWORD
+              value: "config"
+            - name: LDAP_TLS_CRT_FILENAME
+              value: "tls.crt"
+            - name: LDAP_TLS_KEY_FILENAME
+              value: "tls.key"
+            - name: LDAP_TLS_VERIFY_CLIENT
+              value: "try"
+      volumes:
+        - name: ldap-data
+          hostPath:
+            path: "/data/ldap/db"
+        - name: ldap-config
+          hostPath:
+            path: "/data/ldap/config"
+        - name: kube-root-ca
+          configMap:
+            name: kube-root-ca.crt
+        - name: ldap-tls
+          secret:
+            secretName: org-example-ldap-tls
