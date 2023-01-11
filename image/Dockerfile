@@ -51,7 +51,7 @@ RUN echo "path-include /usr/share/doc/krb5*" >> /etc/dpkg/dpkg.cfg.d/docker && a
     slapd=${OPENLDAP_PACKAGE_VERSION}\* \
     slapd-contrib=${OPENLDAP_PACKAGE_VERSION}\* \
     krb5-kdc-ldap \
-    && curl -o pqchecker.deb -SL FNORD \
+    && curl -o pqchecker.deb -SL "${PQCHECKER_URL}" \
     && echo "${PQCHECKER_SHA256} *pqchecker.deb" | sha256sum -c - \
     && dpkg -i pqchecker.deb \
     && rm pqchecker.deb \
