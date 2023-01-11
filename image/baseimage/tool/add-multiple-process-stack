@@ -1,0 +1,4 @@
+#!/bin/sh -e
+echo "Install the multiple process stack: runit, syslog-ng-core, logrotate and cron"
+/container/tool/add-service-available :runit :syslog-ng-core :logrotate :cron
+touch /container/multiple_process_stack_added

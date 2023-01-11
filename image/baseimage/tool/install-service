@@ -1,0 +1,41 @@
+#!/usr/bin/python3 -u
+import os, os.path, subprocess
+
+SERVICE_DIR = "/container/service"
+INSTALL_FILENAME = "install.sh"
+PROCESS_FILENAME = "process.sh"
+nb_process = 0
+
+print("install-service")
+# Auto run global install script if available
+if os.path.isfile(SERVICE_DIR + os.sep + INSTALL_FILENAME):
+    print(("run " + SERVICE_DIR + os.sep + INSTALL_FILENAME))
+    subprocess.call([SERVICE_DIR + os.sep + INSTALL_FILENAME],shell=True)
+
+    print(("remove " + SERVICE_DIR + os.sep + INSTALL_FILENAME + "\n"))
+    os.remove(SERVICE_DIR + os.sep + INSTALL_FILENAME)
+
+# Process install script of services in /container/service
+for service in sorted(os.listdir(SERVICE_DIR)):
+
+    if os.path.isfile(SERVICE_DIR + os.sep + service + os.sep + INSTALL_FILENAME):
+        print(("run " + SERVICE_DIR + os.sep + service + os.sep + INSTALL_FILENAME))
+        subprocess.call([SERVICE_DIR + os.sep + service + os.sep + INSTALL_FILENAME],shell=True)
+
+        print(("remove " + SERVICE_DIR + os.sep + service + os.sep + INSTALL_FILENAME))
+        os.remove(SERVICE_DIR + os.sep + service + os.sep + INSTALL_FILENAME)
+
+    if os.path.isfile(SERVICE_DIR + os.sep + service + os.sep + PROCESS_FILENAME):
+        nb_process += 1
+
+
+print((str(nb_process) + " process found."))
+
+# Multiple process image
+if nb_process > 1:
+    if not os.path.exists("/container/multiple_process_stack_added"):
+        print("This image has multiple process.")
+        subprocess.call(["apt-get update"],shell=True)
+        subprocess.call(["/container/tool/add-multiple-process-stack"],shell=True)
+        print("For better image build process consider adding:")
+        print("\"/container/tool/add-multiple-process-stack\" after an apt-get update in your Dockerfile.")

@@ -1,0 +1,19 @@
+{
+  "CN": "{{ CFSSL_DEFAULT_CA_CSR_CN }}",
+  "hosts": [
+    "{{ CFSSL_DEFAULT_CA_CSR_CN }}"
+  ],
+  "key": {
+    "algo": "{{ CFSSL_DEFAULT_CA_CSR_KEY_ALGO }}",
+    "size": {{ CFSSL_DEFAULT_CA_CSR_KEY_SIZE }}
+  },
+  "names": [
+    {
+      "O": "{{ CFSSL_DEFAULT_CA_CSR_ORGANIZATION }}",
+      "OU": "{{ CFSSL_DEFAULT_CA_CSR_ORGANIZATION_UNIT }}",
+      "L": "{{ CFSSL_DEFAULT_CA_CSR_LOCATION }}",
+      "ST": "{{ CFSSL_DEFAULT_CA_CSR_STATE }}",
+      "C": "{{ CFSSL_DEFAULT_CA_CSR_COUNTRY }}"
+    }
+  ]
+}

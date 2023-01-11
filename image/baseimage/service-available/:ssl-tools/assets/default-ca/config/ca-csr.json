@@ -1,0 +1,16 @@
+{
+  "CN": "docker-light-baseimage",
+  "key": {
+    "algo": "ecdsa",
+    "size": 384
+  },
+  "names": [
+    {
+      "O": "A1A Car Wash",
+      "OU": "Information Technology Dep.",
+      "L": "Albuquerque",
+      "ST": "New Mexico",
+      "C": "US"
+    }
+  ]
+}

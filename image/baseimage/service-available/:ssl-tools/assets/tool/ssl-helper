@@ -1,0 +1,100 @@
+#!/bin/bash -e
+log-helper level eq trace && set -x
+
+# This tool helps to generate tls certificates with cfssl
+# or get certificates from a json file
+
+PREFIX=$1
+CERT_FILE=$2
+KEY_FILE=$3
+CA_FILE=$4
+
+log-helper debug "Hi! I'm ssl-helper, what button should i press ?"
+
+# set env vars
+PREFIX=${PREFIX^^} # uppercase
+
+PREFIX_SSL_HELPER_TOOL=${PREFIX}_SSL_HELPER_TOOL
+PREFIX_SSL_HELPER_AUTO_RENEW=${PREFIX}_SSL_HELPER_AUTO_RENEW
+PREFIX_SSL_HELPER_AUTO_RENEW_CRON_EXP=${PREFIX}_SSL_HELPER_AUTO_RENEW_CRON_EXP
+PREFIX_SSL_HELPER_AUTO_RENEW_SERVICES_IMPACTED=${PREFIX}_SSL_HELPER_AUTO_RENEW_SERVICES_IMPACTED
+PREFIX_SSL_HELPER_AUTO_RENEW_FROM_FILES=${PREFIX}_SSL_HELPER_AUTO_RENEW_FROM_FILES
+PREFIX_SSL_HELPER_AUTO_RENEW_CERT_FROM_FILE=${PREFIX}_SSL_HELPER_AUTO_RENEW_CERT_FROM_FILE
+PREFIX_SSL_HELPER_AUTO_RENEW_KEY_FROM_FILE=${PREFIX}_SSL_HELPER_AUTO_RENEW_KEY_FROM_FILE
+PREFIX_SSL_HELPER_AUTO_RENEW_CA_CERT_FROM_FILE=${PREFIX}_SSL_HELPER_AUTO_RENEW_CA_CERT_FROM_FILE
+
+SSL_HELPER_TOOL=${!PREFIX_SSL_HELPER_TOOL:-$SSL_HELPER_TOOL}
+SSL_HELPER_AUTO_RENEW=${!PREFIX_SSL_HELPER_AUTO_RENEW:-$SSL_HELPER_AUTO_RENEW}
+SSL_HELPER_AUTO_RENEW_CRON_EXP=${!PREFIX_SSL_HELPER_AUTO_RENEW_CRON_EXP:-$SSL_HELPER_AUTO_RENEW_CRON_EXP}
+SSL_HELPER_AUTO_RENEW_SERVICES_IMPACTED=${!PREFIX_SSL_HELPER_AUTO_RENEW_SERVICES_IMPACTED:-$SSL_HELPER_AUTO_RENEW_SERVICES_IMPACTED}
+SSL_HELPER_AUTO_RENEW_FROM_FILES=${!PREFIX_SSL_HELPER_AUTO_RENEW_FROM_FILES:-$SSL_HELPER_AUTO_RENEW_FROM_FILES}
+SSL_HELPER_AUTO_RENEW_CERT_FROM_FILE=${!PREFIX_SSL_HELPER_AUTO_RENEW_CERT_FROM_FILE:-$SSL_HELPER_AUTO_RENEW_CERT_FROM_FILE}
+SSL_HELPER_AUTO_RENEW_KEY_FROM_FILE=${!PREFIX_SSL_HELPER_AUTO_RENEW_KEY_FROM_FILE:-$SSL_HELPER_AUTO_RENEW_KEY_FROM_FILE}
+SSL_HELPER_AUTO_RENEW_CA_CERT_FROM_FILE=${!PREFIX_SSL_HELPER_AUTO_RENEW_CA_CERT_FROM_FILE:-$SSL_HELPER_AUTO_RENEW_CA_CERT_FROM_FILE}
+
+source "${CONTAINER_SERVICE_DIR}/:ssl-tools/assets/default-env"
+
+# call the certificate tool cfssl-helper (default) or jsonssl-helper
+${SSL_HELPER_TOOL,,} "${PREFIX}" "${CERT_FILE}" "${KEY_FILE}" "${CA_FILE}"
+
+# auto-renew certificates just before it expired
+# or if source files have changed
+if [ "${SSL_HELPER_AUTO_RENEW,,}" = "true" ]; then
+    
+    # only for multiple process images (uses cron)
+    if [ ! -e "/container/multiple_process_stack_added" ]; then
+        log-helper error "auto-renew is available only with multiple process images"
+        exit 1
+    fi
+    
+    # if SSL_HELPER_AUTO_RENEW_FROM_FILES=true check certificate source files
+    if [ "${SSL_HELPER_AUTO_RENEW_FROM_FILES,,}" = "true" ]; then
+        
+        [[ -z "${SSL_HELPER_AUTO_RENEW_CERT_FROM_FILE}" ]] && SSL_HELPER_AUTO_RENEW_CERT_FROM_FILE=${CERT_FILE}
+        [[ -z "${SSL_HELPER_AUTO_RENEW_KEY_FROM_FILE}" ]] && SSL_HELPER_AUTO_RENEW_KEY_FROM_FILE=${KEY_FILE}
+        [[ -z "${SSL_HELPER_AUTO_RENEW_CA_CERT_FROM_FILE}" ]] && SSL_HELPER_AUTO_RENEW_CA_CERT_FROM_FILE=${CA_FILE}
+        
+        if [ ! -e "${SSL_HELPER_AUTO_RENEW_CERT_FROM_FILE}" ] || [ ! -e "${SSL_HELPER_AUTO_RENEW_KEY_FROM_FILE}" ] || [ ! -e "${SSL_HELPER_AUTO_RENEW_CA_CERT_FROM_FILE}" ]; then
+            log-helper error "with SSL_HELPER_AUTO_RENEW_FROM_FILES=true the following files must exists:"
+            log-helper error "SSL_HELPER_AUTO_RENEW_CERT_FROM_FILE=${SSL_HELPER_AUTO_RENEW_CERT_FROM_FILE}"
+            log-helper error "SSL_HELPER_AUTO_RENEW_KEY_FROM_FILE=${SSL_HELPER_AUTO_RENEW_KEY_FROM_FILE}"
+            log-helper error "SSL_HELPER_AUTO_RENEW_CA_CERT_FROM_FILE=${SSL_HELPER_AUTO_RENEW_CA_CERT_FROM_FILE}"
+            exit 1
+        fi
+        
+        mkdir -p "${CONTAINER_SERVICE_DIR}/:ssl-tools/assets/md5$(dirname "${CERT_FILE}")"
+        mkdir -p "${CONTAINER_SERVICE_DIR}/:ssl-tools/assets/md5$(dirname "${KEY_FILE}")"
+        mkdir -p "${CONTAINER_SERVICE_DIR}/:ssl-tools/assets/md5$(dirname "${CA_FILE}")"
+        
+        # calculate certificates files md5
+        md5sum "${CERT_FILE}" | awk '{ print $1 }' > "${CONTAINER_SERVICE_DIR}/:ssl-tools/assets/md5${CERT_FILE}.md5"
+        md5sum "${KEY_FILE}" | awk '{ print $1 }' > "${CONTAINER_SERVICE_DIR}/:ssl-tools/assets/md5${KEY_FILE}.md5"
+        md5sum "${CA_FILE}" | awk '{ print $1 }' > "${CONTAINER_SERVICE_DIR}/:ssl-tools/assets/md5${CA_FILE}.md5"
+        
+    fi
+    
+    if [ "${SSL_HELPER_TOOL,,}" = "jsonssl-helper" ]; then
+        
+        PREFIX_JSONSSL_FILE=${PREFIX}_JSONSSL_FILE
+        JSONSSL_FILE=${!PREFIX_JSONSSL_FILE:-$JSONSSL_FILE}
+        
+        source "${CONTAINER_SERVICE_DIR}/:ssl-tools/assets/jsonssl-default-env"
+        
+        if [ -z "${JSONSSL_FILE}" ]; then
+            JSONSSL_FILE=${JSONSSL_FILE_DEFAULT}
+        fi
+        
+        # calculate jsonssl file md5
+        mkdir -p "${CONTAINER_SERVICE_DIR}/:ssl-tools/assets/md5$(dirname "${JSONSSL_FILE}")"
+        md5sum "${JSONSSL_FILE}" | awk '{ print $1 }' > "${CONTAINER_SERVICE_DIR}/:ssl-tools/assets/md5${JSONSSL_FILE}.md5"
+        
+    fi
+    
+    # add cron job
+    echo "${SSL_HELPER_AUTO_RENEW_CRON_EXP} root /usr/sbin/ssl-auto-renew ${SSL_HELPER_TOOL,,} ${PREFIX} ${CERT_FILE} ${KEY_FILE} ${CA_FILE} \"${SSL_HELPER_AUTO_RENEW_SERVICES_IMPACTED}\" \"${JSONSSL_FILE}\" \"${SSL_HELPER_AUTO_RENEW_FROM_FILES}\" \"${SSL_HELPER_AUTO_RENEW_CERT_FROM_FILE}\" \"${SSL_HELPER_AUTO_RENEW_KEY_FROM_FILE}\" \"${SSL_HELPER_AUTO_RENEW_CA_CERT_FROM_FILE}\" 2>&1 | /usr/bin/logger -t cron_ssl_auto_renew" > "/etc/cron.d/${PREFIX}"
+    chmod 600 "/etc/cron.d/${PREFIX}"
+    
+    # disable auto-renew if it was added
+    elif [ -e "/etc/cron.d/${PREFIX}" ]; then
+    rm -f "/etc/cron.d/${PREFIX}"
+fi

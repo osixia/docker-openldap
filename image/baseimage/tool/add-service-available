@@ -1,0 +1,30 @@
+#!/bin/sh -e
+
+# Usage :
+# RUN /container/tool/add-service-available [service1] [service2] ...
+
+SERVICE_DIR="/container/service"
+SERVICE_AVAILABLE_DIR="/container/service-available"
+DOWNLOAD_FILENAME="download.sh"
+
+for i in "$@"
+do
+    
+    echo "add-service-available: ${i}"
+    if  [ -d "${SERVICE_AVAILABLE_DIR}/${i}" ]; then
+        
+        if [ -f "${SERVICE_AVAILABLE_DIR}/${i}/${DOWNLOAD_FILENAME}" ]; then
+            echo "run ${SERVICE_AVAILABLE_DIR}/${i}/${DOWNLOAD_FILENAME}"
+            ${SERVICE_AVAILABLE_DIR}/"${i}"/"${DOWNLOAD_FILENAME}"
+            echo "remove ${SERVICE_AVAILABLE_DIR}/${i}/${DOWNLOAD_FILENAME}"
+            rm -f "${SERVICE_AVAILABLE_DIR}/${i}/${DOWNLOAD_FILENAME}"
+        fi
+        
+        echo "move ${SERVICE_AVAILABLE_DIR}/${i} to ${SERVICE_DIR}/${i}"
+        mv "${SERVICE_AVAILABLE_DIR}/${i}" "${SERVICE_DIR}/${i}"
+        
+    else
+        echo "service-available: ${i} not found in ${SERVICE_AVAILABLE_DIR}/${i}"
+        exit 1
+    fi
+done

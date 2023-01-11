@@ -1,0 +1,122 @@
+#!/bin/bash
+log-helper level eq trace && set -x
+
+# This tool helps get certificates from json files
+# like kubernetes secrets or traefik acme.json
+# It takes its configuration from environment variable.
+# See json-default-env file
+
+PREFIX=$1
+CERT_FILE=$2
+KEY_FILE=$3
+CA_FILE=$4
+
+log-helper debug "jsonssl-helper is launched, everybody on the floor!"
+
+if [ -z "${PREFIX}" ] || [ -z "${CERT_FILE}" ] || [ -z "${KEY_FILE}" ] || [ -z "${CA_FILE}" ]; then
+    log-helper error "Usage: jsonssl-helper prefix cert_file key_file ca_file"
+    exit 1
+fi
+
+if [ ! -e "${CERT_FILE}" ] && [ ! -e "${KEY_FILE}" ]; then
+    
+    # set env vars
+    PREFIX=${PREFIX^^} # uppercase
+    
+    # search for prefixed env var first
+    
+    # set prefix variable name
+    # example : PREFIX_JSONSSL_FILE='MARIADB_JSONSSL_FILE'
+    PREFIX_JSONSSL_FILE=${PREFIX}_JSONSSL_FILE
+    PREFIX_JSONSSL_HOSTNAME=${PREFIX}_JSONSSL_HOSTNAME
+    
+    PREFIX_JSONSSL_PROFILE=${PREFIX}_JSONSSL_PROFILE
+    PREFIX_JSONSSL_GET_CA_CERT_CMD=${PREFIX}_JSONSSL_GET_CA_CERT_CMD
+    PREFIX_JSONSSL_GET_CERT_CMD=${PREFIX}_JSONSSL_GET_CERT_CMD
+    PREFIX_JSONSSL_GET_KEY_CMD=${PREFIX}_JSONSSL_GET_KEY_CMD
+    
+    # assign JSONSSL_FILE=${!PREFIX_JSONSSL_FILE} if value is not empty otherwise JSONSSL_FILE=JSONSSL_FILE
+    JSONSSL_FILE=${!PREFIX_JSONSSL_FILE:-$JSONSSL_FILE}
+    JSONSSL_HOSTNAME=${!PREFIX_JSONSSL_HOSTNAME:-$JSONSSL_HOSTNAME}
+    
+    JSONSSL_PROFILE=${!PREFIX_JSONSSL_PROFILE:-$JSONSSL_PROFILE}
+    JSONSSL_GET_CA_CERT_CMD=${!PREFIX_JSONSSL_GET_CA_CERT_CMD:-$JSONSSL_GET_CA_CERT_CMD}
+    JSONSSL_GET_CERT_CMD=${!PREFIX_JSONSSL_GET_CERT_CMD:-$JSONSSL_GET_CERT_CMD}
+    JSONSSL_GET_KEY_CMD=${!PREFIX_JSONSSL_GET_KEY_CMD:-$JSONSSL_GET_KEY_CMD}
+    
+    source "${CONTAINER_SERVICE_DIR}/:ssl-tools/assets/jsonssl-default-env"
+    
+    if [ -z "${JSONSSL_FILE}" ]; then
+        log-helper info "Variable JSONSSL_FILE is empty, set to default location:"
+        log-helper info "JSONSSL_FILE=${JSONSSL_FILE_DEFAULT}"
+        JSONSSL_FILE=${JSONSSL_FILE_DEFAULT}
+    fi
+    
+    if [ ! -e "${JSONSSL_FILE}" ]; then
+        log-helper error "JSONSSL_FILE file '${JSONSSL_FILE}' not found"
+        exit 1
+    fi
+    
+    # Json file profile, only traefik for now
+    if [ "${JSONSSL_PROFILE,,}" = "traefik" ]; then
+        # Let's Encrypt CA certificate is in cert file after the domain certificate.
+        # So we took what's after the first cert.
+        JSONSSL_GET_CA_CERT_CMD="awk '{if(found) print} /END CERTIFICATE/{found=1}' ${CERT_FILE}"
+        
+        JSONSSL_GET_CERT_CMD="cat ${JSONSSL_FILE} | jq -r '[.Certificates[]] | map(select(.Domain.Main == \"${JSONSSL_HOSTNAME}\")) | .[0].Certificate' | base64 -d"
+        JSONSSL_GET_KEY_CMD="cat ${JSONSSL_FILE} | jq -r '[.Certificates[]] | map(select(.Domain.Main == \"${JSONSSL_HOSTNAME}\")) | .[0].Key' | base64 -d"
+        elif [ "${JSONSSL_PROFILE,,}" = "traefik_up_to_v1_6" ]; then
+        # Let's Encrypt CA certificate is in cert file after the domain certificate.
+        # So we took what's after the first cert.
+        JSONSSL_GET_CA_CERT_CMD="awk '{if(found) print} /END CERTIFICATE/{found=1}' ${CERT_FILE}"
+        
+        JSONSSL_GET_CERT_CMD="cat ${JSONSSL_FILE} | jq -r '[.[\"DomainsCertificate\"].Certs[].Certificate] | map(select(.Domain == \"${JSONSSL_HOSTNAME}\")) | .[0].Certificate' | base64 -d"
+        JSONSSL_GET_KEY_CMD="cat ${JSONSSL_FILE} | jq -r '[.[\"DomainsCertificate\"].Certs[].Certificate] | map(select(.Domain == \"${JSONSSL_HOSTNAME}\")) | .[0].PrivateKey' | base64 -d"
+    fi
+    
+    log-helper debug "Run JSONSSL_GET_CERT_CMD: ${JSONSSL_GET_CERT_CMD}"
+    log-helper debug "put return in ${CERT_FILE}"
+    eval "${JSONSSL_GET_CERT_CMD}" > "${CERT_FILE}"
+    
+    if [ ! -s "$CERT_FILE" ]; then
+        log-helper error "Generated file '${CERT_FILE}' is empty"
+        log-helper error "Set loglevel to debug for more information"
+        exit 1
+    fi
+    
+    log-helper debug "Run JSONSSL_GET_KEY_CMD: ${JSONSSL_GET_KEY_CMD}"
+    log-helper debug "put return in ${KEY_FILE}"
+    eval "$JSONSSL_GET_KEY_CMD" > "${KEY_FILE}"
+    
+    if [ ! -s "${KEY_FILE}" ]; then
+        log-helper error "Generated file '${KEY_FILE}' is empty"
+        log-helper error "Set loglevel to debug for more information"
+        exit 1
+    fi
+    
+    # if CA cert doesn't exist
+    if [ ! -e "$CA_FILE" ]; then
+        log-helper debug "Run JSONSSL_GET_CA_CERT_CMD: ${JSONSSL_GET_CA_CERT_CMD}"
+        log-helper debug "put return in ${CA_FILE}"
+        eval "$JSONSSL_GET_CA_CERT_CMD" > "${CA_FILE}"
+        
+        if [ ! -s "$CA_FILE" ]; then
+            log-helper error "Generated file '${CA_FILE}' is empty"
+            log-helper error "Set loglevel to debug for more information"
+            exit 1
+        fi
+    fi
+    
+    log-helper debug "done :)"
+    
+    elif [ ! -e "${KEY_FILE}" ]; then
+    log-helper error "Certificate file ${CERT_FILE} exists but not key file ${KEY_FILE}"
+    exit 1
+    elif [ ! -e "${CERT_FILE}" ]; then
+    log-helper error "Key file ${KEY_FILE} exists but not certificate file ${CERT_FILE}"
+    exit 1
+else
+    log-helper debug "Files ${CERT_FILE} and ${KEY_FILE} exists, fix files permissions"
+    chmod 644 "${CERT_FILE}"
+    chmod 600 "${KEY_FILE}"
+fi

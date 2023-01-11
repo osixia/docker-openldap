@@ -1,7 +1,18 @@
 # Don't use osixia/light-baseimage
 # sources: https://github.com/osixia/docker-light-baseimage
 ##FROM osixia/light-baseimage:1.3.2
-FROM debian:11-slim
+FROM debian:buster-slim AS baseimage
+
+COPY ./baseimage /container
+RUN /container/build.sh
+
+ENV LANG="en_US.UTF-8" \
+    LANGUAGE="en_US:en" \
+    LC_ALL="en_US.UTF-8"
+
+ENTRYPOINT ["/container/tool/run"]
+
+FROM baseimage
 
 ARG OPENLDAP_PACKAGE_VERSION=2.4.57
 
@@ -9,7 +20,8 @@ ARG LDAP_OPENLDAP_GID
 ARG LDAP_OPENLDAP_UID
 
 ARG PQCHECKER_VERSION=2.0.0
-ARG PQCHECKER_MD5=c005ce596e97d13e39485e711dcbc7e1
+#ARG PQCHECKER_MD5=c005ce596e97d13e39485e711dcbc7e1
+ARG PQCHECKER_SHA256=151895a59f14d7a0c98fe84ff8f8f91a74e0f3a03e6c824ba53bae1eb30ca374
 
 # Add openldap user and group first to make sure their IDs get assigned consistently, regardless of whatever dependencies get added
 # If explicit uid or gid is given, use it.
@@ -39,7 +51,7 @@ RUN echo "path-include /usr/share/doc/krb5*" >> /etc/dpkg/dpkg.cfg.d/docker && a
     slapd-contrib=${OPENLDAP_PACKAGE_VERSION}\* \
     krb5-kdc-ldap \
     && curl -o pqchecker.deb -SL http://www.meddeb.net/pub/pqchecker/deb/8/pqchecker_${PQCHECKER_VERSION}_amd64.deb \
-    && echo "${PQCHECKER_MD5} *pqchecker.deb" | md5sum -c - \
+    && echo "${PQCHECKER_SHA256} *pqchecker.deb" | sha256sum -c - \
     && dpkg -i pqchecker.deb \
     && rm pqchecker.deb \
     && update-ca-certificates \

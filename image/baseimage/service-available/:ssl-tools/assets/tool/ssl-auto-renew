@@ -1,0 +1,152 @@
+#!/bin/bash -e
+
+# This file aims to be called by a cron task
+# and not directly. See ssl-helper.
+
+source /container/run/environment.sh
+
+SSL_HELPER_TOOL=$1
+PREFIX=$2
+CERT_FILE=$3
+KEY_FILE=$4
+CA_FILE=$5
+IMPACTED_SERVICES=$6
+JSONSSL_FILE=$7
+FROM_FILES=$8
+CERT_FROM_FILE=$9
+KEY_FROM_FILE=${10}
+CA_CERT_FROM_FILE=${11}
+
+function stop_impacted_services() {
+    # Stop impacted services
+    if [ -n "${IMPACTED_SERVICES}" ]; then
+        log-helper info "Services to stop: ${IMPACTED_SERVICES}"
+        
+        impacted_services_table=("${IMPACTED_SERVICES}")
+        for service in "${impacted_services_table[@]}"
+        do
+            log-helper info "Stopping ${service}..."
+            sv stop "/container/run/process/${service}"
+        done
+        
+        log-helper info "All services are stopped"
+    fi
+}
+
+function start_impacted_services() {
+    # restart impacted services
+    if [ -n "${IMPACTED_SERVICES}" ]; then
+        
+        impacted_services_table=("${IMPACTED_SERVICES}")
+        for service in "${impacted_services_table[@]}"
+        do
+            log-helper info "Starting ${service}..."
+            sv start "/container/run/process/${service}"
+        done
+        
+        log-helper info "All services are started"
+    fi
+}
+
+# renew from container files
+if [ "${FROM_FILES,,}" = "true" ]; then
+    
+    log-helper info "Check renew from files"
+    renew=false
+    
+    # File previous md5
+    CERT_PREVIOUS_MD5=$(cat "${CONTAINER_SERVICE_DIR}/:ssl-tools/assets/md5${CERT_FILE}.md5") || true
+    KEY_PREVIOUS_MD5=$(cat "${CONTAINER_SERVICE_DIR}/:ssl-tools/assets/md5${KEY_FILE}.md5") || true
+    CA_CERT_PREVIOUS_MD5=$(cat "${CONTAINER_SERVICE_DIR}/:ssl-tools/assets/md5${CA_FILE}.md5") || true
+    
+    # from file current md5
+    FROM_CERT_MD5=$(md5sum "${CERT_FROM_FILE}" | awk '{ print $1 }')
+    FROM_KEY_MD5=$(md5sum "${KEY_FROM_FILE}" | awk '{ print $1 }')
+    FROM_CA_CERT_MD5=$(md5sum "${CA_CERT_FROM_FILE}" | awk '{ print $1 }')
+    
+    [[ "$CERT_PREVIOUS_MD5" != "$FROM_CERT_MD5" ]] && renew=true
+    [[ "$KEY_PREVIOUS_MD5" != "$FROM_KEY_MD5" ]] && renew=true
+    [[ "$CA_CERT_PREVIOUS_MD5" != "$FROM_CA_CERT_MD5" ]] && renew=true
+    
+    if ! $renew; then
+        log-helper info "Certificate files are identicals"
+        exit 0
+    fi
+    
+    log-helper info "Certificate files are differents"
+    
+    stop_impacted_services
+    
+    if [ "${CERT_FROM_FILE}" != "${CERT_FILE}" ]; then
+        log-helper info "Copy ${CERT_FROM_FILE} to ${CERT_FILE}"
+        cp -f "${CERT_FROM_FILE}" "${CERT_FILE}"
+    fi
+    
+    if [ "${KEY_FROM_FILE}" != "${KEY_FILE}" ]; then
+        log-helper info "Copy ${KEY_FROM_FILE} to ${KEY_FILE}"
+        cp -f "${KEY_FROM_FILE}" "${KEY_FILE}"
+    fi
+    
+    if [ "${CA_CERT_FROM_FILE}" != "${CA_FILE}" ]; then
+        log-helper info "Copy ${CA_CERT_FROM_FILE} to ${CA_FILE}"
+        cp -f "${CA_CERT_FROM_FILE}" "${CA_FILE}"
+    fi
+    
+    log-helper info "Update file md5 with new values"
+    echo "${FROM_CERT_MD5}" > "${CONTAINER_SERVICE_DIR}/:ssl-tools/assets/md5${CERT_FILE}.md5"
+    echo "${FROM_KEY_MD5}" > "${CONTAINER_SERVICE_DIR}/:ssl-tools/assets/md5${KEY_FILE}.md5"
+    echo "${FROM_CA_CERT_MD5}" > "${CONTAINER_SERVICE_DIR}/:ssl-tools/assets/md5${CA_FILE}.md5"
+    
+    start_impacted_services
+    
+    # renew with cfssl or jsonssl
+else
+    log-helper info "Check renew for cfssl or jsonssl"
+    
+    cert_ok=false
+    ca_ok=false
+    
+    # the certificate will expired in the next day
+    if openssl x509 -checkend 259200 -noout -in "${CERT_FILE}"; then
+        log-helper info "The certificate '${CERT_FILE}' is ok for the next 3 days at least."
+        cert_ok=true
+    fi
+    
+    if openssl x509 -checkend 259200 -noout -in "${CA_FILE}"; then
+        log-helper info "The CA certificate '${CA_FILE}' is ok for the next 3 days at least."
+        ca_ok=true
+    fi
+    
+    if [ "${SSL_HELPER_TOOL}" = "jsonssl-helper" ]; then
+        log-helper info "Check if ${JSONSSL_FILE} has changed"
+        JSONSSL_FILE_PREVIOUS_MD5=$(cat "${CONTAINER_SERVICE_DIR}/:ssl-tools/assets/md5${JSONSSL_FILE}.md5") || true
+        JSONSSL_FILE_MD5=$(md5sum "${JSONSSL_FILE}" | awk '{ print $1 }')
+        
+        [[ "${JSONSSL_FILE_PREVIOUS_MD5}" != "${JSONSSL_FILE_MD5}" ]] && cert_ok=false
+    fi
+    
+    if ${cert_ok} && ${ca_ok}; then
+        log-helper info "Nothing to do :)"
+        exit 0
+    fi
+    
+    log-helper info "Auto-renew on the way!"
+    
+    stop_impacted_services
+    
+    log-helper info "Remove certificate files"
+    rm -f "${CERT_FILE}" "${KEY_FILE}" "${CA_FILE}"
+    
+    log-helper info "Regenerate certificate with ${SSL_HELPER_TOOL}"
+    ${SSL_HELPER_TOOL} "${PREFIX}" "${CERT_FILE}" "${KEY_FILE}" "${CA_FILE}"
+    
+    start_impacted_services
+    
+    if [ "${SSL_HELPER_TOOL}" = "jsonssl-helper" ]; then
+        log-helper info "Update file md5 with new values"
+        echo "${JSONSSL_FILE_MD5}" > "${CONTAINER_SERVICE_DIR}/:ssl-tools/assets/md5${JSONSSL_FILE}.md5"
+    fi
+    
+fi
+
+log-helper info "Auto-renew finished! Champagne!"

@@ -1,0 +1,238 @@
+#!/bin/bash
+log-helper level eq trace && set -x
+
+# This tool helps to generate tls certificates with cfssl
+# It takes cfssl configuration from environment variable.
+# See cfssl-default-env file
+
+PREFIX=$1
+CERT_FILE=$2
+KEY_FILE=$3
+CA_FILE=$4
+
+log-helper debug "cfssl-helper is launched, everybody on the floor!"
+
+# before 0.2.5 retro compatibility, will be removed.
+mkdir -p "${CONTAINER_SERVICE_DIR}/:cfssl/assets/default-ca"
+ln -sf "${CONTAINER_SERVICE_DIR}/:ssl-tools/assets/default-ca/default-ca.pem" "${CONTAINER_SERVICE_DIR}/:cfssl/assets/default-ca/default-ca.pem"
+
+if [ -z "${PREFIX}" ] || [ -z "${CERT_FILE}" ] || [ -z "${KEY_FILE}" ] || [ -z "${CA_FILE}" ]; then
+    log-helper error "Usage: cfssl-helper prefix cert_file key_file ca_file"
+    exit 1
+fi
+
+if [ ! -e "${CERT_FILE}" ] && [ ! -e "${KEY_FILE}" ]; then
+    
+    log-helper info "No certificate file and certificate key provided, generate:"
+    log-helper info "${CERT_FILE} and ${KEY_FILE}"
+    
+    LOG_LEVEL_PARAM=""
+    
+    case ${CONTAINER_LOG_LEVEL} in
+        0 )
+        LOG_LEVEL_PARAM="-loglevel 4";;
+        1 )
+        LOG_LEVEL_PARAM="-loglevel 3";;
+        2 )
+        LOG_LEVEL_PARAM="-loglevel 2";;
+        3 )
+        LOG_LEVEL_PARAM="-loglevel 1";;
+        4 )
+        LOG_LEVEL_PARAM="-loglevel 0";;
+        5 )
+        LOG_LEVEL_PARAM="-loglevel 0";;
+    esac
+    
+    # set env vars
+    PREFIX=${PREFIX^^} # uppercase
+    
+    # search for prefixed env var first
+    
+    # set prefix variable name
+    # example : PREFIX_CFSSL_REMOTE='MARIADB_CFSSL_REMOTE'
+    PREFIX_CFSSL_REMOTE=${PREFIX}_CFSSL_REMOTE
+    PREFIX_CFSSL_REMOTE_HTTPS_CA_CERT=${PREFIX}_CFSSL_REMOTE_HTTPS_CA_CERT
+    PREFIX_CFSSL_CA_CERT=${PREFIX}_CFSSL_CA_CERT
+    PREFIX_CFSSL_CA_KEY=${PREFIX}_CFSSL_CA_KEY
+    PREFIX_CFSSL_CSR=${PREFIX}_CFSSL_CSR
+    PREFIX_CFSSL_CSR_JSON=${PREFIX}_CFSSL_CSR_JSON
+    PREFIX_CFSSL_CONFIG=${PREFIX}_CFSSL_CONFIG
+    PREFIX_CFSSL_CONFIG_JSON=${PREFIX}_CFSSL_CONFIG_JSON
+    PREFIX_CFSSL_HOSTNAME=${PREFIX}_CFSSL_HOSTNAME
+    PREFIX_CFSSL_PROFILE=${PREFIX}_CFSSL_PROFILE
+    PREFIX_CFSSL_LABEL=${PREFIX}_CFSSL_LABEL
+    PREFIX_CFSSL_RETRY=${PREFIX}_CFSSL_RETRY
+    PREFIX_CFSSL_RETRY_DELAY=${PREFIX}_CFSSL_RETRY_DELAY
+    
+    # assign CFSSL_REMOTE=${!PREFIX_CFSSL_REMOTE} if value is not empty otherwise CFSSL_REMOTE=CFSSL_REMOTE
+    CFSSL_REMOTE=${!PREFIX_CFSSL_REMOTE:-$CFSSL_REMOTE}
+    CFSSL_REMOTE_HTTPS_CA_CERT=${!PREFIX_CFSSL_REMOTE_HTTPS_CA_CERT:-$CFSSL_REMOTE_HTTPS_CA_CERT}
+    CFSSL_CA_CERT=${!PREFIX_CFSSL_CA_CERT:-$CFSSL_CA_CERT}
+    CFSSL_CA_KEY=${!PREFIX_CFSSL_CA_KEY:-$CFSSL_CA_KEY}
+    CFSSL_CSR=${!PREFIX_CFSSL_CSR:-$CFSSL_CSR}
+    CFSSL_CSR_JSON=${!PREFIX_CFSSL_CSR_JSON:-$CFSSL_CSR_JSON}
+    CFSSL_CONFIG=${!PREFIX_CFSSL_CONFIG:-$CFSSL_CONFIG}
+    CFSSL_CONFIG_JSON=${!PREFIX_CFSSL_CONFIG_JSON:-$CFSSL_CONFIG_JSON}
+    CFSSL_HOSTNAME=${!PREFIX_CFSSL_HOSTNAME:-$CFSSL_HOSTNAME}
+    CFSSL_PROFILE=${!PREFIX_CFSSL_PROFILE:-$CFSSL_PROFILE}
+    CFSSL_LABEL=${!PREFIX_CFSSL_LABEL:-$CFSSL_LABEL}
+    CFSSL_RETRY=${!PREFIX_CFSSL_RETRY:-$CFSSL_RETRY}
+    CFSSL_RETRY_DELAY=${!PREFIX_CFSSL_RETRY_DELAY:-$CFSSL_RETRY_DELAY}
+    
+    source "${CONTAINER_SERVICE_DIR}/:ssl-tools/assets/cfssl-default-env"
+    
+    # set csr file
+    CSR_FILE="/tmp/csr-file"
+    if [ -n "${CFSSL_CSR_JSON}" ]; then
+        log-helper debug "use CFSSL_CSR_JSON value as csr file"
+        echo "${CFSSL_CSR_JSON}" > "${CSR_FILE}"
+        elif [ -n "${CFSSL_CSR}" ]; then
+        log-helper debug "use ${CFSSL_CSR} as csr file"
+        cp -f "${CFSSL_CSR}" "${CSR_FILE}"
+        
+        # it's the default csr
+        if [ "${CFSSL_CSR}" = "${CFSSL_DEFAULT_CSR}" ]; then
+            sed -i "s|{{ CFSSL_DEFAULT_CA_CSR_CN }}|${CFSSL_DEFAULT_CA_CSR_CN}|g" "${CSR_FILE}"
+            sed -i "s|{{ CFSSL_DEFAULT_CA_CSR_KEY_ALGO }}|${CFSSL_DEFAULT_CA_CSR_KEY_ALGO}|g" "${CSR_FILE}"
+            sed -i "s|{{ CFSSL_DEFAULT_CA_CSR_KEY_SIZE }}|${CFSSL_DEFAULT_CA_CSR_KEY_SIZE}|g" "${CSR_FILE}"
+            sed -i "s|{{ CFSSL_CERT_ORGANIZATION_UNIT }}|${CFSSL_CERT_ORGANIZATION_UNIT}|g" "${CSR_FILE}"
+            sed -i "s|{{ CFSSL_DEFAULT_CA_CSR_ORGANIZATION }}|${CFSSL_DEFAULT_CA_CSR_ORGANIZATION}|g" "${CSR_FILE}"
+            sed -i "s|{{ CFSSL_DEFAULT_CA_CSR_ORGANIZATION_UNIT }}|${CFSSL_DEFAULT_CA_CSR_ORGANIZATION_UNIT}|g" "${CSR_FILE}"
+            sed -i "s|{{ CFSSL_DEFAULT_CA_CSR_LOCATION }}|${CFSSL_DEFAULT_CA_CSR_LOCATION}|g" "${CSR_FILE}"
+            sed -i "s|{{ CFSSL_DEFAULT_CA_CSR_STATE }}|${CFSSL_DEFAULT_CA_CSR_STATE}|g" "${CSR_FILE}"
+            sed -i "s|{{ CFSSL_DEFAULT_CA_CSR_COUNTRY }}|${CFSSL_DEFAULT_CA_CSR_COUNTRY}|g" "${CSR_FILE}"
+        fi
+    else
+        log-helper error "error: no csr file provided"
+        log-helper error "CFSSL_CSR_JSON and CFSSL_CSR are empty"
+        exit 1
+    fi
+    
+    # generate cert
+    CONFIG_FILE="/tmp/config-file"
+    CERT_NAME="cert"
+    
+    REMOTE_PARAM=""
+    CA_CERT_PARAM=""
+    CA_KEY_PARAM=""
+    CONFIG_PARAM=""
+    HOSTNAME_PARAM=""
+    PROFILE_PARAM=""
+    LABEL_PARAM=""
+    
+    if [ -n "${CFSSL_REMOTE}" ]; then
+        REMOTE_PARAM="-remote=${CFSSL_REMOTE}"
+        
+        # add remote https ca cert to known certificates if not empty
+        if [ -n "${CFSSL_REMOTE_HTTPS_CA_CERT}" ]; then
+            if [ -e "${CFSSL_REMOTE_HTTPS_CA_CERT}" ]; then
+                [[ ! -d "/etc/ssl/certs/" ]] && mkdir -p /etc/ssl/certs/
+                cat "${CFSSL_REMOTE_HTTPS_CA_CERT}" >> /etc/ssl/certs/ca-certificates.crt
+            else
+                log-helper error "error: remote https ca cert file ${CFSSL_REMOTE_HTTPS_CA_CERT} not found"
+            fi
+        fi
+        
+    else
+        
+        # files path with : may cause issue with cfssl tools due to :
+        # ReadBytes - https://github.com/cloudflare/cfssl/blob/master/helpers/helpers.go#L573
+        # : is used to split env from file path
+        # so we copy ca cert and key to tmp
+        if [ -n "${CFSSL_CA_CERT}" ]; then
+            
+            CFSSL_CA_CERT_FILE="/tmp/ca-cert-file"
+            cp -f "${CFSSL_CA_CERT}" "${CFSSL_CA_CERT_FILE}"
+            chmod 644 "${CFSSL_CA_CERT_FILE}"
+            
+            CA_CERT_PARAM="-ca ${CFSSL_CA_CERT_FILE}"
+        fi
+        
+        if [ -n "${CFSSL_CA_KEY}" ]; then
+            
+            CFSSL_CA_KEY_FILE="/tmp/ca-key-file"
+            cp -f "${CFSSL_CA_KEY}" "${CFSSL_CA_KEY_FILE}"
+            chmod 600 "${CFSSL_CA_CERT_FILE}"
+            
+            CA_KEY_PARAM="-ca-key ${CFSSL_CA_KEY_FILE}"
+        fi
+        
+    fi
+    
+    if [ -n "${CFSSL_CONFIG_JSON}" ]; then
+        log-helper debug "use CFSSL_CONFIG_JSON value as config file"
+        echo "${CFSSL_CONFIG_JSON}" > "${CONFIG_FILE}"
+        CONFIG_PARAM="-config ${CONFIG_FILE}"
+        
+        elif [ -n "${CFSSL_CONFIG}" ]; then
+        log-helper debug "use ${CFSSL_CONFIG} as config file"
+        cp -f "${CFSSL_CONFIG}" "${CONFIG_FILE}"
+        CONFIG_PARAM="-config ${CONFIG_FILE}"
+    fi
+
+    if [ -n "$ADDITIONAL_HOSTNAMES" ]; then
+        log-helper debug "additional hostnames found"
+        CFSSL_HOSTNAME="${CFSSL_HOSTNAME},${ADDITIONAL_HOSTNAMES}"
+    fi
+    
+    [[ -n "${CFSSL_HOSTNAME}" ]] && HOSTNAME_PARAM="-hostname ${CFSSL_HOSTNAME}"
+    [[ -n "${CFSSL_PROFILE}" ]] && PROFILE_PARAM="-profile ${CFSSL_PROFILE}"
+    [[ -n "${CFSSL_LABEL}" ]] && LABEL_PARAM="-label ${CFSSL_LABEL}"
+    
+    retry=0
+    while [  $retry -lt "${CFSSL_RETRY}" ]; do
+        log-helper debug "cfssl gencert ${LOG_LEVEL_PARAM} ${REMOTE_PARAM} ${CA_CERT_PARAM} ${CA_KEY_PARAM} ${CONFIG_PARAM} ${HOSTNAME_PARAM} ${PROFILE_PARAM} ${LABEL_PARAM} ${CSR_FILE} | cfssljson -bare /tmp/${CERT_NAME}"
+        eval cfssl gencert "${LOG_LEVEL_PARAM}" "${REMOTE_PARAM}" "${CA_CERT_PARAM}" "${CA_KEY_PARAM}" "${CONFIG_PARAM}" "${HOSTNAME_PARAM}" "${PROFILE_PARAM}" "${LABEL_PARAM}" "${CSR_FILE}" | cfssljson -bare "/tmp/${CERT_NAME}" && break
+        sleep "${CFSSL_RETRY_DELAY}"
+        ((retry++))
+    done
+    
+    # move generated files
+    [[ ! -e "/tmp/${CERT_NAME}.pem" ]] && exit 1
+    log-helper debug "move /tmp/${CERT_NAME}.pem to ${CERT_FILE}"
+    mv "/tmp/${CERT_NAME}.pem" "${CERT_FILE}"
+    
+    log-helper debug "move /tmp/${CERT_NAME}-key.pem to ${KEY_FILE}"
+    mv "/tmp/${CERT_NAME}-key.pem" "${KEY_FILE}"
+    
+    # if ca file don't exists
+    if [ ! -e "${CA_FILE}" ]; then
+        
+        if [ -n "${CFSSL_REMOTE}" ]; then
+            log-helper debug "Get CA certificate from ${CFSSL_REMOTE}"
+            
+            retry=0
+            while [  $retry -lt "${CFSSL_RETRY}" ]; do
+                log-helper debug "cfssl info ${LOG_LEVEL_PARAM} ${REMOTE_PARAM} ${CONFIG_PARAM} ${PROFILE_PARAM} ${LABEL_PARAM}"
+                eval cfssl info "${LOG_LEVEL_PARAM}" "${REMOTE_PARAM}" "${CONFIG_PARAM}" "${PROFILE_PARAM}" "${LABEL_PARAM}" | sed -e "s/.*certificate\":\"\(.*-----\)\".*/\1/g" | sed 's/\\n/\n/g' > "${CA_FILE}" && log-helper debug "CA certificate returned save as ${CA_FILE}" && break
+                sleep "${CFSSL_RETRY_DELAY}"
+                ((retry++))
+            done
+            
+            [[ ! -e "${CA_FILE}" ]] && exit 1
+            
+            elif [ -n "${CFSSL_CA_CERT}" ]; then
+            log-helper info "Link ${CFSSL_CA_CERT} to ${CA_FILE}"
+            ln -sf "${CFSSL_CA_CERT}" "${CA_FILE}"
+        fi
+        
+    fi
+    
+    # delete tmp files
+    rm -f /tmp/${CERT_NAME}.csr ${CONFIG_FILE} "${CSR_FILE}"
+    [[ -e "${CFSSL_CA_CERT_FILE}" ]] && rm "${CFSSL_CA_CERT_FILE}"
+    [[ -e "${CFSSL_CA_KEY_FILE}" ]] && rm "${CFSSL_CA_KEY_FILE}"
+    
+    log-helper debug "done :)"
+    
+    elif [ ! -e "${KEY_FILE}" ]; then
+    log-helper error "Certificate file ${CERT_FILE} exists but not key file ${KEY_FILE}"
+    exit 1
+    elif [ ! -e "${CERT_FILE}" ]; then
+    log-helper error "Key file ${KEY_FILE} exists but not certificate file ${CERT_FILE}"
+    exit 1
+else
+    log-helper debug "Files ${CERT_FILE} and ${KEY_FILE} exists, fix files permissions"
+    chmod 644 "${CERT_FILE}"
+    chmod 600 "${KEY_FILE}"
+fi

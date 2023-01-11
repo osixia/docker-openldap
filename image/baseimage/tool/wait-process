@@ -1,0 +1,18 @@
+#!/bin/sh -e
+
+# wait startup to finish
+log-helper debug "Waits until startup is complete..."
+while ! test -f /container/run/state/startup-done
+do
+    sleep 0.5
+done
+
+for process in "$@"
+do
+    # wait service
+    log-helper debug "Waits for process ${process} to be started..."
+    while ! pgrep -c "${process}" > /dev/null
+    do
+        sleep 0.5
+    done
+done
