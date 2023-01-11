@@ -3,7 +3,7 @@
 ##FROM osixia/light-baseimage:1.3.2
 FROM debian:buster-slim AS baseimage
 
-COPY ./baseimage /container
+COPY baseimage /container
 RUN /container/build.sh
 
 ENV LANG="en_US.UTF-8" \
