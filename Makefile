@@ -6,19 +6,19 @@ PREFIX = artifactory.shared-backend.dev.ue1.aws.okcupid.com:443/artifactory/ops-
 .PHONY: build build-nocache test tag-latest push push-latest release git-tag-version
 
 build:
-	docker build -t $(PREFIX)$(NAME):$(VERSION) --rm image
+	docker build -t $(NAME):$(VERSION) --rm image
 
 build-nocache:
-	docker build -t $(PREFIX)$(NAME):$(VERSION) --no-cache --rm image
+	docker build -t $(NAME):$(VERSION) --no-cache --rm image
 
 test:
 	env NAME=$(NAME) VERSION=$(VERSION) bats test/test.bats
 
 tag:
-	docker tag $(PREFIX)$(NAME):$(VERSION) $(PREFIX)$(NAME):$(VERSION)
+	docker tag $(NAME):$(VERSION) $(PREFIX)$(NAME):$(VERSION)
 
 tag-latest:
-	docker tag $(PREFIX)$(NAME):$(VERSION) $(PREFIX)$(NAME):latest
+	docker tag $(NAME):$(VERSION) $(PREFIX)$(NAME):latest
 
 push:
 	docker push $(PREFIX)$(NAME):$(VERSION)
