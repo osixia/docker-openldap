@@ -1,6 +1,7 @@
-# Use osixia/light-baseimage
+# Don't use osixia/light-baseimage
 # sources: https://github.com/osixia/docker-light-baseimage
-FROM osixia/light-baseimage:1.3.2
+##FROM osixia/light-baseimage:1.3.2
+FROM debian:11-slim
 
 ARG OPENLDAP_PACKAGE_VERSION=2.4.57
 

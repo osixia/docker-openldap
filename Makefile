@@ -1,28 +1,30 @@
-NAME = osixia/openldap
-VERSION = 1.5.0
+#NAME = okcupid/openldap
+NAME = okldap
+VERSION = 0.0.0
+PREFIX = https://artifactory.shared-backend.dev.ue1.aws.okcupid.com/artifactory/ops-docker-dev-local/
 
 .PHONY: build build-nocache test tag-latest push push-latest release git-tag-version
 
 build:
-	docker build -t $(NAME):$(VERSION) --rm image
+	docker build -t $(PREFIX)$(NAME):$(VERSION) --rm image
 
 build-nocache:
-	docker build -t $(NAME):$(VERSION) --no-cache --rm image
+	docker build -t $(PREFIX)$(NAME):$(VERSION) --no-cache --rm image
 
 test:
 	env NAME=$(NAME) VERSION=$(VERSION) bats test/test.bats
 
 tag:
-	docker tag $(NAME):$(VERSION) $(NAME):$(VERSION)
+	docker tag $(PREFIX)$(NAME):$(VERSION) $(NAME):$(VERSION)
 
 tag-latest:
-	docker tag $(NAME):$(VERSION) $(NAME):latest
+	docker tag $(PREFIX)$(NAME):$(VERSION) $(NAME):latest
 
 push:
-	docker push $(NAME):$(VERSION)
+	docker push $(PREFIX)$(NAME):$(VERSION)
 
 push-latest:
-	docker push $(NAME):latest
+	docker push $(PREFIX)$(NAME):latest
 
 release: build test tag-latest push push-latest
 
