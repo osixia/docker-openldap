@@ -1,9 +1,5 @@
 # okcupid/openldap
-_based on work by [osixia](https://github.com/osixia):_
-
-[![Docker Pulls](https://img.shields.io/docker/pulls/osixia/openldap.svg)](https://hub.docker.com/r/osixia/openldap/)
-[![Docker Stars](https://img.shields.io/docker/stars/osixia/openldap.svg)](https://hub.docker.com/r/osixia/openldap/)
-[![Layers](https://images.microbadger.com/badges/image/osixia/openldap.svg)](https://hub.docker.com/r/osixia/openldap/)
+_based on work by [osixia](https://github.com/osixia)_
 
 Latest upstream release: ???
 
