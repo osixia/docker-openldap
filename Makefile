@@ -1,7 +1,7 @@
 #NAME = okcupid/openldap
 NAME = okldap
 VERSION = 0.0.1
-PREFIX = artifactory.shared-backend.dev.ue1.aws.okcupid.com:443/ops-docker-dev-local/
+PREFIX = wa1okrep000.wa1.okc.iacp.dc:443/ops-docker-test-local/
 
 .PHONY: build build-nocache test tag-latest push push-latest release git-tag-version
 
