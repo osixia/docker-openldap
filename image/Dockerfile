@@ -1,7 +1,7 @@
 # Don't use osixia/light-baseimage
 # sources: https://github.com/osixia/docker-light-baseimage
 ##FROM osixia/light-baseimage:1.3.2
-FROM debian:buster-slim AS baseimage
+FROM artifactory.shared-backend.dev.ue1.aws.okcupid.com:443/docker-remote/debian:buster-slim AS baseimage
 
 COPY baseimage /container
 RUN /container/build.sh
