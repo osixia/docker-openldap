@@ -1,8 +1,8 @@
 #NAME = okcupid/openldap
 NAME = okldap
 VERSION = 0.0.3
-PREFIX = wa1okrep000.wa1.okc.iacp.dc:443/ops-docker-test-local/
-
+PREFIX_HOST = wa1okrep000.wa1.okc.iacp.dc:443
+PREFIX_PATH = /ops-docker-test-local/
 .PHONY: build build-nocache login test tag-latest push push-latest release release-risky release-test git-tag-version
 
 build:
@@ -12,22 +12,22 @@ build-nocache:
 	docker build -t $(NAME):$(VERSION) --no-cache --rm image
 
 login:
-	docker login -u $(USER) artifactory.shared-backend.dev.ue1.aws.okcupid.com:443
+	docker login -u $(USER) $(PREFIX_HOST)
 
 test:
 	env NAME=$(NAME) VERSION=$(VERSION) bats test/test.bats
 
 tag:
-	docker tag $(NAME):$(VERSION) $(PREFIX)$(NAME):$(VERSION)
+	docker tag $(NAME):$(VERSION) $(PREFIX_HOST)$(PREFIX_PATH)$(NAME):$(VERSION)
 
 tag-latest:
-	docker tag $(NAME):$(VERSION) $(PREFIX)$(NAME):latest
+	docker tag $(NAME):$(VERSION) $(PREFIX_HOST)$(PREFIX_PATH)$(NAME):latest
 
 push:
-	docker push $(PREFIX)$(NAME):$(VERSION)
+	docker push $(PREFIX_HOST)$(PREFIX_PATH)$(NAME):$(VERSION)
 
 push-latest:
-	docker push $(PREFIX)$(NAME):latest
+	docker push $(PREFIX_HOST)$(PREFIX_PATH)$(NAME):latest
 
 release: build test tag-latest push push-latest
 
