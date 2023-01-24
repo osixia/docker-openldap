@@ -29,9 +29,9 @@ push:
 push-latest:
 	docker push $(PREFIX_HOST)$(PREFIX_PATH)$(NAME):latest
 
-release: build test tag-latest push push-latest
+release: build test tag tag-latest push push-latest
 
-release-risky: build tag-latest login push push-latest
+release-risky: build tag tag-latest login push push-latest
 
 release-test: build push
 
