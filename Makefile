@@ -3,7 +3,7 @@ NAME = okldap
 VERSION = 0.0.1
 PREFIX = wa1okrep000.wa1.okc.iacp.dc:443/ops-docker-test-local/
 
-.PHONY: build build-nocache test tag-latest push push-latest release git-tag-version
+.PHONY: build build-nocache test tag-latest push push-latest release release-risky release-test git-tag-version
 
 build:
 	docker build -t $(NAME):$(VERSION) --rm image
@@ -27,6 +27,8 @@ push-latest:
 	docker push $(PREFIX)$(NAME):latest
 
 release: build test tag-latest push push-latest
+
+release-risky: build tag-latest push push-latest
 
 release-test: build push
 
