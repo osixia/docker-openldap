@@ -3,13 +3,16 @@ NAME = okldap
 VERSION = 0.0.3
 PREFIX = wa1okrep000.wa1.okc.iacp.dc:443/ops-docker-test-local/
 
-.PHONY: build build-nocache test tag-latest push push-latest release release-risky release-test git-tag-version
+.PHONY: build build-nocache login test tag-latest push push-latest release release-risky release-test git-tag-version
 
 build:
 	docker build -t $(NAME):$(VERSION) --rm image
 
 build-nocache:
 	docker build -t $(NAME):$(VERSION) --no-cache --rm image
+
+login:
+	docker login -u $(USER) artifactory.shared-backend.dev.ue1.aws.okcupid.com:443
 
 test:
 	env NAME=$(NAME) VERSION=$(VERSION) bats test/test.bats
