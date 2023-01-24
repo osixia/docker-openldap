@@ -31,7 +31,7 @@ push-latest:
 
 release: build test tag tag-latest push push-latest
 
-release-risky: build tag tag-latest login push push-latest
+release-risky: build tag tag-latest push push-latest
 
 release-test: build push
 
