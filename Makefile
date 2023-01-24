@@ -1,8 +1,7 @@
 #NAME = okcupid/openldap
 NAME = okldap
-VERSION = 0.0.3
-PREFIX_HOST = 
-artifactory.shared-backend.dev.ue1.aws.okcupid.com:443/ops-docker-dev-local/raybot
+VERSION = 0.0.4
+PREFIX_HOST = wa1okrep000.wa1.okc.iacp.dc:443
 PREFIX_PATH = /ops-docker-test-local/
 .PHONY: build build-nocache login test tag-latest push push-latest release release-risky release-test git-tag-version
 
@@ -32,7 +31,7 @@ push-latest:
 
 release: build test tag-latest push push-latest
 
-release-risky: build tag tag-latest login push push-latest
+release-risky: build tag-latest login push push-latest
 
 release-test: build push
 
