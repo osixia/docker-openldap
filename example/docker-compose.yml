@@ -1,13 +1,13 @@
-version: '2'
+version: '3.7'
 services:
-  openldap:
-    image: osixia/openldap:1.5.0
-    container_name: openldap
+  master:
+    image: osixia/openldap:latest
     environment:
+      HOSTNAME: "master.xpto.local"
       LDAP_LOG_LEVEL: "256"
-      LDAP_ORGANISATION: "Example Inc."
-      LDAP_DOMAIN: "example.org"
-      LDAP_BASE_DN: ""
+      LDAP_ORGANISATION: "xpto"
+      LDAP_DOMAIN: "xpto.local"
+      LDAP_BASE_DN: "cn=admin,dc=xpto,dc=local"
       LDAP_ADMIN_PASSWORD: "admin"
       LDAP_CONFIG_PASSWORD: "config"
       LDAP_READONLY_USER: "false"
@@ -16,41 +16,107 @@ services:
       LDAP_RFC2307BIS_SCHEMA: "false"
       LDAP_BACKEND: "mdb"
       LDAP_TLS: "true"
-      LDAP_TLS_CRT_FILENAME: "ldap.crt"
-      LDAP_TLS_KEY_FILENAME: "ldap.key"
-      LDAP_TLS_DH_PARAM_FILENAME: "dhparam.pem"
-      LDAP_TLS_CA_CRT_FILENAME: "ca.crt"
+      #LDAP_TLS_CRT_FILENAME: "commercial.crt"
+      #LDAP_TLS_KEY_FILENAME: "commercial.key"
+      #LDAP_TLS_CA_CRT_FILENAME: "commercial_ca.crt"
       LDAP_TLS_ENFORCE: "false"
       LDAP_TLS_CIPHER_SUITE: "SECURE256:-VERS-SSL3.0"
-      LDAP_TLS_VERIFY_CLIENT: "demand"
-      LDAP_REPLICATION: "false"
-      #LDAP_REPLICATION_CONFIG_SYNCPROV: 'binddn="cn=admin,cn=config" bindmethod=simple credentials="$$LDAP_CONFIG_PASSWORD" searchbase="cn=config" type=refreshAndPersist retry="60 +" timeout=1 starttls=critical'
-      #LDAP_REPLICATION_DB_SYNCPROV: 'binddn="cn=admin,$$LDAP_BASE_DN" bindmethod=simple credentials="$$LDAP_ADMIN_PASSWORD" searchbase="$$LDAP_BASE_DN" type=refreshAndPersist interval=00:00:00:10 retry="60 +" timeout=1 starttls=critical'
-      #LDAP_REPLICATION_HOSTS: "#PYTHON2BASH:['ldap://ldap.example.org','ldap://ldap2.example.org']"
+      LDAP_TLS_PROTOCOL_MIN: "3.1"
+      LDAP_TLS_VERIFY_CLIENT: "never"
+      LDAP_REPLICATION: "true"
+      LDAP_REPLICATION_CONFIG_SYNCPROV: binddn="cn=admin,cn=config" bindmethod=simple credentials=config searchbase="cn=config" type=refreshAndPersist retry="60 +" timeout=1 starttls=critical tls_reqcert=never
+      LDAP_REPLICATION_DB_SYNCPROV: binddn="cn=admin,dc=xpto,dc=local" bindmethod=simple credentials=admin searchbase="dc=xpto,dc=local" type=refreshAndPersist interval=00:00:00:10 retry="60 +" timeout=1 starttls=critical tls_reqcert=never
+      LDAP_REPLICATION_HOSTS: "#PYTHON2BASH:['ldap://master.xpto.local','ldap://primary.xpto.local','ldap://secundary.xpto.local']"
       KEEP_EXISTING_CONFIG: "false"
       LDAP_REMOVE_CONFIG_AFTER_SETUP: "true"
       LDAP_SSL_HELPER_PREFIX: "ldap"
-    tty: true
-    stdin_open: true
-    volumes:
-      - /var/lib/ldap
-      - /etc/ldap/slapd.d
-      - /container/service/slapd/assets/certs/
+   # volumes:
+    #  - /var/lib/ldap
+    #  - /etc/ldap/slapd.d
+    #  - /certs:/container/service/slapd/assets/certs/
     ports:
-      - "389:389"
-      - "636:636"
-    # For replication to work correctly, domainname and hostname must be
-    # set correctly so that "hostname"."domainname" equates to the
-    # fully-qualified domain name for the host.
-    domainname: "example.org"
-    hostname: "ldap-server"
+      - "42989:389" 
+      - "42996:636"
+    hostname: "master.xpto.local"
+  primary:
+    image: osixia/openldap:latest
+    environment:
+      HOSTNAME: "primary.xpto.local"
+      LDAP_LOG_LEVEL: "256"
+      LDAP_ORGANISATION: "xpto"
+      LDAP_DOMAIN: "xpto.local"
+      LDAP_BASE_DN: "cn=admin,dc=xpto,dc=local"
+      LDAP_ADMIN_PASSWORD: "admin"
+      LDAP_CONFIG_PASSWORD: "config"
+      LDAP_READONLY_USER: "false"
+      #LDAP_READONLY_USER_USERNAME: "readonly"
+      #LDAP_READONLY_USER_PASSWORD: "readonly"
+      LDAP_RFC2307BIS_SCHEMA: "false"
+      LDAP_BACKEND: "mdb"
+      LDAP_TLS: "true"
+      #LDAP_TLS_CRT_FILENAME: "commercial.crt"
+      #LDAP_TLS_KEY_FILENAME: "commercial.key"
+      #LDAP_TLS_CA_CRT_FILENAME: "commercial_ca.crt"
+      LDAP_TLS_ENFORCE: "false"
+      LDAP_TLS_CIPHER_SUITE: "SECURE256:-VERS-SSL3.0"
+      LDAP_TLS_PROTOCOL_MIN: "3.1"
+      LDAP_TLS_VERIFY_CLIENT: "never"
+      LDAP_REPLICATION: "true"
+      LDAP_REPLICATION_CONFIG_SYNCPROV: binddn="cn=admin,cn=config" bindmethod=simple credentials=config searchbase="cn=config" type=refreshAndPersist retry="60 +" timeout=1 starttls=critical tls_reqcert=never
+      LDAP_REPLICATION_DB_SYNCPROV: binddn="cn=admin,dc=xpto,dc=local" bindmethod=simple credentials=admin searchbase="dc=xpto,dc=local" type=refreshAndPersist interval=00:00:00:10 retry="60 +" timeout=1 starttls=critical tls_reqcert=never
+      LDAP_REPLICATION_HOSTS: "#PYTHON2BASH:['ldap://master.xpto.local','ldap://primary.xpto.local','ldap://secundary.xpto.local']"
+      KEEP_EXISTING_CONFIG: "false"
+      LDAP_REMOVE_CONFIG_AFTER_SETUP: "true"
+      LDAP_SSL_HELPER_PREFIX: "ldap"
+       # - /var/lib/ldap
+     # - /etc/ldap/slapd.d
+     # - /certs:/container/service/slapd/assets/certs/
+    ports:
+      - "42990:389"
+      - "42997:636"
+    hostname: "primary.xpto.local"
+  secundary:
+    image: osixia/openldap:latest
+    environment:
+      HOSTNAME: "secundary.xpto.local"
+      LDAP_LOG_LEVEL: "256"
+      LDAP_ORGANISATION: "xpto"
+      LDAP_DOMAIN: "xpto.local"
+      LDAP_BASE_DN: "cn=admin,dc=xpto,dc=local"
+      LDAP_ADMIN_PASSWORD: "admin"
+      LDAP_CONFIG_PASSWORD: "config"
+      LDAP_READONLY_USER: "false"
+      #LDAP_READONLY_USER_USERNAME: "readonly"
+      #LDAP_READONLY_USER_PASSWORD: "readonly"
+      LDAP_RFC2307BIS_SCHEMA: "false"
+      LDAP_BACKEND: "mdb"
+      LDAP_TLS: "true"
+      #LDAP_TLS_CRT_FILENAME: "commercial.crt"
+      #LDAP_TLS_KEY_FILENAME: "commercial.key"
+      #LDAP_TLS_CA_CRT_FILENAME: "commercial_ca.crt"
+      LDAP_TLS_ENFORCE: "false"
+      LDAP_TLS_CIPHER_SUITE: "SECURE256:-VERS-SSL3.0"
+      LDAP_TLS_PROTOCOL_MIN: "3.1"
+      LDAP_TLS_VERIFY_CLIENT: "never"
+      LDAP_REPLICATION: "true"
+      LDAP_REPLICATION_CONFIG_SYNCPROV: binddn="cn=admin,cn=config" bindmethod=simple credentials=config searchbase="cn=config" type=refreshAndPersist retry="60 +" timeout=1 starttls=critical tls_reqcert=never
+      LDAP_REPLICATION_DB_SYNCPROV: binddn="cn=admin,dc=xpto,dc=local" bindmethod=simple credentials=admin searchbase="dc=xpto,dc=local" type=refreshAndPersist interval=00:00:00:10 retry="60 +" timeout=1 starttls=critical tls_reqcert=never
+      LDAP_REPLICATION_HOSTS: "#PYTHON2BASH:['ldap://master.xpto.local','ldap://primary.xpto.local','ldap://secundary.xpto.local']"
+      KEEP_EXISTING_CONFIG: "false"
+      LDAP_REMOVE_CONFIG_AFTER_SETUP: "true"
+      LDAP_SSL_HELPER_PREFIX: "ldap"
+    #volumes:
+     # - /var/lib/ldap
+     # - /etc/ldap/slapd.d
+     # - /certs:/container/service/slapd/assets/certs/
+    ports:
+      - "42991:389"
+      - "42998:636"
+    hostname: "secundary.xpto.local"
   phpldapadmin:
     image: osixia/phpldapadmin:latest
-    container_name: phpldapadmin
     environment:
-      PHPLDAPADMIN_LDAP_HOSTS: "openldap"
+      PHPLDAPADMIN_LDAP_HOSTS: "#PYTHON2BASH:['master','primary','secunday']"
       PHPLDAPADMIN_HTTPS: "false"
     ports:
-      - "8080:80"
-    depends_on:
-      - openldap
+      - "42980:80"
